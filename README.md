@@ -6,7 +6,21 @@
 
 To generate resources use:
 
-```npm .```
+
+```
+git clone https://github.com/gajjartejas/gujarati-language-gen.git
+cd gujarati-language-gen
+node .
+```
+
+This will produce svg and csv files for kakko and barakhadi.
+
+## Download
+
+You can find generated svg and csv files from release section.
+
+[Download](https://github.com/gajjartejas/gujarati-language-gen/releases/latest/download/resources.zip)
+
 
 ## Gujarati Barakhadi | ગુજરાતી બારાખડી
 
@@ -133,6 +147,11 @@ To generate resources use:
 |42 |ઐ   |Ai  |
 |43 |ઓ   |O   |
 |44 |અં  |Am  |
+
+## TODO
+1. Create JSON rest api for kakko and barakhadi.
+2. Add sounds for each chars in api.
+3. Add svg char in api.
 
 ## License
 
