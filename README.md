@@ -10,10 +10,11 @@ To generate resources use:
 ```
 git clone https://github.com/gajjartejas/gujarati-language-gen.git
 cd gujarati-language-gen
+npm install
 node .
 ```
 
-This will produce svg and csv files for kakko and barakhadi.
+This will produce svg and csv files for kakko, barakhadi and numbers.
 
 ## Download
 
@@ -99,7 +100,7 @@ You can find generated svg and csv files from release section.
 |34 |Gy  |Gya |Gyi |Gyee |Gyu |Gyoo |Gye |Gyai |Gyo |Gyau |Gyam       |gyah   |
 
 
-## Gujarati Kakko | ગુજરાતી કક્કો
+## Gujarati Numbers | ગુજરાતી આંકડાઓ
 |1  |2   |3   |
 |---|----|----|
 |0  |ક   |Ka  |
@@ -147,6 +148,112 @@ You can find generated svg and csv files from release section.
 |42 |ઐ   |Ai  |
 |43 |ઓ   |O   |
 |44 |અં  |Am  |
+
+
+| id  | English | Gujarati | English Name | Gujarati Name |
+|-----|---------|----------|--------------|---------------|
+| 0   | 0       | ૦        | śūnya        | શૂન્ય         |
+| 1   | 1       | ૧        | ek           | એક            |
+| 2   | 2       | ૨        | be           | બે            |
+| 3   | 3       | ૩        | tra          | ત્રણ          |
+| 4   | 4       | ૪        | chār         | ચાર           |
+| 5   | 5       | ૫        | pāṅch        | પાંચ          |
+| 6   | 6       | ૬        | chha         | છ             |
+| 7   | 7       | ૭        | sāt          | સાત           |
+| 8   | 8       | ૮        | āṭh          | આઠ            |
+| 9   | 9       | ૯        | nav          | નવ            |
+| 10  | 10      | ૧૦       | das          | દસ            |
+| 11  | 11      | ૧૧       | agiyār       | અગિયાર        |
+| 12  | 12      | ૧૨       | bār          | બાર           |
+| 13  | 13      | ૧૩       | tēr          | તેર           |
+| 14  | 14      | ૧૪       | chaud        | ચૌદ           |
+| 15  | 15      | ૧૫       | paṃdar       | પંદર          |
+| 16  | 16      | ૧૬       | soļ          | સોળ           |
+| 17  | 17      | ૧૭       | sattar       | સત્તર         |
+| 18  | 18      | ૧૮       | aḑhār        | અઢાર          |
+| 19  | 19      | ૧૯       | ogaņis       | ઓગણિસ         |
+| 20  | 20      | ૨૦       | vīs          | વીસ           |
+| 21  | 21      | ૨૧       | ēkavīs       | એકવીસ         |
+| 22  | 22      | ૨૨       | bāvīs        | બાવીસ         |
+| 23  | 23      | ૨૩       | tēvīs        | તેવીસ         |
+| 24  | 24      | ૨૪       | chōvīs       | ચોવીસ         |
+| 25  | 25      | ૨૫       | pachchīs     | પચ્ચીસ        |
+| 26  | 26      | ૨૬       | chhavīs      | છવીસ          |
+| 27  | 27      | ૨૭       | sattāvīs     | સત્તાવીસ      |
+| 28  | 28      | ૨૮       | aṭhṭhāvīs    | અઠ્ઠાવીસ      |
+| 29  | 29      | ૨૯       | ōgaṇatrīs    | ઓગણત્રીસ      |
+| 30  | 30      | ૩૦       | trīs         | ત્રીસ         |
+| 31  | 31      | ૩૧       | ēkatrīs      | એકત્રીસ       |
+| 32  | 32      | ૩૨       | batrīs       | બત્રીસ        |
+| 33  | 33      | ૩૩       | tētrīs       | તેત્રીસ       |
+| 34  | 34      | ૩૪       | chōtrīs      | ચોત્રીસ       |
+| 35  | 35      | ૩૫       | pāntrīs      | પાંત્રીસ      |
+| 36  | 36      | ૩૬       | chhatrīs     | છત્રીસ        |
+| 37  | 37      | ૩૭       | saḍatrīs     | સડત્રીસ       |
+| 38  | 38      | ૩૮       | aḍatrīs      | અડત્રીસ       |
+| 39  | 39      | ૩૯       | ōgaṇachālīs  | ઓગણચાલીસ      |
+| 40  | 40      | ૪૦       | chālīs       | ચાલીસ         |
+| 41  | 41      | ૪૧       | ēkatālīs     | એકતાલીસ       |
+| 42  | 42      | ૪૨       | betālīs      | બેતાલીસ       |
+| 43  | 43      | ૪૩       | tretālīs     | ત્રેતાલીસ     |
+| 44  | 44      | ૪૪       | chun̄mālīs   | ચુંમાલીસ      |
+| 45  | 45      | ૪૫       | pistālīs     | પિસ્તાલીસ     |
+| 46  | 46      | ૪૬       | chhetālīs    | છેતાલીસ       |
+| 47  | 47      | ૪૭       | suḍatālīs    | સુડતાલીસ      |
+| 48  | 48      | ૪૮       | aḍatālīs     | અડતાલીસ       |
+| 49  | 49      | ૪૯       | ogaṇapachās  | ઓગણપચાસ       |
+| 50  | 50      | ૫૦       | pachās       | પચાસ          |
+| 51  | 51      | ૫૧       | ekāvan       | એકાવન         |
+| 52  | 52      | ૫૨       | bāvan        | બાવન          |
+| 53  | 53      | ૫૩       | trepan       | ત્રેપન        |
+| 54  | 54      | ૫૪       | chopan       | ચોપન          |
+| 55  | 55      | ૫૫       | pan̄chāvan   | પંચાવન        |
+| 56  | 56      | ૫૬       | chhappan     | છપ્પન         |
+| 57  | 57      | ૫૭       | sattāvan     | સત્તાવન       |
+| 58  | 58      | ૫૮       | aṭhṭhāvan    | અઠ્ઠાવન       |
+| 59  | 59      | ૫૯       | ogaṇasāṭh    | ઓગણસાઠ        |
+| 60  | 60      | ૬૦       | sāīṭh        | સાઈઠ          |
+| 61  | 61      | ૬૧       | ekasaṭh      | એકસઠ          |
+| 62  | 62      | ૬૨       | bāsaṭh       | બાસઠ          |
+| 63  | 63      | ૬૩       | tresaṭh      | ત્રેસઠ        |
+| 64  | 64      | ૬૪       | chosaṭh      | ચોસઠ          |
+| 65  | 65      | ૬૫       | pān̄saṭh     | પાંસઠ         |
+| 66  | 66      | ૬૬       | chhāsaṭh     | છાસઠ          |
+| 67  | 67      | ૬૭       | saḍasaṭh     | સડસઠ          |
+| 68  | 68      | ૬૮       | aḍasaṭh      | અડસઠ          |
+| 69  | 69      | ૬૯       | agaṇositter  | અગણોસિત્તેર   |
+| 70  | 70      | ૭૦       | sitter       | સિત્તેર       |
+| 71  | 71      | ૭૧       | ekoter       | એકોતેર        |
+| 72  | 72      | ૭૨       | boter        | બોતેર         |
+| 73  | 73      | ૭૩       | toter        | તોતેર         |
+| 74  | 74      | ૭૪       | chumoter     | ચુમોતેર       |
+| 75  | 75      | ૭૫       | pan̄choter   | પંચોતેર       |
+| 76  | 76      | ૭૬       | chhoter      | છોતેર         |
+| 77  | 77      | ૭૭       | sityoter     | સિત્યોતેર     |
+| 78  | 78      | ૭૮       | iṭhyoter     | ઇઠ્યોતેર      |
+| 79  | 79      | ૭૯       | ogaṇāen̄sī   | ઓગણાએંસી      |
+| 80  | 80      | ૮૦       | en̄sī        | એંસી          |
+| 81  | 81      | ૮૧       | ekyāsī       | એક્યાસી       |
+| 82  | 82      | ૮૨       | byāsī        | બ્યાસી        |
+| 83  | 83      | ૮૩       | tyāsī        | ત્યાસી        |
+| 84  | 84      | ૮૪       | choryāsī     | ચોર્યાસી      |
+| 85  | 85      | ૮૫       | pn̄chāsī     | પંચાસી        |
+| 86  | 86      | ૮૬       | chhyāsī      | છ્યાસી        |
+| 87  | 87      | ૮૭       | sityāsī      | સિત્યાસી      |
+| 88  | 88      | ૮૮       | īṭhyāsī      | ઈઠ્યાસી       |
+| 89  | 89      | ૮૯       | nevyāsī      | નેવ્યાસી      |
+| 90  | 90      | ૯૦       | nevun̄       | નેવું         |
+| 91  | 91      | ૯૧       | ekāṇun̄      | એકાણું        |
+| 92  | 92      | ૯૨       | bāṇun̄       | બાણું         |
+| 93  | 93      | ૯૩       | trāṇun̄      | ત્રાણું       |
+| 94  | 94      | ૯૪       | chorāṇun̄    | ચોરાણું       |
+| 95  | 95      | ૯૫       | pan̄chāṇun̄  | પંચાણું       |
+| 96  | 96      | ૯૬       | chhannun̄    | છન્નું        |
+| 97  | 97      | ૯૭       | sattāṇun̄    | સત્તાણું      |
+| 98  | 98      | ૯૮       | aṭhṭhāṇun̄   | અઠ્ઠાણું      |
+| 99  | 99      | ૯૯       | navvāṇun̄    | નવ્વાણું      |
+| 100 | 100     | ૧૦૦      | sō           | સો            |
+
 
 ## TODO
 1. Create JSON rest api for kakko and barakhadi.
