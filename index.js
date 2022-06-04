@@ -1,5 +1,6 @@
 var barakhdi = require("./resources/barakhdi/barakhdi.json");
 var kakko = require("./resources/kakko/kakko.json");
+var numerals = require("./resources/numerals/numerals.json");
 
 const fs = require("fs");
 const TextToSVG = require("text-to-svg");
@@ -35,6 +36,18 @@ const generateKakkoSvg = () => {
 	}
 };
 
+const generateNumeralsSvg = () => {
+	const dir = `./resources/numerals/svgs`;
+	if (!fs.existsSync(dir)) {
+		fs.mkdirSync(dir, { recursive: true });
+	}
+	for (let i = 0; i < numerals.length; i++) {
+		const char = numerals[i];
+		const svg = textToSVG.getSVG(char.gu, options);
+		fs.writeFileSync(`${dir}/${char.en}.svg`, svg);
+	}
+};
+
 const generateBarakhdiCsv = async () => {
 	let csvString = "1,2,3,4,5,6,7,8,9,10,11,12,13\n";
 	for (let i = 0; i < barakhdi.length; i++) {
@@ -64,12 +77,26 @@ const generateKakkoCsv = async () => {
 	fs.writeFileSync(`${dir}/kakko.csv`, csvString);
 };
 
+const generateNumeralsCsv = async () => {
+	let csvString = "id,English,Gujarati,English Name,Gujarati Name\n";
+	for (let i = 0; i < numerals.length; i++) {
+		const char = numerals[i];
+
+		csvString += `${i},${char.en},${char.gu},${char.name_en},${char.name_gu}\n`;
+	}
+	const dir = `./resources/numerals`;
+	fs.writeFileSync(`${dir}/numerals.csv`, csvString);
+};
+
 const generateResources = () => {
 	generateBarakhadiSvg()
 	generateKakkoSvg()
 
 	generateBarakhdiCsv()
 	generateKakkoCsv()
+
+	generateNumeralsSvg()
+	generateNumeralsCsv()
 }
 
 generateResources()
