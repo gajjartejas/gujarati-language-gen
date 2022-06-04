@@ -23,9 +23,58 @@ You can find generated svg and csv files from release section.
 [Download](https://github.com/gajjartejas/gujarati-language-gen/releases/latest/download/resources.zip)
 
 
+## Gujarati Kakko | ગુજરાતી કક્કો
+|1  |2   |3   |
+|---|----|----|
+|0  |ક   |Ka  |
+|1  |ખ   |Kha |
+|2  |ગ   |Ga  |
+|3  |ઘ   |Gha |
+|4  |ચ   |Cha |
+|5  |છ   |Chha|
+|6  |જ   |Ja  |
+|7  |ઝ   |Za  |
+|8  |ટ   |Ta  |
+|9  |ઠ   |Tha |
+|10 |ડ   |Da  |
+|11 |ઢ   |Dha |
+|12 |ણ   |Na  |
+|13 |ત   |Ta  |
+|14 |થ   |Tha |
+|15 |દ   |Da  |
+|16 |ધ   |Dha |
+|17 |ન   |Na  |
+|18 |પ   |Pa  |
+|19 |ફ   |Pha / Fa|
+|20 |બ   |Ba  |
+|21 |ભ   |Bha |
+|22 |મ   |Ma  |
+|23 |ય   |Ya  |
+|24 |ર   |Ra  |
+|25 |લ   |La  |
+|26 |વ   |Va  |
+|27 |શ   |Sha |
+|28 |ષ   |Sha |
+|29 |સ   |Sa  |
+|30 |હ   |Ha  |
+|31 |ળ   |La  |
+|32 |ક્ષ |Ksha / Xa|
+|33 |જ્ઞ |Gna |
+|34 |અ   |A   |
+|35 |આ   |A   |
+|36 |ઇ   |I   |
+|37 |ઈ   |I   |
+|38 |ઉ   |U   |
+|39 |ઊ   |U   |
+|40 |ઋ   |Ru  |
+|41 |એ   |E   |
+|42 |ઐ   |Ai  |
+|43 |ઓ   |O   |
+|44 |અં  |Am  |
+
+
+
 ## Gujarati Barakhadi | ગુજરાતી બારાખડી
-
-
 |1  |2   |3   |4   |5    |6   |7    |8   |9    |10  |11   |12         |13     |
 |---|----|----|----|-----|----|-----|----|-----|----|-----|-----------|-------|
 |0  |અ   |આ   |ઇ   |ઈ    |ઉ   |ઊ    |એ   |ઐ    |ઓ   |ઔ    |અં         |અઃ     |
@@ -101,55 +150,6 @@ You can find generated svg and csv files from release section.
 
 
 ## Gujarati Numbers | ગુજરાતી આંકડાઓ
-|1  |2   |3   |
-|---|----|----|
-|0  |ક   |Ka  |
-|1  |ખ   |Kha |
-|2  |ગ   |Ga  |
-|3  |ઘ   |Gha |
-|4  |ચ   |Cha |
-|5  |છ   |Chha|
-|6  |જ   |Ja  |
-|7  |ઝ   |Za  |
-|8  |ટ   |Ta  |
-|9  |ઠ   |Tha |
-|10 |ડ   |Da  |
-|11 |ઢ   |Dha |
-|12 |ણ   |Na  |
-|13 |ત   |Ta  |
-|14 |થ   |Tha |
-|15 |દ   |Da  |
-|16 |ધ   |Dha |
-|17 |ન   |Na  |
-|18 |પ   |Pa  |
-|19 |ફ   |Pha / Fa|
-|20 |બ   |Ba  |
-|21 |ભ   |Bha |
-|22 |મ   |Ma  |
-|23 |ય   |Ya  |
-|24 |ર   |Ra  |
-|25 |લ   |La  |
-|26 |વ   |Va  |
-|27 |શ   |Sha |
-|28 |ષ   |Sha |
-|29 |સ   |Sa  |
-|30 |હ   |Ha  |
-|31 |ળ   |La  |
-|32 |ક્ષ |Ksha / Xa|
-|33 |જ્ઞ |Gna |
-|34 |અ   |A   |
-|35 |આ   |A   |
-|36 |ઇ   |I   |
-|37 |ઈ   |I   |
-|38 |ઉ   |U   |
-|39 |ઊ   |U   |
-|40 |ઋ   |Ru  |
-|41 |એ   |E   |
-|42 |ઐ   |Ai  |
-|43 |ઓ   |O   |
-|44 |અં  |Am  |
-
-
 | id  | English | Gujarati | English Name | Gujarati Name |
 |-----|---------|----------|--------------|---------------|
 | 0   | 0       | ૦        | śūnya        | શૂન્ય         |
