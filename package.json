@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "node-fetch": "^2.6.12",
+    "svg-path-properties": "^1.2.0",
     "text-to-svg": "^3.1.5"
   }
 }
