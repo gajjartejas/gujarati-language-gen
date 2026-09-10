@@ -1,5 +1,5 @@
 """
-Bézier curve fitting and polyline resampling utilities.
+Bézier curve fitting and polyline resampling utilities with curvature-adaptive subdivision.
 """
 
 import numpy as np
@@ -8,7 +8,7 @@ import numpy as np
 def resample_polyline(pts: np.ndarray, num_pts: int = 64) -> np.ndarray:
     """
     Resamples a 2D polyline to have uniform arc-length chord spacing.
-    
+
     Prevents points from clustering in high-curvature corners or drifting
     along straight segments during iterative active contour relaxation.
 
@@ -46,17 +46,17 @@ def resample_polyline(pts: np.ndarray, num_pts: int = 64) -> np.ndarray:
     return res
 
 
-def fit_cubic_bezier(points: np.ndarray, max_segment_len: float = 16.0, is_closed: bool = False) -> str:
+def fit_cubic_bezier(points: np.ndarray, max_segment_len: float = 6.0, is_closed: bool = False) -> str:
     """
-    Converts a polyline of 2D points into smooth Catmull-Rom cubic Bézier segments (SVG path 'd').
-    
-    Ensures C1 continuity and smooth curvature without zig-zagging or sharp corners.
-    Supports periodic boundary conditions for closed loops (e.g. circle numerals like 0).
+    Converts a polyline of 2D points into smooth, curvature-adaptive Catmull-Rom cubic Bézier segments.
+
+    Dynamically concentrates control knots in high-curvature loops (e.g. Gujarati loops in ક, બ, જ, ૩, ૦)
+    while keeping straight segments minimal, eliminating curve flattening and overshooting.
 
     Args:
         points: (N, 2) array of 2D coordinates.
-        max_segment_len: Maximum distance per Bézier segment for adaptive division.
-        is_closed: Whether the curve forms a closed loop requiring periodic tangents.
+        max_segment_len: Baseline maximum chord distance per Bézier segment (default: 6.0 SVG units).
+        is_closed: Whether the curve forms a closed loop requiring periodic boundary tangents.
 
     Returns:
         SVG path data string (e.g. 'M x,y C c1x,c1y c2x,c2y p2x,p2y ...').
@@ -74,20 +74,35 @@ def fit_cubic_bezier(points: np.ndarray, max_segment_len: float = 16.0, is_close
     if total_len < 1e-4:
         return f"M {points[0][0]:.3f},{points[0][1]:.3f}"
 
-    num_segs = max(2, int(np.ceil(total_len / max_segment_len)))
-    target_dists = np.linspace(0, total_len, num_segs + 1)
+    # 1. Compute curvature-weighted metric along the polyline
+    # High turning angles receive more knots
+    tangents = diffs / np.maximum(chords[:, None], 1e-8)
+    dot_products = np.sum(tangents[:-1] * tangents[1:], axis=1)
+    turning_angles = np.arccos(np.clip(dot_products, -1.0, 1.0))
+    # Pad turning angles to match chords length
+    turn_weights = np.r_[0.0, turning_angles]
+
+    # Curvature density: arc length + turning angle scale
+    beta = 4.0
+    seg_weights = chords + beta * turn_weights
+    cum_weights = np.cumsum(np.r_[0, seg_weights])
+    total_weight = cum_weights[-1]
+
+    # Number of knots based on total curvature-weighted length
+    num_segs = max(3, int(np.ceil(total_weight / max_segment_len)))
+    target_weights = np.linspace(0, total_weight, num_segs + 1)
 
     ctrl_pts = []
-    for d in target_dists:
-        idx = np.searchsorted(chord_lens, d)
+    for tw in target_weights:
+        idx = np.searchsorted(cum_weights, tw)
         if idx == 0:
             ctrl_pts.append(points[0])
-        elif idx >= len(points):
+        elif idx >= len(cum_weights):
             ctrl_pts.append(points[-1])
         else:
             prev_idx = max(0, idx - 1)
-            segment_len = chord_lens[idx] - chord_lens[prev_idx]
-            t = (d - chord_lens[prev_idx]) / max(segment_len, 1e-9)
+            span = cum_weights[idx] - cum_weights[prev_idx]
+            t = (tw - cum_weights[prev_idx]) / max(span, 1e-9)
             ctrl_pts.append(points[prev_idx] * (1.0 - t) + points[idx] * t)
     ctrl_pts = np.array(ctrl_pts)
 
@@ -96,6 +111,8 @@ def fit_cubic_bezier(points: np.ndarray, max_segment_len: float = 16.0, is_close
 
     d_str = f"M {ctrl_pts[0][0]:.3f},{ctrl_pts[0][1]:.3f}"
     n = len(ctrl_pts)
+
+    # 2. Chordal Catmull-Rom Tangents (eliminates cusps and overshoot on variable spacing)
     for i in range(n - 1):
         if is_closed:
             p0 = ctrl_pts[(i - 1) % (n - 1)]
@@ -108,8 +125,16 @@ def fit_cubic_bezier(points: np.ndarray, max_segment_len: float = 16.0, is_close
             p2 = ctrl_pts[i + 1]
             p3 = ctrl_pts[min(n - 1, i + 2)]
 
-        c1 = p1 + (p2 - p0) / 6.0
-        c2 = p2 - (p3 - p1) / 6.0
+        d01 = max(np.hypot(p1[0] - p0[0], p1[1] - p0[1]), 1e-4)
+        d12 = max(np.hypot(p2[0] - p1[0], p2[1] - p1[1]), 1e-4)
+        d23 = max(np.hypot(p3[0] - p2[0], p3[1] - p2[1]), 1e-4)
+
+        # Chordal velocity tangents
+        v1 = (p2 - p0) / (d01 + d12) * d12
+        v2 = (p3 - p1) / (d12 + d23) * d12
+
+        c1 = p1 + v1 / 3.0
+        c2 = p2 - v2 / 3.0
         d_str += f" C {c1[0]:.3f},{c1[1]:.3f} {c2[0]:.3f},{c2[1]:.3f} {p2[0]:.3f},{p2[1]:.3f}"
 
     if is_closed:
