@@ -2,26 +2,109 @@
  [<img align="right" src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/instagram.svg" width="50" height="50" />](http://www.instagram.com/gajjartejas)
  [<img align="right" src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/twitter.svg" width="50" height="50" />](http://www.twitter.com/gajjartejas)
 
-# Introduction
+# Gujarati Language Generation Suite
 
-To generate resources use:
+A multi-language repository providing tools, datasets, and algorithms for the Gujarati writing system.
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-brightgreen?style=for-the-badge&logo=github)](https://gajjartejas.github.io/gujarati-language-gen/)
+🌐 **Live Interactive App**: [https://gajjartejas.github.io/gujarati-language-gen/](https://gajjartejas.github.io/gujarati-language-gen/)
+
+[![Gujarati Font Stroke Animator & Kano Audio Preview](docs/assets/preview.png)](https://gajjartejas.github.io/gujarati-language-gen/)
+
+---
+
+## 📁 Repository Structure by Language
 
 ```
-git clone https://github.com/gajjartejas/gujarati-language-gen.git
-cd gujarati-language-gen
+gujarati-language-gen/
+├── node/                         # Node.js resource generation workspace
+│   ├── package.json              # Dependencies (text-to-svg, node-fetch)
+│   ├── index.js                  # Static SVG, CSV, and TTS audio generator
+│   └── README.md                 # Node.js documentation and usage instructions
+├── python/                       # Python workspace
+│   ├── setup_venv.sh             # Industry-standard virtual environment setup script
+│   ├── README.md                 # Python workspace overview & venv instructions
+│   └── char_stroke_generation/   # Dedicated character stroke generation package
+│       ├── stroke_generator/     # Core library (Bézier, EDT, HarfBuzz, IoU matching)
+│       ├── scripts/              # Standalone CLI runners
+│       ├── tests/                # Automated unit tests
+│       ├── pyproject.toml        # PEP 621 packaging
+│       ├── requirements.txt      # Pip dependencies
+│       └── README.md             # Technical documentation & math formulations
+├── docs/                         # Live GitHub Pages interactive frontend & Kano audio suite
+│   ├── index.html                # Semantic responsive single-page web application
+│   ├── css/                      # Modular styling (main, stage comparison, character grid)
+│   ├── js/                       # Theme toggle, Kano audio player, stage renderer, app coordinator
+│   └── assets/                   # Full 565-character SVG catalog, compressed MP3 audio & previews
+├── fonts/                        # Shared TrueType/OpenType Gujarati fonts
+├── resources/                    # Shared JSON definitions & raw datasets (Kakko, Barakhadi, Numerals)
+├── interpolate-svg/              # Manual reference SVG stroke templates
+├── output/                       # Generated SVG artifacts & preview catalogs (.gitignored)
+└── .github/workflows/            # GitHub Actions automated GitHub Pages deployment workflow
+```
+
+---
+
+## 🌐 Live Interactive Frontend & Kano Audio Suite (`docs/`)
+
+🔗 **Live Production Demo**: [https://gajjartejas.github.io/gujarati-language-gen/](https://gajjartejas.github.io/gujarati-language-gen/)
+
+The live web application provides an interactive stroke animator and audio player:
+- **All 565 Gujarati Characters**: Complete Kakko (45), full Barakhadi (420 across 35 consonants), and Numerals 0–100 (101).
+- **Normalized 1:1 Stage Sizing**: Explicit `viewBox` coordinate normalization ensuring Reference (Light) and Auto-Generated (Bold) comparison cards scale with equal proportions and perfect centering.
+- **Dedicated Settings Panel**: Right-side desktop dock with quick playback controls, layer toggles, speed adjustments, and keyboard shortcuts.
+- **Dynamic Stroke Width Options**: Interactive slider (1px to 10px) with live preset pills (`2px`, `3.5px`, `5px`, `7px`) modifying both stages in real-time.
+- **Kano Audio Pronunciations**: Speech pronunciations for all 565 characters, compressed via `ffmpeg` to high-efficiency MP3s, featuring auto-play on selection, dedicated `🔊 Pronounce` button, and persistent `Sound: ON/OFF` toggle.
+- **Dark / Light Theme Toggle**: Top-right switch with Sun/Moon icons, custom HSL color palettes, and `localStorage` memory.
+- **Mobile Responsive Design**: Clean side-by-side stages, compact slider grids, and touch-optimized character targets on mobile viewports.
+- **Zero-Click GitHub Pages Deployment**: Fully automated via [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml).
+
+### 🖥️ Application Previews
+
+| Dark Theme (Default) | Light Theme |
+| :---: | :---: |
+| [![Dark Theme Preview](docs/assets/preview.png)](https://gajjartejas.github.io/gujarati-language-gen/) | [![Light Theme Preview](docs/assets/preview-light.png)](https://gajjartejas.github.io/gujarati-language-gen/?theme=light) |
+
+
+---
+
+## 🟢 Node.js Workspace (`node/`)
+
+Used for rendering standard glyph SVGs, CSV matrices, and Google Wavenet audio files.
+
+```bash
+cd node
 npm install
-node .
+node index.js
+```
+👉 See [Node.js Documentation (`node/README.md`)](node/README.md) for details.
+
+---
+
+## 🐍 Python Workspace: Character Stroke Generation (`python/`)
+
+An analytical geometry and Euclidean Distance Transform (EDT) pipeline to automatically extract medial centerline strokes from Gujarati fonts for the **Kano** React Native educational app.
+
+### Quick Start (Industry-Standard Virtual Environment Setup)
+
+```bash
+# 1. Run automated environment setup (creates .venv & installs dependencies)
+./python/setup_venv.sh
+
+# 2. Activate virtual environment
+source .venv/bin/activate
+
+# 3. Run automated unit tests
+PYTHONPATH=python/char_stroke_generation python -m unittest discover -s python/char_stroke_generation/tests -t python/char_stroke_generation
+
+# 4. Generate 56 showcase samples and launch interactive viewer
+python python/char_stroke_generation/scripts/build_samples.py
+python python/char_stroke_generation/scripts/build_viewer.py --serve 8765
 ```
 
-This will produce svg and csv files for kakko, barakhadi and numbers.
+👉 See [Python Workspace (`python/README.md`)](python/README.md) and [Stroke Generation Guide (`python/char_stroke_generation/README.md`)](python/char_stroke_generation/README.md) for details.
 
-## Download
-
-You can find generated svg and csv files from release section.
-
-[Download](https://github.com/gajjartejas/gujarati-language-gen/releases/latest/download/resources.zip)
-
+---
 
 ## Gujarati Kakko | ગુજરાતી કક્કો
 |1  |2   |3   |

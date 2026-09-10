@@ -1,0 +1,411 @@
+/* Character Catalog Browser, Category Tabs, and High-Contrast Character Grid */
+
+.catalog-section {
+  width: 100%;
+  max-width: 1140px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(12px);
+}
+
+/* Section Header Toolbar & Search */
+.catalog-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* Category Tabs */
+.category-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cat-tab {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary) !important;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+}
+
+.cat-tab:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary) !important;
+  border-color: var(--border-medium);
+}
+
+.cat-tab.active {
+  background: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px var(--accent-glow);
+}
+
+.cat-tab span.count {
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.25);
+  color: #ffffff;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+}
+
+/* Search Bar */
+.search-box {
+  position: relative;
+  min-width: 260px;
+  flex: 1;
+  max-width: 360px;
+}
+
+.search-box input {
+  width: 100%;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: 9px 14px 9px 36px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.search-box input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.search-box .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* Barakhadi Sub-Filter (Consonant Horizontal Bar) */
+.barakhadi-consonant-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px 10px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.barakhadi-consonant-bar::-webkit-scrollbar {
+  height: 5px;
+}
+
+.barakhadi-consonant-bar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-full);
+}
+
+.barakhadi-consonant-bar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-full);
+}
+
+.barakhadi-consonant-bar::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
+.consonant-chip {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  color: #ffffff !important; /* Explicit high-contrast white in dark mode */
+  min-width: 38px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  font-family: 'Noto Sans Gujarati', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.consonant-chip:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff !important;
+}
+
+.consonant-chip.active {
+  background: var(--blue-action) !important;
+  border-color: var(--blue-action) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(31, 111, 235, 0.5);
+}
+
+/* Character Button Grid (Fixed row height prevents vertical stretching) */
+.char-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  grid-auto-rows: 76px;
+  align-content: start;
+  gap: 10px;
+  max-height: 480px;
+  overflow-y: auto;
+  padding: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.char-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.char-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-full);
+}
+
+/* Character Button - High Contrast Pure White Glyphs & Consistent Height */
+.char-btn {
+  background: #141c28; /* Solid dark slate for crisp contrast */
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  padding: 8px 4px 6px;
+  height: 76px;
+  min-height: 76px;
+  max-height: 76px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  color: #ffffff !important; /* Neutralize browser buttontext defaults */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.char-btn:hover {
+  background: #202c3e;
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.char-btn.active {
+  background: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px var(--accent-glow);
+  transform: translateY(-2px);
+}
+
+/* Gujarati Glyph Inside Button - Pure Crisp White */
+.char-btn .char-glyph {
+  font-family: 'Noto Sans Gujarati', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #ffffff !important; /* Guaranteed pure white on dark background */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  transition: transform var(--transition-fast);
+}
+
+.char-btn:hover .char-glyph {
+  transform: scale(1.08);
+}
+
+/* English / Transliteration Subtitle */
+.char-btn .char-sub {
+  font-size: 11px;
+  font-weight: 500;
+  color: #94a3b8 !important; /* High-contrast light slate grey */
+  margin-top: 2px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 58px;
+  text-align: center;
+}
+
+.char-btn.active .char-glyph {
+  color: #ffffff !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.char-btn.active .char-sub {
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-weight: 600;
+}
+
+/* Sound Indicator on Button */
+.char-btn .sound-indicator {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 8px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.char-btn:hover .sound-indicator {
+  opacity: 0.7;
+}
+
+.char-btn.active .sound-indicator {
+  opacity: 1;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+  grid-column: 1 / -1;
+}
+
+.empty-state .icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+/* ==========================================================================
+   Light Mode Contrast Overrides
+   ========================================================================== */
+[data-theme="light"] .char-btn {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .char-btn:hover {
+  background: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.25);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .char-btn .char-glyph {
+  color: #0f172a !important; /* Deep crisp black in light mode */
+  text-shadow: none;
+}
+
+[data-theme="light"] .char-btn .char-sub {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .char-btn.active {
+  background: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .char-btn.active .char-glyph,
+[data-theme="light"] .char-btn.active .char-sub {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .consonant-chip {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .consonant-chip:hover {
+  background: #f1f5f9;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .consonant-chip.active {
+  background: var(--blue-action) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .char-grid::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   Responsive Adaptations for Catalog Grid
+   ========================================================================== */
+@media (max-width: 768px) {
+  .catalog-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box {
+    max-width: unset;
+    min-width: unset;
+    width: 100%;
+  }
+
+  .category-tabs {
+    width: 100%;
+  }
+
+  .cat-tab {
+    flex: 1;
+    justify-content: center;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .catalog-section {
+    padding: 16px 12px;
+  }
+
+  .char-grid {
+    grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+    grid-auto-rows: 68px;
+    align-content: start;
+    gap: 8px;
+    max-height: 380px;
+  }
+
+  .char-btn {
+    height: 68px;
+    min-height: 68px;
+    max-height: 68px;
+    box-sizing: border-box;
+    padding: 6px 2px 4px;
+    border-radius: var(--radius-sm);
+  }
+
+  .char-btn .char-glyph {
+    font-size: 20px;
+  }
+
+  .char-btn .char-sub {
+    font-size: 10px;
+    max-width: 48px;
+  }
+}
