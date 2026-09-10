@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stroke-generator"
+version = "1.0.0"
+description = "Automated medial stroke extractor and animated SVG synthesizer for Gujarati script font glyphs"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Tejas Gajjar"}
+]
+keywords = [
+    "gujarati",
+    "font",
+    "stroke-extraction",
+    "harfbuzz",
+    "distance-transform",
+    "medial-axis",
+    "svg-animation",
+    "kano"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Text Processing :: Fonts",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "numpy>=1.22.0",
+    "scipy>=1.8.0",
+    "fonttools>=4.38.0",
+    "uharfbuzz>=0.30.0",
+    "svgpathtools>=1.5.0",
+    "pillow>=9.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+]
+
+[project.scripts]
+stroke-gen = "stroke_generator.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["stroke_generator*"]

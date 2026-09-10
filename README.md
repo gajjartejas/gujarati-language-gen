@@ -2,26 +2,76 @@
  [<img align="right" src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/instagram.svg" width="50" height="50" />](http://www.instagram.com/gajjartejas)
  [<img align="right" src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/twitter.svg" width="50" height="50" />](http://www.twitter.com/gajjartejas)
 
-# Introduction
+# Gujarati Language Generation Suite
 
-To generate resources use:
+A multi-language repository providing tools, datasets, and algorithms for the Gujarati writing system.
 
+---
+
+## 📁 Repository Structure by Language
 
 ```
-git clone https://github.com/gajjartejas/gujarati-language-gen.git
-cd gujarati-language-gen
+gujarati-language-gen/
+├── node/                         # Node.js resource generation workspace
+│   ├── package.json              # Dependencies (text-to-svg, node-fetch)
+│   ├── index.js                  # Static SVG, CSV, and TTS audio generator
+│   └── README.md                 # Node.js documentation and usage instructions
+├── python/                       # Python workspace
+│   ├── setup_venv.sh             # Industry-standard virtual environment setup script
+│   ├── README.md                 # Python workspace overview & venv instructions
+│   └── char_stroke_generation/   # Dedicated character stroke generation package
+│       ├── stroke_generator/     # Core library (Bézier, EDT, HarfBuzz, IoU matching)
+│       ├── scripts/              # Standalone CLI runners
+│       ├── tests/                # Automated unit tests
+│       ├── pyproject.toml        # PEP 621 packaging
+│       ├── requirements.txt      # Pip dependencies
+│       └── README.md             # Technical documentation & math formulations
+├── fonts/                        # Shared TrueType/OpenType Gujarati fonts
+├── resources/                    # Shared JSON definitions (Kakko, Barakhadi, Numerals)
+├── interpolate-svg/              # Manual reference SVG stroke templates
+├── output/                       # Generated SVG artifacts & preview catalogs (.gitignored)
+└── viewer.html                   # Interactive browser viewer for animated stroke testing
+```
+
+---
+
+## 🟢 Node.js Workspace (`node/`)
+
+Used for rendering standard glyph SVGs, CSV matrices, and Google Wavenet audio files.
+
+```bash
+cd node
 npm install
-node .
+node index.js
+```
+👉 See [Node.js Documentation (`node/README.md`)](node/README.md) for details.
+
+---
+
+## 🐍 Python Workspace: Character Stroke Generation (`python/`)
+
+An analytical geometry and Euclidean Distance Transform (EDT) pipeline to automatically extract medial centerline strokes from Gujarati fonts for the **Kano** React Native educational app.
+
+### Quick Start (Industry-Standard Virtual Environment Setup)
+
+```bash
+# 1. Run automated environment setup (creates .venv & installs dependencies)
+./python/setup_venv.sh
+
+# 2. Activate virtual environment
+source .venv/bin/activate
+
+# 3. Run automated unit tests
+PYTHONPATH=python/char_stroke_generation python -m unittest discover -s python/char_stroke_generation/tests -t python/char_stroke_generation
+
+# 4. Generate 56 showcase samples and launch interactive viewer
+python python/char_stroke_generation/scripts/build_samples.py
+python python/char_stroke_generation/scripts/build_viewer.py --serve 8765
 ```
 
-This will produce svg and csv files for kakko, barakhadi and numbers.
+👉 See [Python Workspace (`python/README.md`)](python/README.md) and [Stroke Generation Guide (`python/char_stroke_generation/README.md`)](python/char_stroke_generation/README.md) for details.
 
-## Download
-
-You can find generated svg and csv files from release section.
-
-[Download](https://github.com/gajjartejas/gujarati-language-gen/releases/latest/download/resources.zip)
-
+---
 
 ## Gujarati Kakko | ગુજરાતી કક્કો
 |1  |2   |3   |

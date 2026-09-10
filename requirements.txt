@@ -1,0 +1,1 @@
+-r python/char_stroke_generation/requirements.txt

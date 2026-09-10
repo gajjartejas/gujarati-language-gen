@@ -1,12 +1,20 @@
-const fetch = require("node-fetch");
-const barakhdi = require("./resources/barakhdi/barakhdi.json");
-const kakko = require("./resources/kakko/kakko.json");
-const numerals = require("./resources/numerals/numerals.json");
+const path = require("path");
 const fs = require("fs");
+const fetch = require("node-fetch");
 const TextToSVG = require("text-to-svg");
-const textToSVG = TextToSVG.loadSync(
-  "./fonts/Noto_Sans_Gujarati/NotoSansGujarati-Light.ttf"
-);
+
+// Resolve directories relative to repository root
+const ROOT_DIR = path.resolve(__dirname, "..");
+const RESOURCES_DIR = path.resolve(ROOT_DIR, "resources");
+const FONTS_DIR = path.resolve(ROOT_DIR, "fonts");
+
+const barakhdi = require(path.join(RESOURCES_DIR, "barakhdi/barakhdi.json"));
+const kakko = require(path.join(RESOURCES_DIR, "kakko/kakko.json"));
+const numerals = require(path.join(RESOURCES_DIR, "numerals/numerals.json"));
+
+const fontPath = path.join(FONTS_DIR, "Noto_Sans_Gujarati/NotoSansGujarati-Light.ttf");
+const textToSVG = TextToSVG.loadSync(fontPath);
+
 const attributes = {};
 const options = {
   x: 0,
@@ -15,12 +23,11 @@ const options = {
   anchor: "left top",
   attributes: attributes,
 };
-import { svgPathProperties } from 'svg-path-properties';
 
 const generateBarakhadiSvg = () => {
   for (let i = 0; i < barakhdi.length; i++) {
     const charConfig = barakhdi[i];
-    const dir = `./resources/barakhdi/svgs/${i}_${charConfig.en.toLocaleLowerCase()}`;
+    const dir = path.join(RESOURCES_DIR, `barakhdi/svgs/${i}_${charConfig.en.toLocaleLowerCase()}`);
     const chars = charConfig.chars;
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -29,7 +36,7 @@ const generateBarakhadiSvg = () => {
       const char = chars[j];
       const svg = textToSVG.getSVG(char.gu, options);
       fs.writeFileSync(
-        `${dir}/${char.id}_${char.en.replace(" / ", "_or_").toLowerCase()}.svg`,
+        path.join(dir, `${char.id}_${char.en.replace(" / ", "_or_").toLowerCase()}.svg`),
         svg
       );
     }
@@ -37,7 +44,7 @@ const generateBarakhadiSvg = () => {
 };
 
 const generateKakkoSvg = () => {
-  const dir = `./resources/kakko/svgs`;
+  const dir = path.join(RESOURCES_DIR, "kakko/svgs");
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -45,25 +52,25 @@ const generateKakkoSvg = () => {
     const char = kakko[i];
     const svg = textToSVG.getSVG(char.gu, options);
     fs.writeFileSync(
-      `${dir}/${char.id}_${char.en.replace(" / ", "_or_").toLowerCase()}.svg`,
+      path.join(dir, `${char.id}_${char.en.replace(" / ", "_or_").toLowerCase()}.svg`),
       svg
     );
   }
 };
 
 const generateNumeralsSvg = () => {
-  const dir = `./resources/numerals/svgs`;
+  const dir = path.join(RESOURCES_DIR, "numerals/svgs");
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
   for (let i = 0; i < numerals.length; i++) {
     const char = numerals[i];
     const svg = textToSVG.getSVG(char.gu, options);
-    fs.writeFileSync(`${dir}/${char.en}.svg`, svg);
+    fs.writeFileSync(path.join(dir, `${char.en}.svg`), svg);
   }
 };
 
-const generateBarakhdiCsv =  () => {
+const generateBarakhdiCsv = () => {
   let csvString = "1,2,3,4,5,6,7,8,9,10,11,12,13\n";
   for (let i = 0; i < barakhdi.length; i++) {
     const charConfig = barakhdi[i];
@@ -77,34 +84,32 @@ const generateBarakhdiCsv =  () => {
     }
     csvString += `${i},${guArray.join(",")}\n${i},${enArray.join(",")}\n`;
   }
-  const dir = `./resources/barakhdi`;
-  fs.writeFileSync(`${dir}/barakhdi.csv`, csvString);
+  const dir = path.join(RESOURCES_DIR, "barakhdi");
+  fs.writeFileSync(path.join(dir, "barakhdi.csv"), csvString);
 };
 
-const generateKakkoCsv =  () => {
+const generateKakkoCsv = () => {
   let csvString = "1,2,3\n";
   for (let i = 0; i < kakko.length; i++) {
     const char = kakko[i];
-
     csvString += `${i},${char.gu},${char.en}\n`;
   }
-  const dir = `./resources/kakko`;
-  fs.writeFileSync(`${dir}/kakko.csv`, csvString);
+  const dir = path.join(RESOURCES_DIR, "kakko");
+  fs.writeFileSync(path.join(dir, "kakko.csv"), csvString);
 };
 
-const generateNumeralsCsv =  () => {
+const generateNumeralsCsv = () => {
   let csvString = "id,English,Gujarati,English Name,Gujarati Name\n";
   for (let i = 0; i < numerals.length; i++) {
     const char = numerals[i];
-
     csvString += `${i},${char.en},${char.gu},${char.name_en},${char.name_gu}\n`;
   }
-  const dir = `./resources/numerals`;
-  fs.writeFileSync(`${dir}/numerals.csv`, csvString);
+  const dir = path.join(RESOURCES_DIR, "numerals");
+  fs.writeFileSync(path.join(dir, "numerals.csv"), csvString);
 };
 
-const generateNumeralsAudio = async (section, row) => {
-  const dir = `./resources/numerals/audio`;
+const generateNumeralsAudio = async (section) => {
+  const dir = path.join(RESOURCES_DIR, "numerals/audio");
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -115,7 +120,7 @@ const generateNumeralsAudio = async (section, row) => {
     const char = numerals[i];
     let audioBase64 = await getAudioBase64(char.gu);
     const buffer = Buffer.from(audioBase64, "base64");
-    fs.writeFileSync(`${dir}/${char.en}.mp3`, buffer);
+    fs.writeFileSync(path.join(dir, `${char.en}.mp3`), buffer);
   }
 };
 
@@ -125,7 +130,7 @@ const generateBarakhadiAudio = async (section, row) => {
       continue;
     }
     const charConfig = barakhdi[i];
-    const dir = `./resources/barakhdi/audio/${i}_${charConfig.en.toLocaleLowerCase()}`;
+    const dir = path.join(RESOURCES_DIR, `barakhdi/audio/${i}_${charConfig.en.toLocaleLowerCase()}`);
     const chars = charConfig.chars;
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -138,16 +143,16 @@ const generateBarakhadiAudio = async (section, row) => {
       let audioBase64 = await getAudioBase64(char.gu);
       const buffer = Buffer.from(audioBase64, "base64");
       fs.writeFileSync(
-        `${dir}/${char.id}_${char.en.replace(" / ", "_or_").toLowerCase()}.mp3`,
+        path.join(dir, `${char.id}_${char.en.replace(" / ", "_or_").toLowerCase()}.mp3`),
         buffer
       );
-	  await new Promise(r => setTimeout(r, 2000));
+      await new Promise((r) => setTimeout(r, 2000));
     }
   }
 };
 
 const generateKakkoAudio = async (section) => {
-  const dir = `./resources/kakko/audio`;
+  const dir = path.join(RESOURCES_DIR, "kakko/audio");
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -159,7 +164,7 @@ const generateKakkoAudio = async (section) => {
     let audioBase64 = await getAudioBase64(char.gu);
     const buffer = Buffer.from(audioBase64, "base64");
     fs.writeFileSync(
-      `${dir}/${char.id}_${char.en.replace(" / ", "_or_").toLowerCase()}.mp3`,
+      path.join(dir, `${char.id}_${char.en.replace(" / ", "_or_").toLowerCase()}.mp3`),
       buffer
     );
   }
@@ -192,20 +197,20 @@ const getAudioBase64 = async (char) => {
   return jsonData.audioContent;
 };
 
-const generateAudio =  async () => {
-  await generateBarakhadiAudio(0,0);
-  await generateNumeralsAudio(0)
-  await generateKakkoAudio(0)
-}
+const generateAudio = async () => {
+  await generateBarakhadiAudio(0, 0);
+  await generateNumeralsAudio(0);
+  await generateKakkoAudio(0);
+};
 
 const generateResources = () => {
-  generateBarakhadiSvg()
-  generateBarakhdiCsv()
-  generateNumeralsSvg()
+  generateBarakhadiSvg();
+  generateBarakhdiCsv();
+  generateNumeralsSvg();
 
-  generateKakkoSvg()
-  generateKakkoCsv()
-  generateNumeralsCsv()
+  generateKakkoSvg();
+  generateKakkoCsv();
+  generateNumeralsCsv();
 };
 
 generateResources();

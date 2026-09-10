@@ -132,3 +132,18 @@ dist
 # IDE
 .idea/
 
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# Generated Outputs & Assets
+output/
+preview_svgs/
+generated_svgs/
+
+
