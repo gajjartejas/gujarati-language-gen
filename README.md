@@ -26,12 +26,30 @@ gujarati-language-gen/
 │       ├── pyproject.toml        # PEP 621 packaging
 │       ├── requirements.txt      # Pip dependencies
 │       └── README.md             # Technical documentation & math formulations
+├── docs/                         # Live GitHub Pages interactive frontend & Kano audio suite
+│   ├── index.html                # Semantic responsive single-page web application
+│   ├── css/                      # Modular styling (main, stage comparison, character grid)
+│   ├── js/                       # Theme toggle, Kano audio player, stage renderer, app coordinator
+│   └── assets/                   # Full 565-character SVG catalog and compressed MP3 audio
 ├── fonts/                        # Shared TrueType/OpenType Gujarati fonts
-├── resources/                    # Shared JSON definitions (Kakko, Barakhadi, Numerals)
+├── resources/                    # Shared JSON definitions & raw datasets (Kakko, Barakhadi, Numerals)
 ├── interpolate-svg/              # Manual reference SVG stroke templates
 ├── output/                       # Generated SVG artifacts & preview catalogs (.gitignored)
-└── viewer.html                   # Interactive browser viewer for animated stroke testing
+└── .github/workflows/            # GitHub Actions automated GitHub Pages deployment workflow
 ```
+
+---
+
+## 🌐 Live Interactive Frontend & Kano Audio Suite (`docs/`)
+
+The frontpage is ready for **GitHub Pages** deployment and includes:
+- **All 565 Gujarati Characters**: Complete Kakko (45), full Barakhadi (420 across 35 consonants), and Numerals 0–100 (101).
+- **Normalized 1:1 Stage Sizing**: Explicit `viewBox` coordinate normalization ensuring Reference (Light) and Auto-Generated (Bold) comparison cards scale with equal proportions and perfect centering.
+- **Dynamic Stroke Width Options**: Interactive slider (1px to 10px) with live preset pills (`2px`, `3.5px`, `5px`, `7px`) modifying both stages in real-time.
+- **Kano Audio Pronunciations**: Speech pronunciations for all 565 characters, compressed via `ffmpeg` to high-efficiency MP3s, featuring auto-play on selection, dedicated `🔊 Pronounce` button, and persistent `Sound: ON/OFF` toggle.
+- **Dark / Light Theme Toggle**: Top-right switch with Sun/Moon icons, custom HSL color palettes, and `localStorage` memory.
+- **Zero-Click GitHub Pages Deployment**: Fully automated via [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml).
+
 
 ---
 

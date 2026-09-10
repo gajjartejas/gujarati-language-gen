@@ -1,0 +1,237 @@
+/* Character Selector Grid, Category Tabs, Sub-Selectors, and Search */
+
+.catalog-section {
+  width: 100%;
+  max-width: 1100px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(12px);
+}
+
+/* Section Header & Search */
+.catalog-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* Category Tabs */
+.category-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cat-tab {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+}
+
+.cat-tab:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: var(--border-medium);
+}
+
+.cat-tab.active {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: #ffffff;
+  box-shadow: 0 2px 10px var(--accent-glow);
+}
+
+.cat-tab span.count {
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+}
+
+/* Search Bar */
+.search-box {
+  position: relative;
+  min-width: 240px;
+}
+
+.search-box input {
+  width: 100%;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: 8px 14px 8px 34px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.search-box input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.search-box .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* Barakhadi Sub-Filter (Consonant Horizontal Scroll Bar) */
+.barakhadi-consonant-bar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  scrollbar-width: thin;
+}
+
+.consonant-chip {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  font-family: 'Noto Sans Gujarati', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.consonant-chip:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: var(--border-medium);
+}
+
+.consonant-chip.active {
+  background: var(--blue-action);
+  border-color: var(--blue-action);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(31, 111, 235, 0.4);
+}
+
+/* Character Button Grid */
+.char-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 8px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 4px;
+  scrollbar-width: thin;
+}
+
+.char-btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 4px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.char-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-medium);
+  transform: translateY(-2px);
+}
+
+.char-btn.active {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: #ffffff;
+  box-shadow: 0 4px 14px var(--accent-glow);
+  transform: translateY(-2px);
+}
+
+.char-btn .char-glyph {
+  font-family: 'Noto Sans Gujarati', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.char-btn .char-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 56px;
+  text-align: center;
+}
+
+.char-btn.active .char-sub {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Sound Indicator on Button */
+.char-btn .sound-indicator {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 8px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.char-btn:hover .sound-indicator {
+  opacity: 0.6;
+}
+
+.char-btn.active .sound-indicator {
+  opacity: 1;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+  grid-column: 1 / -1;
+}
+
+.empty-state .icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
