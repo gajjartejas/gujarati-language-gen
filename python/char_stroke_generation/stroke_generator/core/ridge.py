@@ -224,19 +224,26 @@ def transverse_ridge_snap(
         if is_closed:
             new_pts[-1] = new_pts[0]
 
-        # 3. Decoupled Tangential Relaxation (Zero Curvature Shrinkage)
-        # Only smooth ALONG the curve tangent vector, never perpendicular to it!
+        # 3. Decoupled Tangential Relaxation (Curvature-Guarded)
+        # Only smooth ALONG the curve tangent vector, and suppress smoothing at tight loops/turnarounds
         relaxed = new_pts.copy()
         for i in range(1, N - 1):
-            laplacian = 0.5 * (new_pts[i - 1] + new_pts[i + 1]) - new_pts[i]
-            # Project onto unit tangent vector
-            tangential_shift = np.dot(laplacian, tangents[i]) * tangents[i]
-            relaxed[i] = new_pts[i] + 0.35 * tangential_shift
+            v_in = new_pts[i] - new_pts[i - 1]
+            v_out = new_pts[i + 1] - new_pts[i]
+            len_in = max(np.hypot(v_in[0], v_in[1]), 1e-6)
+            len_out = max(np.hypot(v_out[0], v_out[1]), 1e-6)
+            cos_angle = np.dot(v_in / len_in, v_out / len_out)
+
+            # Suppress tangential smoothing at tight loops (cos_angle < 0.3) to preserve circular curves/knots
+            if cos_angle > 0.3:
+                laplacian = 0.5 * (new_pts[i - 1] + new_pts[i + 1]) - new_pts[i]
+                tangential_shift = np.dot(laplacian, tangents[i]) * tangents[i]
+                relaxed[i] = new_pts[i] + 0.25 * tangential_shift
 
         if is_closed:
             laplacian_0 = 0.5 * (new_pts[-2] + new_pts[1]) - new_pts[0]
             tangential_shift_0 = np.dot(laplacian_0, tangents[0]) * tangents[0]
-            relaxed[0] = new_pts[0] + 0.35 * tangential_shift_0
+            relaxed[0] = new_pts[0] + 0.25 * tangential_shift_0
             relaxed[-1] = relaxed[0]
 
         pts = relaxed
@@ -250,9 +257,9 @@ def transverse_ridge_snap(
             pts[0] = ray_march_cap_centroid(pts[0], t_start, dist_map, max_search_px=2.0 * scale_res)
             pts[-1] = ray_march_cap_centroid(pts[-1], t_end, dist_map, max_search_px=2.0 * scale_res)
 
-        pts = resample_polyline(pts, N)
         if is_closed:
             pts[-1] = pts[0]
+
 
     svg_pts = (pts / scale_res) - pad
     return fit_cubic_bezier(svg_pts, max_segment_len=6.0, is_closed=is_closed)
