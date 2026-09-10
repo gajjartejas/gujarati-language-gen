@@ -141,8 +141,9 @@ env/
 *.egg-info/
 .pytest_cache/
 
-# Generated Outputs & Assets
+# Generated Outputs, Temp & Assets
 output/
+temp/
 preview_svgs/
 generated_svgs/
 
