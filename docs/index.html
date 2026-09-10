@@ -51,73 +51,90 @@
     </div>
   </header>
 
-  <!-- Dual Comparison Stages -->
-  <section class="stage-section">
-    <!-- Active Character Header Banner -->
-    <div class="char-header-banner">
-      <div class="char-main-info">
-        <span class="char-glyph-large" id="banner-glyph">ક</span>
-        <div class="char-names">
-          <div class="char-title" id="banner-title">ક (Ka)</div>
-          <div class="char-subtitle" id="banner-subtitle">Kakko Consonant (વ્યંજન)</div>
+  <!-- Workspace: Stages (Left) + Settings Panel (Right) -->
+  <section class="workspace-layout">
+    <!-- Stages Column -->
+    <div class="stages-column">
+      <!-- Active Character Header Banner -->
+      <div class="char-header-banner">
+        <div class="char-main-info">
+          <span class="char-glyph-large" id="banner-glyph">ક</span>
+          <div class="char-names">
+            <div class="char-title" id="banner-title">ક (Ka)</div>
+            <div class="char-subtitle" id="banner-subtitle">Kakko Consonant (વ્યંજન)</div>
+          </div>
+        </div>
+        <div class="char-meta-tags">
+          <span class="tag tag-accent" id="banner-tag-cat">KAKKO</span>
+          <span class="tag" id="banner-tag-strokes">2 Strokes</span>
         </div>
       </div>
-      <div class="char-meta-tags">
-        <span class="tag tag-accent" id="banner-tag-cat">KAKKO</span>
-        <span class="tag" id="banner-tag-strokes">2 Strokes</span>
+
+      <!-- Comparison Stages Cards -->
+      <div class="stages-container">
+        <!-- Reference Card (Light) -->
+        <div class="stage-card">
+          <div class="stage-card-title">
+            <span>📄 Reference (Light)</span>
+            <span class="badge-header badge-ref-header">Manual Inkscape</span>
+          </div>
+          <div class="svg-stage" id="stage-ref"></div>
+          <span class="stage-footer-badge">Original Thin Baseline Outlines</span>
+        </div>
+
+        <!-- Auto-Generated Card (Bold) -->
+        <div class="stage-card">
+          <div class="stage-card-title">
+            <span>⚡ Auto-Generated (Bold)</span>
+            <span class="badge-header badge-bold-header">Medial Ridge Snapped</span>
+          </div>
+          <div class="svg-stage" id="stage-gen"></div>
+          <span class="stage-footer-badge">Analytical EDT Centerline Engine</span>
+        </div>
       </div>
     </div>
 
-    <!-- The Two Comparison Cards (Left size normalized with matching viewBox) -->
-    <div class="stages-container">
-      <!-- Reference Card (Light) -->
-      <div class="stage-card">
-        <div class="stage-card-title">
-          <span>📄 Reference (Light)</span>
-          <span class="badge-header badge-ref-header">Manual Inkscape Template</span>
+    <!-- Right Settings Panel -->
+    <aside class="settings-panel">
+      <div class="panel-header">
+        <h3>⚙️ Settings & Controls</h3>
+      </div>
+
+      <!-- Quick Playback Actions -->
+      <div class="panel-group">
+        <label class="panel-label">Animation & Sound</label>
+        <div class="panel-btn-grid">
+          <button class="btn-action" id="btn-replay" onclick="stageManager.replay()" title="Replay Stroke Animation (Spacebar)">
+            <span>▶</span> Replay
+          </button>
+          <button class="btn-action btn-pronounce" id="btn-pronounce" onclick="soundManager.replayCurrent()" title="Play Gujarati Pronunciation (P)">
+            <span class="audio-icon">🔊</span> Pronounce
+          </button>
         </div>
-        <div class="svg-stage" id="stage-ref"></div>
-        <span class="stage-footer-badge">Original Thin Baseline Outlines</span>
       </div>
 
-      <!-- Auto-Generated Card (Bold) -->
-      <div class="stage-card">
-        <div class="stage-card-title">
-          <span>⚡ Auto-Generated (Bold)</span>
-          <span class="badge-header badge-bold-header">Medial Ridge Snapped</span>
+      <!-- Display Layers -->
+      <div class="panel-group">
+        <label class="panel-label">Display Layers</label>
+        <div class="panel-btn-grid">
+          <button class="btn-action btn-secondary" id="btn-toggle-outline" onclick="stageManager.toggleOutlines()" title="Toggle Background Outlines">
+            Outlines
+          </button>
+          <button class="btn-action btn-secondary" id="btn-toggle-centerlines" onclick="stageManager.toggleCenterlinesOnly()" title="View Centerlines Only">
+            Centerlines
+          </button>
         </div>
-        <div class="svg-stage" id="stage-gen"></div>
-        <span class="stage-footer-badge">Deformed & Snapped via Analytical EDT Engine</span>
-      </div>
-    </div>
-
-    <!-- Controls Toolbar -->
-    <div class="controls-toolbar">
-      <div class="controls-left">
-        <!-- Replay Animation Button -->
-        <button class="btn-action" id="btn-replay" onclick="stageManager.replay()" title="Replay Stroke Animation (Spacebar)">
-          <span>▶</span> Replay Animation
-        </button>
-        <!-- Kano Audio Pronounce Button -->
-        <button class="btn-action btn-pronounce" id="btn-pronounce" onclick="soundManager.replayCurrent()" title="Play Gujarati Pronunciation (P)">
-          <span class="audio-icon">🔊</span> Pronounce
-        </button>
-        <!-- Outlines Toggle -->
-        <button class="btn-action btn-secondary" id="btn-toggle-outline" onclick="stageManager.toggleOutlines()" title="Toggle Background Outlines">
-          Outlines
-        </button>
-        <!-- Centerlines Only Toggle -->
-        <button class="btn-action btn-secondary" id="btn-toggle-centerlines" onclick="stageManager.toggleCenterlinesOnly()" title="View Centerlines Only">
-          Centerlines Only
-        </button>
       </div>
 
-      <div class="controls-right">
-        <!-- Stroke Width Adjuster -->
-        <div class="slider-group">
-          <label for="slider-stroke-width">Stroke Width:</label>
+      <!-- Sliders Row (Responsive Grid on Mobile) -->
+      <div class="panel-sliders-row">
+        <!-- Stroke Width Controls -->
+        <div class="panel-group">
+          <div class="panel-label-row">
+            <label class="panel-label" for="slider-stroke-width">Stroke Width</label>
+            <span class="slider-val" id="width-val">3.5px</span>
+          </div>
           <input type="range" id="slider-stroke-width" min="1" max="10" step="0.5" value="3.5">
-          <span class="slider-val" id="width-val">3.5px</span>
           <div class="width-presets">
             <button class="width-pill" data-width="2">2px</button>
             <button class="width-pill active" data-width="3.5">3.5px</button>
@@ -127,13 +144,20 @@
         </div>
 
         <!-- Animation Speed Slider -->
-        <div class="slider-group">
-          <label for="slider-speed">Speed:</label>
+        <div class="panel-group">
+          <div class="panel-label-row">
+            <label class="panel-label" for="slider-speed">Animation Speed</label>
+            <span class="slider-val" id="speed-val">0.75x</span>
+          </div>
           <input type="range" id="slider-speed" min="0.25" max="2" step="0.25" value="0.75">
-          <span class="slider-val" id="speed-val">0.75x</span>
         </div>
       </div>
-    </div>
+
+      <!-- Keyboard Shortcuts Help -->
+      <div class="shortcuts-helper">
+        <span>⌨️ <b>Space</b> Replay &bull; <b>P</b> Sound &bull; <b>← →</b> Next/Prev</span>
+      </div>
+    </aside>
   </section>
 
   <!-- Character Catalog Browser (565 Characters) -->

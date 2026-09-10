@@ -1,12 +1,21 @@
-/* Comparison Stages, Controls Toolbar, and Animation Styles */
+/* Comparison Stages & Right Settings Panel Layout */
 
-.stage-section {
+.workspace-layout {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1140px;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+  margin-bottom: 24px;
+}
+
+/* Left Column: Header Banner + Dual Stages */
+.stages-column {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-bottom: 32px;
+  gap: 16px;
+  min-width: 0; /* Prevents overflow in grid */
 }
 
 /* Character Summary Banner */
@@ -18,8 +27,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  padding: 16px 24px;
-  margin-bottom: 20px;
+  padding: 12px 20px;
   box-shadow: var(--shadow-sm);
   backdrop-filter: blur(8px);
 }
@@ -27,15 +35,16 @@
 .char-main-info {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .char-glyph-large {
   font-family: 'Noto Sans Gujarati', sans-serif;
-  font-size: 42px;
+  font-size: 38px;
   font-weight: 700;
   color: var(--accent-primary);
   line-height: 1;
+  filter: drop-shadow(0 2px 8px var(--accent-glow));
 }
 
 .char-names {
@@ -44,16 +53,16 @@
 }
 
 .char-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--text-primary);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .char-subtitle {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
@@ -67,10 +76,11 @@
   background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
   padding: 4px 10px;
   border-radius: var(--radius-full);
+  letter-spacing: 0.03em;
 }
 
 .tag.tag-accent {
@@ -81,26 +91,21 @@
 
 /* Dual Stage Comparison Cards */
 .stages-container {
-  display: flex;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
   width: 100%;
-  justify-content: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
 }
 
 .stage-card {
-  flex: 1;
-  min-width: 320px;
-  max-width: 520px;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
   backdrop-filter: blur(12px);
   position: relative;
   transition: transform var(--transition-normal), border-color var(--transition-fast);
@@ -111,10 +116,10 @@
 }
 
 .stage-card-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   width: 100%;
   display: flex;
   align-items: center;
@@ -122,11 +127,11 @@
 }
 
 .stage-card-title span.badge-header {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: var(--radius-full);
 }
 
@@ -140,10 +145,10 @@
   color: var(--accent-primary);
 }
 
-/* SVG Rendering Stage (Left Char Size Normalized) */
+/* SVG Rendering Stage */
 .svg-stage {
   width: 100%;
-  height: 280px;
+  height: 220px;
   background: var(--stage-bg);
   border: 1px dashed var(--stage-border);
   border-radius: var(--radius-md);
@@ -151,23 +156,22 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  margin-bottom: 16px;
-  padding: 16px;
+  margin-bottom: 10px;
+  padding: 12px;
   overflow: hidden;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-/* Sizing rule: Both reference and bold SVGs expand proportionally inside 240x240 */
 .svg-stage svg {
   width: 100%;
   height: 100%;
-  max-width: 240px;
-  max-height: 240px;
+  max-width: 190px;
+  max-height: 190px;
   overflow: visible;
   display: block;
 }
 
-/* Path styles */
+/* SVG Path Styles */
 .svg-stage svg path[id*="p0"] {
   fill: var(--stage-outline-bold);
   opacity: 0.85;
@@ -186,47 +190,84 @@
   transition: stroke-width var(--transition-fast);
 }
 
-/* Sub-card footer badge */
 .stage-footer-badge {
   font-size: 11px;
   font-weight: 500;
   color: var(--text-muted);
 }
 
-/* Controls Toolbar */
-.controls-toolbar {
-  width: 100%;
+/* ==========================================================================
+   Right Panel: Settings & Controls
+   ========================================================================== */
+.settings-panel {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  padding: 18px 24px;
+  padding: 20px;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(12px);
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 16px;
-  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 20px;
 }
 
-.controls-left, .controls-right {
+.panel-header {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.panel-header h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 8px;
+  letter-spacing: -0.01em;
 }
 
+.panel-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panel-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.panel-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-btn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* Action Buttons inside Settings Panel */
 .btn-action {
   background: var(--green-action);
-  color: white;
+  color: #ffffff !important;
   border: none;
-  padding: 9px 18px;
+  padding: 9px 12px;
   border-radius: var(--radius-sm);
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 6px;
   transition: all var(--transition-fast);
   box-shadow: var(--shadow-sm);
 }
@@ -234,23 +275,6 @@
 .btn-action:hover {
   background: var(--green-hover);
   transform: translateY(-1px);
-}
-
-.btn-action.btn-secondary {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-medium);
-  color: var(--text-primary);
-}
-
-.btn-action.btn-secondary:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--text-secondary);
-}
-
-.btn-action.btn-secondary.active {
-  background: var(--blue-action);
-  border-color: var(--blue-action);
-  color: white;
 }
 
 .btn-action.btn-pronounce {
@@ -261,63 +285,184 @@
   background: var(--accent-primary-hover);
 }
 
-/* Slider Controls (Speed & Stroke Width) */
-.slider-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.btn-action.btn-secondary {
   background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-secondary);
+  border: 1px solid var(--border-medium);
+  color: var(--text-primary) !important;
 }
 
-.slider-group label {
-  white-space: nowrap;
+.btn-action.btn-secondary:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--text-secondary);
 }
 
-.slider-group input[type="range"] {
-  width: 80px;
+.btn-action.btn-secondary.active {
+  background: var(--blue-action);
+  border-color: var(--blue-action);
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(31, 111, 235, 0.4);
+}
+
+/* Sliders Row */
+.panel-sliders-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Sliders */
+.settings-panel input[type="range"] {
+  width: 100%;
+  height: 6px;
+  border-radius: var(--radius-full);
   accent-color: var(--accent-primary);
+  background: var(--bg-tertiary);
   cursor: pointer;
+  margin: 2px 0 6px;
 }
 
 .slider-val {
-  min-width: 38px;
-  text-align: right;
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
-  color: var(--text-primary);
+  font-weight: 600;
+  color: var(--accent-primary);
 }
 
 /* Stroke Width Preset Buttons */
 .width-presets {
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 
 .width-pill {
-  background: transparent;
+  flex: 1;
+  text-align: center;
+  background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-  padding: 3px 8px;
-  border-radius: var(--radius-full);
+  color: var(--text-secondary) !important;
+  padding: 5px 0;
+  border-radius: var(--radius-sm);
   font-size: 11px;
+  font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .width-pill:hover {
   border-color: var(--border-medium);
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
+  background: var(--bg-card-hover);
 }
 
 .width-pill.active {
   background: var(--cyan-stroke);
   border-color: var(--cyan-stroke);
-  color: #000;
+  color: #000000 !important;
   font-weight: 700;
+  box-shadow: 0 2px 8px var(--cyan-glow);
+}
+
+/* Keyboard Shortcuts Helper */
+.shortcuts-helper {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.shortcuts-helper b {
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Responsive Adaptations for Stage & Settings
+   ========================================================================== */
+@media (max-width: 960px) {
+  .workspace-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .settings-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .char-header-banner {
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .char-glyph-large {
+    font-size: 32px;
+  }
+
+  .char-title {
+    font-size: 15px;
+  }
+
+  /* Keep stages side-by-side on mobile so comparison is instantaneous */
+  .stages-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .stage-card {
+    padding: 10px 8px;
+    border-radius: var(--radius-md);
+  }
+
+  .stage-card-title {
+    font-size: 11px;
+    margin-bottom: 6px;
+    justify-content: center;
+  }
+
+  .stage-card-title span.badge-header {
+    display: none; /* Keep header clean on small screens */
+  }
+
+  .svg-stage {
+    height: 145px;
+    padding: 6px;
+    margin-bottom: 6px;
+  }
+
+  .svg-stage svg {
+    max-width: 125px;
+    max-height: 125px;
+  }
+
+  .stage-footer-badge {
+    font-size: 9px;
+    text-align: center;
+  }
+
+  .settings-panel {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  .panel-header {
+    padding-bottom: 8px;
+  }
+
+  .panel-btn-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .panel-sliders-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .shortcuts-helper {
+    display: none; /* Hide desktop keyboard tips on mobile touch devices */
+  }
 }

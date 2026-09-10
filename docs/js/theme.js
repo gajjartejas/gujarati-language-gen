@@ -6,6 +6,10 @@
   const THEME_KEY = 'gujarati_font_theme';
 
   function getPreferredTheme() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const themeParam = urlParams.get('theme');
+    if (themeParam === 'light' || themeParam === 'dark') return themeParam;
+
     const saved = localStorage.getItem(THEME_KEY);
     if (saved) return saved;
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches
