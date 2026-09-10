@@ -100,3 +100,73 @@ def shape_text_with_harfbuzz(
         x_cursor += pos.x_advance
 
     return target_glyphs
+
+
+def get_glyph_components(glyph_path: Path) -> List[Path]:
+    """
+    Extracts visually independent components from a glyph path.
+    Groups inner holes (subpaths with bboxes strictly contained inside an outer contour's bbox)
+    with their outer parent contour, while separating disconnected disjoint contours.
+    """
+    subs = glyph_path.continuous_subpaths()
+    if len(subs) <= 1:
+        return [glyph_path]
+
+    bboxes = [s.bbox() for s in subs]
+    parent = {}
+    for j, bj in enumerate(bboxes):
+        for i, bi in enumerate(bboxes):
+            if i != j:
+                # Check if bj is strictly contained inside bi
+                if bi[0] <= bj[0] and bi[1] >= bj[1] and bi[2] <= bj[2] and bi[3] >= bj[3]:
+                    parent[j] = i
+                    break
+
+    components = {}
+    for j, s in enumerate(subs):
+        root = parent.get(j, j)
+        if root not in components:
+            components[root] = []
+        components[root].append(s)
+
+    result = []
+    for root, sub_list in components.items():
+        comp_path = Path(*[seg for sub in sub_list for seg in sub])
+        result.append(comp_path)
+    return result
+
+
+def decompose_target_glyphs(
+    target_glyphs: List[ShapedGlyph],
+    expected_count: int,
+) -> List[ShapedGlyph]:
+    """
+    Decomposes compound font glyphs (e.g. ovowelsign containing both kana bar and matra)
+    into individual components when the reference template expects separate stroke groups.
+    """
+    if len(target_glyphs) >= expected_count:
+        return target_glyphs
+
+    decomposed: List[ShapedGlyph] = []
+    for tg in target_glyphs:
+        comps = get_glyph_components(tg.local_path)
+        if len(comps) > 1 and (len(decomposed) + len(comps) <= expected_count or len(target_glyphs) <= 2):
+            for idx, c in enumerate(comps):
+                bx = c.bbox()
+                local_p = c.translated(complex(-bx[0], -bx[2]))
+                mask = rasterize_path_mask_iou(local_p, 32)
+                decomposed.append(
+                    ShapedGlyph(
+                        name=f"{tg.name}_part{idx}",
+                        local_path=local_p,
+                        local_bbox=local_p.bbox(),
+                        mask_32=mask,
+                        global_pos_x=tg.global_pos_x + bx[0],
+                        global_pos_y=tg.global_pos_y + bx[2],
+                    )
+                )
+        else:
+            decomposed.append(tg)
+
+    return decomposed
+

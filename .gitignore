@@ -146,5 +146,5 @@ output/
 temp/
 preview_svgs/
 generated_svgs/
-
-
+# Playwright
+.playwright-cli/

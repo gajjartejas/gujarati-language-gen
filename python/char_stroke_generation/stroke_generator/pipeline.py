@@ -15,8 +15,9 @@ from svgpathtools import parse_path
 
 from .core.raster import rasterize_glyph_mask, rasterize_path_mask_iou
 from .core.ridge import transverse_ridge_snap
-from .font.shaping import shape_text_with_harfbuzz
+from .font.shaping import shape_text_with_harfbuzz, decompose_target_glyphs
 from .font.matching import match_reference_to_target
+
 
 
 def process_single_svg(
@@ -68,6 +69,21 @@ def process_single_svg(
         ref_p_obj = parse_path(p_paths[0].attrib['d'])
         ref_s_objs = [parse_path(s.attrib['d']) for s in s_paths]
         mask = rasterize_path_mask_iou(ref_p_obj, 32)
+        ref_bx = ref_p_obj.bbox()
+
+        # Canvas center taking group translation into account
+        tf = g.attrib.get('transform', '')
+        tx, ty = 0.0, 0.0
+        if 'translate' in tf:
+            try:
+                parts = tf.split('translate(')[1].split(')')[0].replace(' ', ',').split(',')
+                parts = [p.strip() for p in parts if p.strip()]
+                tx = float(parts[0])
+                ty = float(parts[1]) if len(parts) > 1 else 0.0
+            except Exception:
+                pass
+
+        ref_center = ((ref_bx[0] + ref_bx[1]) / 2.0 + tx, (ref_bx[2] + ref_bx[3]) / 2.0 + ty)
 
         ref_group_data.append({
             'id': gid,
@@ -77,18 +93,31 @@ def process_single_svg(
             'p_obj': ref_p_obj,
             's_objs': ref_s_objs,
             'mask': mask,
-            'bbox': ref_p_obj.bbox()
+            'bbox': ref_bx,
+            'center': ref_center,
         })
 
     # 2. Shape with HarfBuzz & FontTools
-    target_glyphs = shape_text_with_harfbuzz(font_path, text_string, target_font_scale)
-    if not target_glyphs:
+    raw_target_glyphs = shape_text_with_harfbuzz(font_path, text_string, target_font_scale)
+    if not raw_target_glyphs:
         return False
 
-    # 3. Match Reference Groups to Target Glyphs via Hungarian IoU
+    # Decompose compound font glyphs (e.g. ovowelsign, aivowelsign, visarga) if reference has more groups
+    target_glyphs = decompose_target_glyphs(raw_target_glyphs, len(ref_group_data))
+
+    # 3. Match Reference Groups to Target Glyphs via Hungarian IoU & Spatial Proximity
     ref_masks = [rg['mask'] for rg in ref_group_data]
     tgt_masks = [tg.mask_32 for tg in target_glyphs]
-    matches = match_reference_to_target(ref_masks, tgt_masks)
+    ref_centers = [rg['center'] for rg in ref_group_data]
+    tgt_centers = [
+        (
+            tg.global_pos_x + (tg.local_bbox[0] + tg.local_bbox[1]) / 2.0,
+            tg.global_pos_y + (tg.local_bbox[2] + tg.local_bbox[3]) / 2.0,
+        )
+        for tg in target_glyphs
+    ]
+    matches = match_reference_to_target(ref_masks, tgt_masks, ref_centers, tgt_centers)
+
 
     # 4. Global Bounding Box Alignment
     matched_target_indices = list(matches.values())

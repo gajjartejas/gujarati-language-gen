@@ -7,7 +7,11 @@ import unittest
 from pathlib import Path
 import numpy as np
 
-from stroke_generator.font.shaping import shape_text_with_harfbuzz, ShapedGlyph
+from stroke_generator.font.shaping import (
+    shape_text_with_harfbuzz,
+    decompose_target_glyphs,
+    ShapedGlyph,
+)
 from stroke_generator.font.matching import match_reference_to_target
 
 def _find_font_path() -> str:
@@ -48,6 +52,22 @@ class TestFontShapingAndMatching(unittest.TestCase):
             self.assertEqual(g.mask_32.shape, (32, 32))
             self.assertTrue(np.any(g.mask_32))
 
+    def test_decompose_compound_glyphs(self):
+        if not os.path.exists(FONT_PATH):
+            self.skipTest(f"Font not found at {FONT_PATH}")
+
+        # "કો" has 2 raw glyphs: kagujr and ovowelsigngujr (which contains kana + top loop)
+        raw_glyphs = shape_text_with_harfbuzz(FONT_PATH, "કો")
+        self.assertEqual(len(raw_glyphs), 2)
+
+        # Decompose expecting 3 groups
+        decomposed = decompose_target_glyphs(raw_glyphs, 3)
+        self.assertEqual(len(decomposed), 3)
+        # Verify all decomposed items have valid paths and bounding boxes
+        for g in decomposed:
+            self.assertGreater(len(g.local_path), 0)
+            self.assertEqual(g.mask_32.shape, (32, 32))
+
     def test_hungarian_bipartite_matching(self):
         # Create two distinct 32x32 masks
         mask_a = np.zeros((32, 32), dtype=bool)
@@ -64,6 +84,22 @@ class TestFontShapingAndMatching(unittest.TestCase):
         assignment_swapped = match_reference_to_target([mask_a, mask_b], [mask_b, mask_a])
         self.assertEqual(assignment_swapped, {0: 1, 1: 0})
 
+    def test_position_aware_matching_identical_shapes(self):
+        # Two identical circular dots at different Y positions (like visarga)
+        dot_mask = np.zeros((32, 32), dtype=bool)
+        dot_mask[10:20, 10:20] = True
+
+        ref_masks = [dot_mask, dot_mask]
+        ref_centers = [(50.0, 10.0), (50.0, 50.0)]  # Top dot, bottom dot
+
+        tgt_masks = [dot_mask, dot_mask]
+        tgt_centers = [(50.0, 10.0), (50.0, 50.0)]  # Top dot, bottom dot
+
+        # Position awareness ensures top matches top (0->0) and bottom matches bottom (1->1)
+        assignment = match_reference_to_target(ref_masks, tgt_masks, ref_centers, tgt_centers)
+        self.assertEqual(assignment, {0: 0, 1: 1})
+
 
 if __name__ == "__main__":
     unittest.main()
+
