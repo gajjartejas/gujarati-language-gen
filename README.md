@@ -9,6 +9,8 @@ A multi-language repository providing tools, datasets, and algorithms for the Gu
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-brightgreen?style=for-the-badge&logo=github)](https://gajjartejas.github.io/gujarati-language-gen/)
 🌐 **Live Interactive App**: [https://gajjartejas.github.io/gujarati-language-gen/](https://gajjartejas.github.io/gujarati-language-gen/)
 
+[![Gujarati Font Stroke Animator & Kano Audio Preview](docs/assets/preview.png)](https://gajjartejas.github.io/gujarati-language-gen/)
+
 ---
 
 ## 📁 Repository Structure by Language
@@ -33,7 +35,7 @@ gujarati-language-gen/
 │   ├── index.html                # Semantic responsive single-page web application
 │   ├── css/                      # Modular styling (main, stage comparison, character grid)
 │   ├── js/                       # Theme toggle, Kano audio player, stage renderer, app coordinator
-│   └── assets/                   # Full 565-character SVG catalog and compressed MP3 audio
+│   └── assets/                   # Full 565-character SVG catalog, compressed MP3 audio & previews
 ├── fonts/                        # Shared TrueType/OpenType Gujarati fonts
 ├── resources/                    # Shared JSON definitions & raw datasets (Kakko, Barakhadi, Numerals)
 ├── interpolate-svg/              # Manual reference SVG stroke templates
@@ -56,6 +58,12 @@ The live web application provides an interactive stroke animator and audio playe
 - **Dark / Light Theme Toggle**: Top-right switch with Sun/Moon icons, custom HSL color palettes, and `localStorage` memory.
 - **Mobile Responsive Design**: Clean side-by-side stages, compact slider grids, and touch-optimized character targets on mobile viewports.
 - **Zero-Click GitHub Pages Deployment**: Fully automated via [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml).
+
+### 🖥️ Application Previews
+
+| Dark Theme (Default) | Light Theme |
+| :---: | :---: |
+| [![Dark Theme Preview](docs/assets/preview.png)](https://gajjartejas.github.io/gujarati-language-gen/) | [![Light Theme Preview](docs/assets/preview-light.png)](https://gajjartejas.github.io/gujarati-language-gen/?theme=light) |
 
 
 ---
