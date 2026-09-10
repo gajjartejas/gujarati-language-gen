@@ -36,10 +36,16 @@ class App {
     this.setupSearchBar();
     this.setupKeyboardNavigation();
 
-    // 4. Initial Render
-    this.applyFilters();
-    if (this.filteredCatalog.length > 0) {
-      this.selectCharacter(this.filteredCatalog[0], false); // Don't auto-play on first load
+    // 4. Initial Render (supports ?cat= query param)
+    const urlParams = new URLSearchParams(window.location.search);
+    const catParam = urlParams.get('cat');
+    if (catParam && ['kakko', 'barakhadi', 'numbers', 'all'].includes(catParam)) {
+      this.setCategory(catParam);
+    } else {
+      this.applyFilters();
+      if (this.filteredCatalog.length > 0) {
+        this.selectCharacter(this.filteredCatalog[0], false);
+      }
     }
   }
 
