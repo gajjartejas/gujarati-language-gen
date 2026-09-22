@@ -6,8 +6,12 @@
 
 A multi-language repository providing tools, datasets, and algorithms for the Gujarati writing system.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-brightgreen?style=for-the-badge&logo=github)](https://gajjartejas.github.io/gujarati-language-gen/)
-🌐 **Live Interactive App**: [https://gajjartejas.github.io/gujarati-language-gen/](https://gajjartejas.github.io/gujarati-language-gen/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Stroke%20Animator-brightgreen?style=for-the-badge&logo=github)](https://gajjartejas.github.io/gujarati-language-gen/)
+[![Live Handwriting Demo](https://img.shields.io/badge/Live%20Demo-Handwriting%20Suite-blue?style=for-the-badge&logo=github)](https://gajjartejas.github.io/gujarati-language-gen/handwriting/)
+
+🌐 **Live Interactive Apps**:
+- **🖋️ Stroke Animator & Kano Audio**: [https://gajjartejas.github.io/gujarati-language-gen/](https://gajjartejas.github.io/gujarati-language-gen/)
+- **✍️ Handwriting Recognition & Practice Suite**: [https://gajjartejas.github.io/gujarati-language-gen/handwriting/](https://gajjartejas.github.io/gujarati-language-gen/handwriting/)
 
 [![Gujarati Font Stroke Animator & Kano Audio Preview](docs/assets/preview.png)](https://gajjartejas.github.io/gujarati-language-gen/)
 
@@ -17,6 +21,12 @@ A multi-language repository providing tools, datasets, and algorithms for the Gu
 
 ```
 gujarati-language-gen/
+├── handwriting/                  # Real-Time Gujarati Handwriting Recognition & Practice Workspace
+│   ├── src/                      # Canvas, Guided Tracing, Quiz, Free Draw, Hybrid DTW + Tiny CNN
+│   ├── __tests__/                # Automated test suites (30 tests)
+│   ├── scripts/                  # Template extraction & model generation scripts
+│   ├── package.json              # TypeScript, React Native Web, Expo, and Jest runners
+│   └── README.md                 # Full technical spec & architecture documentation
 ├── node/                         # Node.js resource generation workspace
 │   ├── package.json              # Dependencies (text-to-svg, node-fetch)
 │   ├── index.js                  # Static SVG, CSV, and TTS audio generator
@@ -35,7 +45,8 @@ gujarati-language-gen/
 │   ├── index.html                # Semantic responsive single-page web application
 │   ├── css/                      # Modular styling (main, stage comparison, character grid)
 │   ├── js/                       # Theme toggle, Kano audio player, stage renderer, app coordinator
-│   └── assets/                   # Full 565-character SVG catalog, compressed MP3 audio & previews
+│   ├── assets/                   # Full 565-character SVG catalog, compressed MP3 audio & previews
+│   └── handwriting/              # Production web build for the Handwriting Recognition Suite
 ├── fonts/                        # Shared TrueType/OpenType Gujarati fonts
 ├── resources/                    # Shared JSON definitions & raw datasets (Kakko, Barakhadi, Numerals)
 ├── interpolate-svg/              # Manual reference SVG stroke templates
@@ -65,6 +76,27 @@ The live web application provides an interactive stroke animator and audio playe
 | :---: | :---: |
 | [![Dark Theme Preview](docs/assets/preview.png)](https://gajjartejas.github.io/gujarati-language-gen/) | [![Light Theme Preview](docs/assets/preview-light.png)](https://gajjartejas.github.io/gujarati-language-gen/?theme=light) |
 
+---
+
+## ✍️ Real-Time Gujarati Handwriting Recognition & Practice Suite (`handwriting/`)
+
+🔗 **Live Handwriting Web App**: [https://gajjartejas.github.io/gujarati-language-gen/handwriting/](https://gajjartejas.github.io/gujarati-language-gen/handwriting/)
+
+A complete handwriting recognition and practice suite featuring:
+- **Guided Practice**: Step-by-step Gujarati character tracing with directional hints, sequential stroke bubbles, and instant feedback.
+- **Animated Player**: Interactive stroke-by-stroke playback of all 565 characters with speed controls and printable worksheet generator.
+- **Quiz Game**: Gamified learning pairing Gujarati vocabulary, native audio pronunciation, and interactive drawing challenges.
+- **Free Drawing & Recognition**: Multi-stroke canvas powered by a **Hybrid Recognition Engine** combining **Sakoe-Chiba Dynamic Time Warping (DTW)** and an in-memory **Tiny CNN (Conv2D/MaxPool/Dense)** classifier.
+- **Accuracy Benchmarks**: Automated performance testing verifying sub-20ms latency and high recognition accuracy across characters.
+
+```bash
+cd handwriting
+npm install
+npm test            # Run all 7 Jest test suites (30 tests)
+npm run web         # Launch local development server
+npm run build:web   # Export production bundle to docs/handwriting
+```
+👉 See [Handwriting Documentation (`handwriting/README.md`)](handwriting/README.md) for architecture details.
 
 ---
 

@@ -141,6 +141,31 @@ body {
   gap: 12px;
 }
 
+/* Handwriting Suite Navigation Button */
+.nav-suite-btn {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.2), rgba(14, 165, 233, 0.25));
+  border: 1px solid var(--cyan-stroke);
+  color: var(--text-primary);
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all var(--transition-fast);
+  box-shadow: 0 0 12px var(--cyan-glow);
+}
+
+.nav-suite-btn:hover {
+  background: var(--cyan-stroke);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 0 18px var(--cyan-glow);
+}
+
 /* Theme Toggle Button */
 .theme-btn {
   background: var(--bg-tertiary);

@@ -1,0 +1,269 @@
+import React, {
+  useState,
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+  useCallback,
+} from 'react';
+import {
+  View,
+  StyleSheet,
+  PanResponder,
+  Platform,
+} from 'react-native';
+import Svg, { Path } from 'react-native-svg';
+import { Point, Stroke, Strokes } from '../types/handwriting';
+
+export interface HandwritingCanvasRef {
+  clear: () => void;
+  undo: () => void;
+  getStrokes: () => Strokes;
+}
+
+export interface HandwritingCanvasProps {
+  size?: number;
+  strokeColor?: string;
+  strokeWidth?: number;
+  onStrokeEnd?: (strokes: Strokes) => void;
+  onStrokesChange?: (strokes: Strokes) => void;
+  children?: React.ReactNode;
+}
+
+export const HandwritingCanvas = forwardRef<HandwritingCanvasRef, HandwritingCanvasProps>(
+  (
+    {
+      size = 320,
+      strokeColor = '#38bdf8',
+      strokeWidth = 4.5,
+      onStrokeEnd,
+      onStrokesChange,
+      children,
+    },
+    ref
+  ) => {
+    const [strokes, setStrokes] = useState<Strokes>([]);
+    const [currentStroke, setCurrentStroke] = useState<Stroke>([]);
+
+    const strokesRef = useRef<Strokes>([]);
+    strokesRef.current = strokes;
+
+    const currentStrokeRef = useRef<Stroke>([]);
+    currentStrokeRef.current = currentStroke;
+
+    const containerRef = useRef<View>(null);
+    const canvasOffsetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+
+    const clear = useCallback(() => {
+      setStrokes([]);
+      setCurrentStroke([]);
+      strokesRef.current = [];
+      currentStrokeRef.current = [];
+      onStrokesChange?.([]);
+      onStrokeEnd?.([]);
+    }, [onStrokeEnd, onStrokesChange]);
+
+    const undo = useCallback(() => {
+      setStrokes(prev => {
+        const next = prev.slice(0, -1);
+        strokesRef.current = next;
+        onStrokesChange?.(next);
+        onStrokeEnd?.(next);
+        return next;
+      });
+    }, [onStrokeEnd, onStrokesChange]);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        clear,
+        undo,
+        getStrokes: () => strokesRef.current,
+      }),
+      [clear, undo]
+    );
+
+    const updateCanvasOffset = () => {
+      if (containerRef.current && Platform.OS !== 'web') {
+        containerRef.current.measure((_x, _y, _width, _height, pageX, pageY) => {
+          canvasOffsetRef.current = { x: pageX, y: pageY };
+        });
+      }
+    };
+
+    // Mobile PanResponder
+    const panResponder = useRef(
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: () => true,
+        onPanResponderGrant: evt => {
+          updateCanvasOffset();
+          const { locationX, locationY } = evt.nativeEvent;
+          const x = Math.max(0, Math.min(size, locationX));
+          const y = Math.max(0, Math.min(size, locationY));
+          const pt: Point = { x, y, t: Date.now() };
+          currentStrokeRef.current = [pt];
+          setCurrentStroke([pt]);
+        },
+        onPanResponderMove: evt => {
+          const { locationX, locationY } = evt.nativeEvent;
+          const x = Math.max(0, Math.min(size, locationX));
+          const y = Math.max(0, Math.min(size, locationY));
+          const pt: Point = { x, y, t: Date.now() };
+
+          const updated = [...currentStrokeRef.current, pt];
+          currentStrokeRef.current = updated;
+          setCurrentStroke(updated);
+        },
+        onPanResponderRelease: () => {
+          if (currentStrokeRef.current.length > 0) {
+            const newStrokes = [...strokesRef.current, currentStrokeRef.current];
+            strokesRef.current = newStrokes;
+            setStrokes(newStrokes);
+            setCurrentStroke([]);
+            currentStrokeRef.current = [];
+            onStrokesChange?.(newStrokes);
+            onStrokeEnd?.(newStrokes);
+          }
+        },
+      })
+    ).current;
+
+    // Web mouse/touch handlers for seamless cross-platform browser support
+    const isDrawingWebRef = useRef(false);
+
+    const handleWebMouseDown = (e: any) => {
+      if (Platform.OS !== 'web') return;
+      isDrawingWebRef.current = true;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = Math.max(0, Math.min(size, e.clientX - rect.left));
+      const y = Math.max(0, Math.min(size, e.clientY - rect.top));
+      const pt: Point = { x, y, t: Date.now() };
+      currentStrokeRef.current = [pt];
+      setCurrentStroke([pt]);
+    };
+
+    const handleWebMouseMove = (e: any) => {
+      if (Platform.OS !== 'web' || !isDrawingWebRef.current) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = Math.max(0, Math.min(size, e.clientX - rect.left));
+      const y = Math.max(0, Math.min(size, e.clientY - rect.top));
+      const pt: Point = { x, y, t: Date.now() };
+      const updated = [...currentStrokeRef.current, pt];
+      currentStrokeRef.current = updated;
+      setCurrentStroke(updated);
+    };
+
+    const handleWebMouseUp = () => {
+      if (Platform.OS !== 'web' || !isDrawingWebRef.current) return;
+      isDrawingWebRef.current = false;
+      if (currentStrokeRef.current.length > 0) {
+        const newStrokes = [...strokesRef.current, currentStrokeRef.current];
+        strokesRef.current = newStrokes;
+        setStrokes(newStrokes);
+        setCurrentStroke([]);
+        currentStrokeRef.current = [];
+        onStrokesChange?.(newStrokes);
+        onStrokeEnd?.(newStrokes);
+      }
+    };
+
+    // Builds SVG path command from array of points
+    const strokeToSvgPath = (stroke: Stroke): string => {
+      if (stroke.length === 0) return '';
+      if (stroke.length === 1) {
+        return `M ${stroke[0].x} ${stroke[0].y} L ${stroke[0].x + 0.1} ${stroke[0].y + 0.1}`;
+      }
+
+      let d = `M ${stroke[0].x} ${stroke[0].y}`;
+      for (let i = 1; i < stroke.length; i++) {
+        // Quadratic bezier smoothing
+        const p1 = stroke[i - 1];
+        const p2 = stroke[i];
+        const midX = (p1.x + p2.x) / 2;
+        const midY = (p1.y + p2.y) / 2;
+        d += ` Q ${p1.x} ${p1.y}, ${midX} ${midY}`;
+      }
+      d += ` L ${stroke[stroke.length - 1].x} ${stroke[stroke.length - 1].y}`;
+      return d;
+    };
+
+    const webProps =
+      Platform.OS === 'web'
+        ? {
+            onMouseDown: handleWebMouseDown,
+            onMouseMove: handleWebMouseMove,
+            onMouseUp: handleWebMouseUp,
+            onMouseLeave: handleWebMouseUp,
+            onTouchStart: (e: any) => {
+              const touch = e.touches[0];
+              const rect = e.currentTarget.getBoundingClientRect();
+              handleWebMouseDown({
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                currentTarget: e.currentTarget,
+              });
+            },
+            onTouchMove: (e: any) => {
+              const touch = e.touches[0];
+              const rect = e.currentTarget.getBoundingClientRect();
+              handleWebMouseMove({
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                currentTarget: e.currentTarget,
+              });
+            },
+            onTouchEnd: handleWebMouseUp,
+          }
+        : {};
+
+    return (
+      <View
+        ref={containerRef}
+        style={[styles.container, { width: size, height: size }]}
+        {...(Platform.OS === 'web' ? webProps : panResponder.panHandlers)}
+      >
+        {/* Child overlay layer (e.g. ghost SVG guide) */}
+        {children && <View style={StyleSheet.absoluteFill}>{children}</View>}
+
+        {/* User Drawn Strokes */}
+        <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
+          {strokes.map((stroke, index) => (
+            <Path
+              key={`stroke-${index}`}
+              d={strokeToSvgPath(stroke)}
+              stroke={strokeColor}
+              strokeWidth={strokeWidth}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+          ))}
+          {currentStroke.length > 0 && (
+            <Path
+              d={strokeToSvgPath(currentStroke)}
+              stroke={strokeColor}
+              strokeWidth={strokeWidth}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+          )}
+        </Svg>
+      </View>
+    );
+  }
+);
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#1e293b',
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#334155',
+    alignSelf: 'center',
+    touchAction: 'none',
+    userSelect: 'none',
+    cursor: 'crosshair',
+  } as any,
+});

@@ -148,3 +148,8 @@ preview_svgs/
 generated_svgs/
 # Playwright
 .playwright-cli/
+
+# Expo
+.expo/
+web-build/
+dist/
