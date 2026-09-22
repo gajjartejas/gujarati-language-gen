@@ -7,7 +7,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build:web": "expo export -p web --output-dir ../docs/handwriting",
+    "build:web": "expo export -p web --output-dir ../docs/handwriting && touch ../docs/handwriting/.nojekyll",
     "test": "jest",
     "extract-templates": "npx ts-node --transpile-only scripts/extract-templates.ts",
     "generate-model": "npx ts-node --transpile-only scripts/generate_model.ts"
