@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  StatusBar,
+  ScrollView,
   Platform,
+  Dimensions,
 } from 'react-native';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import { CHARACTER_TEMPLATES } from './src/data/characters';
@@ -21,6 +22,17 @@ type ActiveTab = 'guided' | 'animated' | 'quiz' | 'free' | 'benchmark';
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('guided');
   const [guidedInitialTemplate, setGuidedInitialTemplate] = useState<any>(undefined);
+  const [isEmbedded, setIsEmbedded] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      try {
+        setIsEmbedded(window.self !== window.top);
+      } catch (e) {
+        setIsEmbedded(true);
+      }
+    }
+  }, []);
 
   const handleSelectCandidateForGuided = (template: any) => {
     setGuidedInitialTemplate(template);
@@ -33,82 +45,108 @@ export default function App() {
 
       {/* Top Header */}
       <View style={styles.header}>
-        <View>
-          <View style={styles.titleRow}>
-            <Text style={styles.headerTitle}>ગુજરાતી હસ્તાક્ષર (Gujarati Handwriting)</Text>
-            <View style={styles.badgeRow}>
-              <View style={styles.offlineBadge}>
-                <Text style={styles.offlineText}>● 100% OFFLINE</Text>
-              </View>
-              {Platform.OS === 'web' && (
-                <TouchableOpacity
-                  style={styles.backButton}
-                  onPress={() => {
-                    if (typeof window !== 'undefined') {
-                      window.location.href = '../index.html';
-                    }
-                  }}
-                >
-                  <Text style={styles.backButtonText}>🖋️ Stroke Animator & Kano Audio</Text>
-                </TouchableOpacity>
-              )}
+        {/* If viewed standalone (not embedded in docs/index.html), show the unified two-tab switcher */}
+        {!isEmbedded && Platform.OS === 'web' && (
+          <View style={styles.suiteTabsRow}>
+            <TouchableOpacity
+              style={styles.suiteTabInactive}
+              onPress={() => {
+                if (typeof window !== 'undefined') {
+                  window.location.href = '../index.html';
+                }
+              }}
+            >
+              <Text style={styles.suiteTabInactiveIcon}>🖋️</Text>
+              <Text style={styles.suiteTabInactiveText}>Stroke Animator & Audio</Text>
+            </TouchableOpacity>
+
+            <View style={styles.suiteTabActive}>
+              <Text style={styles.suiteTabActiveIcon}>✍️</Text>
+              <Text style={styles.suiteTabActiveText}>Handwriting Recognition</Text>
             </View>
           </View>
-          <Text style={styles.headerSubtitle}>
-            Hybrid Recognition: Sakoe-Chiba DTW + Cross-Platform Tiny CNN
-          </Text>
+        )}
+
+        <View style={styles.titleRow}>
+          <View style={styles.titleInfo}>
+            <View style={styles.mainTitleBadge}>
+              <Text style={styles.headerTitle}>ગુજરાતી હસ્તાક્ષર</Text>
+              <Text style={styles.headerTitleSub}>(Gujarati Handwriting)</Text>
+            </View>
+            <Text style={styles.headerSubtitle}>
+              Hybrid DTW + Cross-Platform Tiny CNN Engine
+            </Text>
+          </View>
+
+          <View style={styles.badgeRow}>
+            <View style={styles.offlineBadge}>
+              <Text style={styles.offlineDot}>●</Text>
+              <Text style={styles.offlineText}>100% OFFLINE</Text>
+            </View>
+          </View>
         </View>
       </View>
 
-      {/* Navigation Tab Bar */}
-      <View style={styles.tabBar}>
-        <TouchableOpacity
-          style={[styles.tabItem, activeTab === 'guided' && styles.activeTabItem]}
-          onPress={() => setActiveTab('guided')}
+      {/* Feature Mode Tabs (Scrollable pill chips on mobile) */}
+      <View style={styles.tabBarWrapper}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tabBarScroll}
         >
-          <Text style={[styles.tabText, activeTab === 'guided' && styles.activeTabText]}>
-            ✍️ Guided
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.chipTab, activeTab === 'guided' && styles.chipTabActive]}
+            onPress={() => setActiveTab('guided')}
+          >
+            <Text style={styles.chipTabIcon}>✍️</Text>
+            <Text style={[styles.chipTabText, activeTab === 'guided' && styles.chipTabTextActive]}>
+              Guided Practice
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tabItem, activeTab === 'animated' && styles.activeTabItem]}
-          onPress={() => setActiveTab('animated')}
-        >
-          <Text style={[styles.tabText, activeTab === 'animated' && styles.activeTabText]}>
-            🎬 Animated
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.chipTab, activeTab === 'animated' && styles.chipTabActive]}
+            onPress={() => setActiveTab('animated')}
+          >
+            <Text style={styles.chipTabIcon}>🎬</Text>
+            <Text style={[styles.chipTabText, activeTab === 'animated' && styles.chipTabTextActive]}>
+              Animated Player
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tabItem, activeTab === 'quiz' && styles.activeTabItem]}
-          onPress={() => setActiveTab('quiz')}
-        >
-          <Text style={[styles.tabText, activeTab === 'quiz' && styles.activeTabText]}>
-            🎮 Quiz Game
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.chipTab, activeTab === 'quiz' && styles.chipTabActive]}
+            onPress={() => setActiveTab('quiz')}
+          >
+            <Text style={styles.chipTabIcon}>🎮</Text>
+            <Text style={[styles.chipTabText, activeTab === 'quiz' && styles.chipTabTextActive]}>
+              Quiz Game
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tabItem, activeTab === 'free' && styles.activeTabItem]}
-          onPress={() => setActiveTab('free')}
-        >
-          <Text style={[styles.tabText, activeTab === 'free' && styles.activeTabText]}>
-            🔍 Free Draw
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.chipTab, activeTab === 'free' && styles.chipTabActive]}
+            onPress={() => setActiveTab('free')}
+          >
+            <Text style={styles.chipTabIcon}>🔍</Text>
+            <Text style={[styles.chipTabText, activeTab === 'free' && styles.chipTabTextActive]}>
+              Free Draw & ML
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tabItem, activeTab === 'benchmark' && styles.activeTabItem]}
-          onPress={() => setActiveTab('benchmark')}
-        >
-          <Text style={[styles.tabText, activeTab === 'benchmark' && styles.activeTabText]}>
-            ⚡ Benchmarks
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.chipTab, activeTab === 'benchmark' && styles.chipTabActive]}
+            onPress={() => setActiveTab('benchmark')}
+          >
+            <Text style={styles.chipTabIcon}>⚡</Text>
+            <Text style={[styles.chipTabText, activeTab === 'benchmark' && styles.chipTabTextActive]}>
+              Benchmarks
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
 
-      {/* Screen Container */}
+      {/* Active Screen View */}
       <View style={styles.contentContainer}>
         {activeTab === 'guided' && (
           <GuidedPracticeScreen
@@ -119,11 +157,14 @@ export default function App() {
         {activeTab === 'animated' && (
           <AnimatedDrawingScreen
             templates={CHARACTER_TEMPLATES}
-            initialTemplate={guidedInitialTemplate}
+            onSelectForGuided={handleSelectCandidateForGuided}
           />
         )}
         {activeTab === 'quiz' && (
-          <QuizGameScreen templates={CHARACTER_TEMPLATES} />
+          <QuizGameScreen
+            templates={CHARACTER_TEMPLATES}
+            onSelectTemplate={handleSelectCandidateForGuided}
+          />
         )}
         {activeTab === 'free' && (
           <FreeDrawingScreen
@@ -142,15 +183,63 @@ export default function App() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#090d16',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    backgroundColor: '#0a0e14',
   },
   header: {
-    backgroundColor: '#0f172a',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
+    backgroundColor: '#121820',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#1e293b',
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  suiteTabsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+    padding: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: 9999,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    alignSelf: 'flex-start',
+  },
+  suiteTabActive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#0284c7',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 9999,
+    shadowColor: '#0284c7',
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+  },
+  suiteTabActiveIcon: {
+    fontSize: 14,
+  },
+  suiteTabActiveText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  suiteTabInactive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 9999,
+  },
+  suiteTabInactiveIcon: {
+    fontSize: 14,
+  },
+  suiteTabInactiveText: {
+    color: '#8b949e',
+    fontSize: 12,
+    fontWeight: '600',
   },
   titleRow: {
     flexDirection: 'row',
@@ -159,11 +248,31 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
   },
+  titleInfo: {
+    flex: 1,
+    minWidth: 200,
+  },
+  mainTitleBadge: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
   headerTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#f8fafc',
-    letterSpacing: 0.3,
+    color: '#f0f6fc',
+    letterSpacing: -0.2,
+  },
+  headerTitleSub: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#8b949e',
+  },
+  headerSubtitle: {
+    fontSize: 11,
+    color: '#64748b',
+    marginTop: 2,
   },
   badgeRow: {
     flexDirection: 'row',
@@ -171,61 +280,66 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   offlineBadge: {
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(34, 197, 94, 0.12)',
     paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+    paddingVertical: 4,
+    borderRadius: 9999,
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.3)',
+    borderColor: 'rgba(34, 197, 94, 0.25)',
+  },
+  offlineDot: {
+    color: '#4ade80',
+    fontSize: 9,
   },
   offlineText: {
     color: '#4ade80',
     fontSize: 10,
     fontWeight: '700',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
-  backButton: {
-    backgroundColor: '#1e293b',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#38bdf8',
-  },
-  backButtonText: {
-    color: '#38bdf8',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: '#94a3b8',
-    marginTop: 4,
-  },
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: '#0f172a',
+  tabBarWrapper: {
+    backgroundColor: '#0a0e14',
     borderBottomWidth: 1,
-    borderBottomColor: '#1e293b',
+    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
   },
-  tabItem: {
-    flex: 1,
-    paddingVertical: 12,
+  tabBarScroll: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 8,
+    flexDirection: 'row',
     alignItems: 'center',
-    borderBottomWidth: 3,
-    borderBottomColor: 'transparent',
   },
-  activeTabItem: {
-    borderBottomColor: '#0284c7',
-    backgroundColor: '#1e293b',
+  chipTab: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 9999,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
-  tabText: {
+  chipTabActive: {
+    backgroundColor: '#0284c7',
+    borderColor: '#38bdf8',
+    shadowColor: '#0284c7',
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+  },
+  chipTabIcon: {
+    fontSize: 14,
+  },
+  chipTabText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#64748b',
+    color: '#8b949e',
   },
-  activeTabText: {
-    color: '#38bdf8',
+  chipTabTextActive: {
+    color: '#ffffff',
     fontWeight: '700',
   },
   contentContainer: {

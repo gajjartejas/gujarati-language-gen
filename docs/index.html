@@ -26,37 +26,51 @@
 
   <!-- Top Navigation & Header -->
   <header class="top-nav">
-    <div class="brand">
-      <span class="brand-icon">🖋️</span>
-      <div class="brand-text">
-        <h1>Gujarati Stroke Animator & Kano Audio</h1>
-        <p>Reference Template (Light) vs Medial Ridge Auto-Generated (Bold) &bull; 565 Characters</p>
+    <div class="top-nav-main">
+      <div class="brand">
+        <span class="brand-icon">🖋️</span>
+        <div class="brand-text">
+          <h1>ગુજરાતી Kano Suite</h1>
+          <p id="suite-tagline">Reference Template (Light) vs Medial Ridge Auto-Generated (Bold) &bull; 565 Characters</p>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <!-- Sound Mute/Unmute Toggle -->
+        <button class="sound-btn active" id="btn-sound-toggle" onclick="soundManager.toggleSound()" title="Toggle Pronunciation Sound">
+          🔊 <span class="nav-action-label">Sound: ON</span>
+        </button>
+        <!-- Dark / Light Theme Toggle -->
+        <button class="theme-btn" id="btn-theme-toggle" onclick="toggleTheme()" title="Switch Theme">
+          ☀️
+        </button>
+        <!-- GitHub Repository Link -->
+        <a href="https://github.com/gajjartejas/gujarati-language-gen" target="_blank" rel="noopener noreferrer" class="github-link" title="GitHub Repository">
+          <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+          </svg>
+        </a>
       </div>
     </div>
-    <div class="nav-actions">
-      <!-- Handwriting Recognition Suite Link -->
-      <a href="handwriting/" class="nav-suite-btn" title="Open Gujarati Handwriting Recognition & Practice Suite">
-        ✍️ Handwriting Suite
-      </a>
-      <!-- Sound Mute/Unmute Toggle -->
-      <button class="sound-btn active" id="btn-sound-toggle" onclick="soundManager.toggleSound()" title="Toggle Pronunciation Sound">
-        🔊 Sound: ON
+
+    <!-- Segmented Two-Tab Navigation -->
+    <nav class="suite-tabs-nav" role="tablist" aria-label="Gujarati Language Suite Modules">
+      <button class="suite-tab-btn active" id="tab-btn-animator" onclick="switchSuite('animator')" role="tab" aria-selected="true" aria-controls="section-animator">
+        <span class="tab-icon">🖋️</span>
+        <span class="tab-label">Stroke Animator & Audio</span>
+        <span class="tab-badge">565 Glyphs</span>
       </button>
-      <!-- Dark / Light Theme Toggle -->
-      <button class="theme-btn" id="btn-theme-toggle" onclick="toggleTheme()" title="Switch Theme">
-        ☀️
+      <button class="suite-tab-btn" id="tab-btn-handwriting" onclick="switchSuite('handwriting')" role="tab" aria-selected="false" aria-controls="section-handwriting">
+        <span class="tab-icon">✍️</span>
+        <span class="tab-label">Handwriting Recognition</span>
+        <span class="tab-badge">DTW + CNN</span>
       </button>
-      <!-- GitHub Repository Link -->
-      <a href="https://github.com/gajjartejas/gujarati-language-gen" target="_blank" rel="noopener noreferrer" class="github-link" title="GitHub Repository">
-        <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-        </svg>
-      </a>
-    </div>
+    </nav>
   </header>
 
-  <!-- Workspace: Stages (Left) + Settings Panel (Right) -->
-  <section class="workspace-layout">
+  <!-- Module 1: Stroke Animator & Kano Audio Suite -->
+  <main id="section-animator" class="suite-main-section">
+    <!-- Workspace: Stages (Left) + Settings Panel (Right) -->
+    <section class="workspace-layout">
     <!-- Stages Column -->
     <div class="stages-column">
       <!-- Active Character Header Banner -->
@@ -196,6 +210,27 @@
     <!-- Character Buttons Grid -->
     <div class="char-grid" id="char-grid"></div>
   </section>
+</main>
+
+<!-- Module 2: Handwriting Recognition & Practice Suite -->
+<main id="section-handwriting" class="suite-main-section" style="display: none;">
+  <section class="handwriting-suite-container">
+    <div class="handwriting-toolbar">
+      <div class="handwriting-modes-tag">
+        <span>🎯 Real-Time Engine:</span>
+        <span class="badge-pill">Sakoe-Chiba DTW</span>
+        <span class="badge-pill">Cross-Platform Tiny CNN</span>
+        <span class="badge-pill">100% Offline</span>
+      </div>
+      <a href="handwriting/" target="_blank" rel="noopener noreferrer" class="fullscreen-link" title="Open Handwriting Suite in standalone window">
+        ⤢ Open Standalone
+      </a>
+    </div>
+    <div class="handwriting-frame-wrapper">
+      <iframe id="handwriting-frame" src="handwriting/" class="handwriting-iframe" title="Gujarati Handwriting & Character Practice"></iframe>
+    </div>
+  </section>
+</main>
 
   <!-- Footer -->
   <footer>

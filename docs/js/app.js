@@ -283,7 +283,48 @@ class App {
   }
 }
 
+window.switchSuite = function(suite) {
+  const isHandwriting = suite === 'handwriting';
+
+  const tabAnimator = document.getElementById('tab-btn-animator');
+  const tabHandwriting = document.getElementById('tab-btn-handwriting');
+  const secAnimator = document.getElementById('section-animator');
+  const secHandwriting = document.getElementById('section-handwriting');
+  const tagline = document.getElementById('suite-tagline');
+
+  if (tabAnimator) {
+    tabAnimator.classList.toggle('active', !isHandwriting);
+    tabAnimator.setAttribute('aria-selected', (!isHandwriting).toString());
+  }
+  if (tabHandwriting) {
+    tabHandwriting.classList.toggle('active', isHandwriting);
+    tabHandwriting.setAttribute('aria-selected', isHandwriting.toString());
+  }
+
+  if (secAnimator) secAnimator.style.display = isHandwriting ? 'none' : 'flex';
+  if (secHandwriting) secHandwriting.style.display = isHandwriting ? 'flex' : 'none';
+
+  if (tagline) {
+    tagline.textContent = isHandwriting
+      ? 'Interactive Tracing, Word Quiz, Free Draw ML & Offline Benchmarks'
+      : 'Reference Template (Light) vs Medial Ridge Auto-Generated (Bold) • 565 Characters';
+  }
+
+  if (window.history && window.history.replaceState) {
+    window.history.replaceState(null, '', isHandwriting ? '#handwriting' : '#animator');
+  } else {
+    window.location.hash = isHandwriting ? '#handwriting' : '#animator';
+  }
+};
+
 window.app = new App();
 document.addEventListener('DOMContentLoaded', () => {
   window.app.init();
+
+  if (window.location.hash === '#handwriting') {
+    window.switchSuite('handwriting');
+  }
+  window.addEventListener('hashchange', () => {
+    window.switchSuite(window.location.hash === '#handwriting' ? 'handwriting' : 'animator');
+  });
 });

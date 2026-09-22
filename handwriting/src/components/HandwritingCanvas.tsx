@@ -195,6 +195,7 @@ export const HandwritingCanvas = forwardRef<HandwritingCanvasRef, HandwritingCan
             onMouseUp: handleWebMouseUp,
             onMouseLeave: handleWebMouseUp,
             onTouchStart: (e: any) => {
+              if (e.cancelable) e.preventDefault();
               const touch = e.touches[0];
               const rect = e.currentTarget.getBoundingClientRect();
               handleWebMouseDown({
@@ -204,6 +205,7 @@ export const HandwritingCanvas = forwardRef<HandwritingCanvasRef, HandwritingCan
               });
             },
             onTouchMove: (e: any) => {
+              if (e.cancelable) e.preventDefault();
               const touch = e.touches[0];
               const rect = e.currentTarget.getBoundingClientRect();
               handleWebMouseMove({
@@ -212,7 +214,10 @@ export const HandwritingCanvas = forwardRef<HandwritingCanvasRef, HandwritingCan
                 currentTarget: e.currentTarget,
               });
             },
-            onTouchEnd: handleWebMouseUp,
+            onTouchEnd: (e: any) => {
+              if (e.cancelable) e.preventDefault();
+              handleWebMouseUp();
+            },
           }
         : {};
 
