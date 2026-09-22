@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Dimensions,
   Modal,
+  Platform,
 } from 'react-native';
 import { CharacterTemplate, Strokes, RecognitionResult } from '../types/handwriting';
 import { HandwritingCanvas, HandwritingCanvasRef } from '../components/HandwritingCanvas';
@@ -172,7 +173,15 @@ export const QuizGameScreen: React.FC<QuizGameScreenProps> = () => {
   }, [evaluationResult]);
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.scrollContent}>
+    <ScrollView
+      style={[
+        styles.screen,
+        Platform.OS === 'web' && ({ overflowY: 'visible', flex: 'none', height: 'auto' } as any),
+      ]}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+      scrollEnabled={Platform.OS !== 'web'}
+    >
       {/* Level Selection Tabs */}
       <View style={styles.levelSelector}>
         {(

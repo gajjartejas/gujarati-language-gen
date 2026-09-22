@@ -31,8 +31,83 @@ export default function App() {
       } catch (e) {
         setIsEmbedded(true);
       }
+
+      // Inject full-height reset on web to prevent inner ScrollView clipping and scrollbars
+      const styleId = 'handwriting-web-fullheight-fix';
+      if (!document.getElementById(styleId)) {
+        const styleEl = document.createElement('style');
+        styleEl.id = styleId;
+        styleEl.innerHTML = `
+          html, body {
+            height: auto !important;
+            min-height: 100% !important;
+            overflow-y: visible !important;
+            overflow-x: hidden !important;
+            background-color: #0a0e14 !important;
+          }
+          #root {
+            height: auto !important;
+            min-height: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow-y: visible !important;
+          }
+          /* Hide scrollbars inside React Native Web ScrollViews */
+          div[style*="overflow-y: auto"], div[style*="overflow-y: scroll"] {
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+          }
+          div[style*="overflow-y: auto"]::-webkit-scrollbar, div[style*="overflow-y: scroll"]::-webkit-scrollbar {
+            display: none !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      }
+
+      // Communicate natural document height to parent window for seamless iframe embedding
+      const sendHeight = () => {
+        const root = document.getElementById('root');
+        const h = Math.max(
+          root ? root.scrollHeight : 0,
+          document.body ? document.body.scrollHeight : 0,
+          document.documentElement ? document.documentElement.scrollHeight : 0
+        );
+        if (h > 200 && window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'HANDWRITING_RESIZE', height: h }, '*');
+        }
+      };
+
+      sendHeight();
+      const t1 = setTimeout(sendHeight, 150);
+      const t2 = setTimeout(sendHeight, 400);
+      const t3 = setTimeout(sendHeight, 1000);
+
+      let ro: ResizeObserver | null = null;
+      if (typeof ResizeObserver !== 'undefined') {
+        ro = new ResizeObserver(() => sendHeight());
+        if (document.body) ro.observe(document.body);
+        const root = document.getElementById('root');
+        if (root) ro.observe(root);
+      }
+
+      const onMsg = (e: MessageEvent) => {
+        if (e.data && e.data.type === 'REQUEST_HEIGHT') {
+          sendHeight();
+        }
+      };
+      window.addEventListener('message', onMsg);
+      window.addEventListener('resize', sendHeight);
+
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+        clearTimeout(t3);
+        if (ro) ro.disconnect();
+        window.removeEventListener('message', onMsg);
+        window.removeEventListener('resize', sendHeight);
+      };
     }
-  }, []);
+  }, [activeTab]);
 
   const handleSelectCandidateForGuided = (template: any) => {
     setGuidedInitialTemplate(template);
@@ -43,60 +118,58 @@ export default function App() {
     <SafeAreaView style={styles.safeArea}>
       <ExpoStatusBar style="light" />
 
-      {/* Top Header */}
-      <View style={styles.header}>
-        {/* If viewed standalone (not embedded in docs/index.html), show the unified two-tab switcher */}
-        {!isEmbedded && Platform.OS === 'web' && (
-          <View style={styles.suiteTabsRow}>
-            <TouchableOpacity
-              style={styles.suiteTabInactive}
-              onPress={() => {
-                if (typeof window !== 'undefined') {
-                  window.location.href = '../index.html';
-                }
-              }}
-            >
-              <Text style={styles.suiteTabInactiveIcon}>🖋️</Text>
-              <Text style={styles.suiteTabInactiveText}>Stroke Animator & Audio</Text>
-            </TouchableOpacity>
+      {/* Standalone Header (hidden when embedded in parent suite) */}
+      {!isEmbedded && (
+        <View style={styles.header}>
+          {Platform.OS === 'web' && (
+            <View style={styles.suiteTabsRow}>
+              <TouchableOpacity
+                style={styles.suiteTabInactive}
+                onPress={() => {
+                  if (typeof window !== 'undefined') {
+                    window.location.href = '../index.html';
+                  }
+                }}
+              >
+                <Text style={styles.suiteTabInactiveIcon}>🖋️</Text>
+                <Text style={styles.suiteTabInactiveText}>Stroke Animator & Kano Audio</Text>
+              </TouchableOpacity>
 
-            <View style={styles.suiteTabActive}>
-              <Text style={styles.suiteTabActiveIcon}>✍️</Text>
-              <Text style={styles.suiteTabActiveText}>Handwriting Recognition</Text>
+              <View style={styles.suiteTabActive}>
+                <Text style={styles.suiteTabActiveIcon}>✍️</Text>
+                <Text style={styles.suiteTabActiveText}>Handwriting Recognition</Text>
+              </View>
             </View>
-          </View>
-        )}
+          )}
 
-        <View style={styles.titleRow}>
-          <View style={styles.titleInfo}>
-            <View style={styles.mainTitleBadge}>
-              <Text style={styles.headerTitle}>ગુજરાતી હસ્તાક્ષર</Text>
-              <Text style={styles.headerTitleSub}>(Gujarati Handwriting)</Text>
+          <View style={styles.titleRow}>
+            <View style={styles.titleInfo}>
+              <View style={styles.mainTitleBadge}>
+                <Text style={styles.headerTitle}>ગુજરાતી હસ્તાક્ષર</Text>
+                <Text style={styles.headerTitleSub}>(Gujarati Handwriting)</Text>
+              </View>
+              <Text style={styles.headerSubtitle}>
+                Hybrid DTW + Cross-Platform Tiny CNN Engine
+              </Text>
             </View>
-            <Text style={styles.headerSubtitle}>
-              Hybrid DTW + Cross-Platform Tiny CNN Engine
-            </Text>
-          </View>
 
-          <View style={styles.badgeRow}>
-            <View style={styles.offlineBadge}>
-              <Text style={styles.offlineDot}>●</Text>
-              <Text style={styles.offlineText}>100% OFFLINE</Text>
+            <View style={styles.badgeRow}>
+              <View style={styles.offlineBadge}>
+                <Text style={styles.offlineDot}>●</Text>
+                <Text style={styles.offlineText}>100% OFFLINE</Text>
+              </View>
             </View>
           </View>
         </View>
-      </View>
+      )}
 
-      {/* Feature Mode Tabs (Scrollable pill chips on mobile) */}
+      {/* Feature Mode Tabs (Wrapped clean chip bar) */}
       <View style={styles.tabBarWrapper}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.tabBarScroll}
-        >
+        <View style={styles.tabBarContainer}>
           <TouchableOpacity
             style={[styles.chipTab, activeTab === 'guided' && styles.chipTabActive]}
             onPress={() => setActiveTab('guided')}
+            activeOpacity={0.7}
           >
             <Text style={styles.chipTabIcon}>✍️</Text>
             <Text style={[styles.chipTabText, activeTab === 'guided' && styles.chipTabTextActive]}>
@@ -107,6 +180,7 @@ export default function App() {
           <TouchableOpacity
             style={[styles.chipTab, activeTab === 'animated' && styles.chipTabActive]}
             onPress={() => setActiveTab('animated')}
+            activeOpacity={0.7}
           >
             <Text style={styles.chipTabIcon}>🎬</Text>
             <Text style={[styles.chipTabText, activeTab === 'animated' && styles.chipTabTextActive]}>
@@ -117,6 +191,7 @@ export default function App() {
           <TouchableOpacity
             style={[styles.chipTab, activeTab === 'quiz' && styles.chipTabActive]}
             onPress={() => setActiveTab('quiz')}
+            activeOpacity={0.7}
           >
             <Text style={styles.chipTabIcon}>🎮</Text>
             <Text style={[styles.chipTabText, activeTab === 'quiz' && styles.chipTabTextActive]}>
@@ -127,6 +202,7 @@ export default function App() {
           <TouchableOpacity
             style={[styles.chipTab, activeTab === 'free' && styles.chipTabActive]}
             onPress={() => setActiveTab('free')}
+            activeOpacity={0.7}
           >
             <Text style={styles.chipTabIcon}>🔍</Text>
             <Text style={[styles.chipTabText, activeTab === 'free' && styles.chipTabTextActive]}>
@@ -137,13 +213,14 @@ export default function App() {
           <TouchableOpacity
             style={[styles.chipTab, activeTab === 'benchmark' && styles.chipTabActive]}
             onPress={() => setActiveTab('benchmark')}
+            activeOpacity={0.7}
           >
             <Text style={styles.chipTabIcon}>⚡</Text>
             <Text style={[styles.chipTabText, activeTab === 'benchmark' && styles.chipTabTextActive]}>
               Benchmarks
             </Text>
           </TouchableOpacity>
-        </ScrollView>
+        </View>
       </View>
 
       {/* Active Screen View */}
@@ -304,13 +381,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#0a0e14',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.06)',
-  },
-  tabBarScroll: {
-    paddingHorizontal: 12,
     paddingVertical: 10,
-    gap: 8,
+    paddingHorizontal: 12,
+  },
+  tabBarContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
     alignItems: 'center',
+    gap: 8,
   },
   chipTab: {
     flexDirection: 'row',
@@ -344,5 +423,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+    width: '100%',
   },
 });

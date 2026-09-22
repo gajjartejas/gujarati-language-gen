@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Platform } from 'react-native';
 import { CharacterTemplate } from '../types/handwriting';
 import { BenchmarkRunner } from '../components/BenchmarkRunner';
 
@@ -9,7 +9,15 @@ interface BenchmarkScreenProps {
 
 export const BenchmarkScreen: React.FC<BenchmarkScreenProps> = ({ templates }) => {
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.scrollContent}>
+    <ScrollView
+      style={[
+        styles.screen,
+        Platform.OS === 'web' && ({ overflowY: 'visible', flex: 'none', height: 'auto' } as any),
+      ]}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+      scrollEnabled={Platform.OS !== 'web'}
+    >
       {/* Benchmark Harness */}
       <BenchmarkRunner templates={templates} />
 

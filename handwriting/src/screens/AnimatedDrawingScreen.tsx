@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Switch,
   Dimensions,
+  Platform,
 } from 'react-native';
 import { CharacterTemplate, Strokes, RecognitionResult } from '../types/handwriting';
 import { AnimatedStrokePlayer } from '../components/AnimatedStrokePlayer';
@@ -146,7 +147,15 @@ export const AnimatedDrawingScreen: React.FC<AnimatedDrawingScreenProps> = ({
   };
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.scrollContent}>
+    <ScrollView
+      style={[
+        styles.screen,
+        Platform.OS === 'web' && ({ overflowY: 'visible', flex: 'none', height: 'auto' } as any),
+      ]}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+      scrollEnabled={Platform.OS !== 'web'}
+    >
       {/* Category & Character Selector */}
       <CharacterSelector
         templates={templates}

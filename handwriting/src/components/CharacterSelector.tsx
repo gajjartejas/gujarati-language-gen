@@ -36,11 +36,7 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
   return (
     <View style={styles.container}>
       {/* Category Pills */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.categoryScroll}
-      >
+      <View style={styles.categoryContainer}>
         {categories.map(cat => (
           <TouchableOpacity
             key={cat.id}
@@ -49,6 +45,7 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
               activeCategory === cat.id && styles.activeCategoryPill,
             ]}
             onPress={() => setActiveCategory(cat.id)}
+            activeOpacity={0.7}
           >
             <Text
               style={[
@@ -60,47 +57,49 @@ export const CharacterSelector: React.FC<CharacterSelectorProps> = ({
             </Text>
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </View>
 
-      {/* Characters Carousel / Grid */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.charScroll}
-      >
-        {filteredTemplates.slice(0, 36).map(tmpl => {
+      {/* Characters Grid - All alphabets visible, wrapped, no scrolling */}
+      <View style={styles.charGrid}>
+        {filteredTemplates.map(tmpl => {
           const isSelected = tmpl.id === selectedTemplate?.id;
           return (
             <TouchableOpacity
               key={tmpl.id}
               style={[styles.charCard, isSelected && styles.activeCharCard]}
               onPress={() => onSelect(tmpl)}
+              activeOpacity={0.7}
             >
               <Text style={[styles.charText, isSelected && styles.activeCharText]}>
                 {tmpl.gujarati}
               </Text>
-              <Text style={styles.charSub}>{tmpl.name}</Text>
-              <Text style={styles.strokeCountBadge}>{tmpl.strokeCount} strk</Text>
+              <Text style={[styles.charSub, isSelected && styles.activeCharSub]}>
+                {tmpl.name}
+              </Text>
             </TouchableOpacity>
           );
         })}
-      </ScrollView>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 12,
+    marginVertical: 10,
+    width: '100%',
   },
-  categoryScroll: {
-    paddingHorizontal: 4,
+  categoryContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
     gap: 8,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   categoryPill: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 20,
     backgroundColor: '#1e293b',
     borderWidth: 1,
@@ -112,47 +111,57 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     color: '#94a3b8',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
   },
   activeCategoryText: {
     color: '#ffffff',
   },
-  charScroll: {
-    paddingHorizontal: 4,
-    gap: 10,
+  charGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 2,
+    width: '100%',
   },
   charCard: {
-    width: 68,
-    height: 80,
-    backgroundColor: '#1e293b',
-    borderRadius: 12,
+    width: 44,
+    height: 48,
+    backgroundColor: '#141c28',
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    padding: 2,
   },
   activeCharCard: {
     backgroundColor: '#0c4a6e',
     borderColor: '#38bdf8',
     borderWidth: 2,
+    shadowColor: '#38bdf8',
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
   },
   charText: {
-    fontSize: 26,
-    color: '#f8fafc',
+    fontSize: 20,
+    color: '#ffffff',
     fontWeight: '700',
+    lineHeight: 23,
   },
   activeCharText: {
     color: '#38bdf8',
   },
   charSub: {
-    fontSize: 11,
-    color: '#64748b',
-    marginTop: 2,
-  },
-  strokeCountBadge: {
     fontSize: 9,
     color: '#94a3b8',
-    marginTop: 2,
+    fontWeight: '500',
+    marginTop: 1,
+  },
+  activeCharSub: {
+    color: '#bae6fd',
+    fontWeight: '700',
   },
 });

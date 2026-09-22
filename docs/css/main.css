@@ -231,50 +231,21 @@ body {
   gap: 12px;
 }
 
-.handwriting-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 16px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  font-size: 13px;
-  flex-wrap: wrap;
-  gap: 8px;
+.handwriting-header-banner {
+  margin-bottom: 0;
 }
 
-.handwriting-modes-tag {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.badge-pill {
-  background: rgba(56, 189, 248, 0.15);
-  color: var(--cyan-stroke);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.fullscreen-link {
-  color: var(--cyan-stroke);
+.tag-link {
   text-decoration: none;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  transition: opacity var(--transition-fast);
+  color: var(--cyan-stroke) !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+  background: rgba(56, 189, 248, 0.1) !important;
+  transition: all var(--transition-fast);
 }
 
-.fullscreen-link:hover {
-  text-decoration: underline;
-  opacity: 0.85;
+.tag-link:hover {
+  background: rgba(56, 189, 248, 0.2) !important;
+  border-color: var(--cyan-stroke) !important;
 }
 
 .handwriting-frame-wrapper {
@@ -289,9 +260,12 @@ body {
 
 .handwriting-iframe {
   width: 100%;
-  height: 840px;
+  min-height: 980px;
+  height: 1100px;
   border: none;
   display: block;
+  overflow: hidden;
+  transition: height 0.15s ease-out;
 }
 
 /* Theme Toggle Button */
@@ -448,19 +422,13 @@ footer a:hover {
     display: none;
   }
 
-  .handwriting-toolbar {
-    font-size: 12px;
-    padding: 6px 10px;
-  }
-
   .handwriting-frame-wrapper {
-    min-height: 720px;
+    min-height: 800px;
     border-radius: var(--radius-md);
   }
 
   .handwriting-iframe {
-    height: 85vh;
-    min-height: 720px;
+    min-height: 900px;
   }
 }
 

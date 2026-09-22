@@ -56,7 +56,7 @@
     <nav class="suite-tabs-nav" role="tablist" aria-label="Gujarati Language Suite Modules">
       <button class="suite-tab-btn active" id="tab-btn-animator" onclick="switchSuite('animator')" role="tab" aria-selected="true" aria-controls="section-animator">
         <span class="tab-icon">🖋️</span>
-        <span class="tab-label">Stroke Animator & Audio</span>
+        <span class="tab-label">Stroke Animator & Kano Audio</span>
         <span class="tab-badge">565 Glyphs</span>
       </button>
       <button class="suite-tab-btn" id="tab-btn-handwriting" onclick="switchSuite('handwriting')" role="tab" aria-selected="false" aria-controls="section-handwriting">
@@ -214,22 +214,27 @@
 
 <!-- Module 2: Handwriting Recognition & Practice Suite -->
 <main id="section-handwriting" class="suite-main-section" style="display: none;">
-  <section class="handwriting-suite-container">
-    <div class="handwriting-toolbar">
-      <div class="handwriting-modes-tag">
-        <span>🎯 Real-Time Engine:</span>
-        <span class="badge-pill">Sakoe-Chiba DTW</span>
-        <span class="badge-pill">Cross-Platform Tiny CNN</span>
-        <span class="badge-pill">100% Offline</span>
+  <!-- Consistent Section Header Banner matching Section 1 -->
+  <div class="char-header-banner handwriting-header-banner">
+    <div class="char-main-info">
+      <span class="char-glyph-large" style="font-size: 32px;">✍️</span>
+      <div class="char-names">
+        <div class="char-title">ગુજરાતી હસ્તાક્ષર (Handwriting Recognition)</div>
+        <div class="char-subtitle">Interactive Real-Time Stroke Practice, Sakoe-Chiba DTW & Tiny CNN ML Engine</div>
       </div>
-      <a href="handwriting/" target="_blank" rel="noopener noreferrer" class="fullscreen-link" title="Open Handwriting Suite in standalone window">
+    </div>
+    <div class="char-meta-tags">
+      <span class="tag tag-accent">DTW + CNN</span>
+      <span class="tag">100% Offline</span>
+      <a href="handwriting/" target="_blank" rel="noopener noreferrer" class="tag tag-link" title="Open Handwriting Suite in standalone window">
         ⤢ Open Standalone
       </a>
     </div>
-    <div class="handwriting-frame-wrapper">
-      <iframe id="handwriting-frame" src="handwriting/" class="handwriting-iframe" title="Gujarati Handwriting & Character Practice"></iframe>
-    </div>
-  </section>
+  </div>
+
+  <div class="handwriting-frame-wrapper">
+    <iframe id="handwriting-frame" src="handwriting/" class="handwriting-iframe" scrolling="no" title="Gujarati Handwriting & Character Practice"></iframe>
+  </div>
 </main>
 
   <!-- Footer -->

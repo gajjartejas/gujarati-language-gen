@@ -302,7 +302,17 @@ window.switchSuite = function(suite) {
   }
 
   if (secAnimator) secAnimator.style.display = isHandwriting ? 'none' : 'flex';
-  if (secHandwriting) secHandwriting.style.display = isHandwriting ? 'flex' : 'none';
+  if (secHandwriting) {
+    secHandwriting.style.display = isHandwriting ? 'flex' : 'none';
+    if (isHandwriting) {
+      const frame = document.getElementById('handwriting-frame');
+      if (frame && frame.contentWindow) {
+        try {
+          frame.contentWindow.postMessage({ type: 'REQUEST_HEIGHT' }, '*');
+        } catch (err) {}
+      }
+    }
+  }
 
   if (tagline) {
     tagline.textContent = isHandwriting
@@ -316,6 +326,19 @@ window.switchSuite = function(suite) {
     window.location.hash = isHandwriting ? '#handwriting' : '#animator';
   }
 };
+
+// Auto-resize handwriting iframe to exact content height
+window.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'HANDWRITING_RESIZE' && typeof event.data.height === 'number') {
+    const frame = document.getElementById('handwriting-frame');
+    if (frame) {
+      const targetHeight = Math.ceil(event.data.height) + 20;
+      if (Math.abs(frame.offsetHeight - targetHeight) > 10) {
+        frame.style.height = targetHeight + 'px';
+      }
+    }
+  }
+});
 
 window.app = new App();
 document.addEventListener('DOMContentLoaded', () => {
