@@ -480,12 +480,6 @@ export const AnimatedDrawingScreen: React.FC<AnimatedDrawingScreenProps> = ({
 
       {/* Bottom Section: Character Catalog Browser */}
       <View style={styles.catalogSection}>
-        <View style={styles.catalogHeader}>
-          <Text style={styles.catalogTitle}>📚 Character Catalog Browser</Text>
-          <Text style={styles.catalogSubtitle}>
-            Select a character below to watch stroke animation in the stage above
-          </Text>
-        </View>
         <CharacterSelector
           templates={templates}
           selectedTemplate={selectedTemplate}

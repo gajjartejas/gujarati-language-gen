@@ -223,24 +223,7 @@ body {
   align-items: center;
 }
 
-.handwriting-header-banner {
-  width: 100%;
-  max-width: 1140px;
-  margin-bottom: 0;
-}
 
-.tag-link {
-  text-decoration: none;
-  color: var(--cyan-stroke) !important;
-  border-color: rgba(56, 189, 248, 0.3) !important;
-  background: rgba(56, 189, 248, 0.1) !important;
-  transition: all var(--transition-fast);
-}
-
-.tag-link:hover {
-  background: rgba(56, 189, 248, 0.2) !important;
-  border-color: var(--cyan-stroke) !important;
-}
 
 .handwriting-frame-wrapper {
   width: 100%;
