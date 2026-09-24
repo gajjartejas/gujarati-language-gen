@@ -8,6 +8,7 @@ import {
   Dimensions,
   Modal,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import { CharacterTemplate, Strokes, RecognitionResult } from '../types/handwriting';
 import { HandwritingCanvas, HandwritingCanvasRef } from '../components/HandwritingCanvas';
@@ -28,6 +29,7 @@ type QuizMode = 'picture' | 'audio';
 
 interface QuizGameScreenProps {
   templates?: CharacterTemplate[];
+  onSelectTemplate?: (template: CharacterTemplate) => void;
 }
 
 export const QuizGameScreen: React.FC<QuizGameScreenProps> = () => {

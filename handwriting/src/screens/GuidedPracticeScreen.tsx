@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -31,6 +31,8 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
   initialTemplate,
   isEmbedded = false,
 }) => {
+  const canvasRef = useRef<HandwritingCanvasRef>(null);
+
   const [selectedTemplate, setSelectedTemplate] = useState<CharacterTemplate>(
     initialTemplate || templates[0] || ({} as CharacterTemplate)
   );
@@ -53,8 +55,6 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
   // Feature Modals
   const [isReplayOpen, setIsReplayOpen] = useState(false);
   const [isWorksheetOpen, setIsWorksheetOpen] = useState(false);
-
-  const canvasRef = useRef<HandwritingCanvasRef>(null);
 
   const { width: windowWidth } = useWindowDimensions();
   const isWide = windowWidth >= 880;
