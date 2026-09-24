@@ -120,47 +120,8 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
     >
       {/* Top Workspace: Stages (Left) + Settings Panel (Right) */}
       <View style={[styles.workspaceLayout, isWide ? styles.workspaceLayoutRow : styles.workspaceLayoutCol]}>
-        {/* Left Column: Active Character Header Banner & Handwriting Canvas Stage */}
+        {/* Left Column: Handwriting Canvas Stage */}
         <View style={[styles.stagesColumn, isWide && styles.stagesColumnWide]}>
-          {/* Active Character Header Banner */}
-          <View style={styles.charHeaderBanner}>
-            <View style={styles.charMainInfo}>
-              <Text style={styles.charGlyphLarge}>{selectedTemplate.gujarati}</Text>
-              <View style={styles.charNames}>
-                <Text style={styles.charTitle}>
-                  {selectedTemplate.gujarati} ({selectedTemplate.name})
-                </Text>
-                <Text style={styles.charSubtitle}>
-                  {selectedTemplate.category === 'vowel'
-                    ? 'Swar Vowel (સ્વર)'
-                    : selectedTemplate.category === 'number'
-                    ? 'Ank Number (અંક)'
-                    : 'Kakko Consonant (વ્યંજન)'}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.charMetaTags}>
-              <View style={styles.tagAccent}>
-                <Text style={styles.tagAccentText}>
-                  {selectedTemplate.category?.toUpperCase() || 'KAKKO'}
-                </Text>
-              </View>
-              <View style={styles.tag}>
-                <Text style={styles.tagText}>
-                  {strokeCount} Stroke{strokeCount > 1 ? 's' : ''}
-                </Text>
-              </View>
-              <TouchableOpacity
-                style={styles.listenBtn}
-                onPress={() => speakGujarati(selectedTemplate.gujarati, selectedTemplate.transliteration)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.listenBtnText}>🔊 Listen</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
           {/* Drawing Canvas Stage Card (Handwriting Square) */}
           <View style={styles.stageCard}>
             <View style={styles.stageCardHeader}>
@@ -209,6 +170,45 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
 
         {/* Right Column: Settings & Controls Panel */}
         <View style={[styles.settingsPanel, isWide && styles.settingsPanelWide]}>
+          {/* Active Character Summary Banner */}
+          <View style={styles.charHeaderBanner}>
+            <View style={styles.charMainInfo}>
+              <Text style={styles.charGlyphLarge}>{selectedTemplate.gujarati}</Text>
+              <View style={styles.charNames}>
+                <Text style={styles.charTitle}>
+                  {selectedTemplate.gujarati} ({selectedTemplate.name})
+                </Text>
+                <Text style={styles.charSubtitle}>
+                  {selectedTemplate.category === 'vowel'
+                    ? 'Swar Vowel (સ્વર)'
+                    : selectedTemplate.category === 'number'
+                    ? 'Ank Number (અંક)'
+                    : 'Kakko Consonant (વ્યંજન)'}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.charMetaTags}>
+              <View style={styles.tagAccent}>
+                <Text style={styles.tagAccentText}>
+                  {selectedTemplate.category?.toUpperCase() || 'KAKKO'}
+                </Text>
+              </View>
+              <View style={styles.tag}>
+                <Text style={styles.tagText}>
+                  {strokeCount} Stroke{strokeCount > 1 ? 's' : ''}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.listenBtn}
+                onPress={() => speakGujarati(selectedTemplate.gujarati, selectedTemplate.transliteration)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.listenBtnText}>🔊 Listen</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           <View style={styles.panelHeader}>
             <Text style={styles.panelHeaderTitle}>⚙️ Settings & Controls</Text>
           </View>

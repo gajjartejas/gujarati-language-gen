@@ -174,43 +174,8 @@ export const AnimatedDrawingScreen: React.FC<AnimatedDrawingScreenProps> = ({
     >
       {/* Top Workspace: Stages Left + Settings Right */}
       <View style={[styles.workspaceLayout, isWide ? styles.workspaceLayoutRow : styles.workspaceLayoutCol]}>
-        {/* Left Column: Header Banner + Animated Player Stage */}
+        {/* Left Column: Animated Player Stage */}
         <View style={[styles.stagesColumn, isWide && styles.stagesColumnWide]}>
-          {/* Active Character Header Banner */}
-          <View style={styles.charHeaderBanner}>
-            <View style={styles.charMainInfo}>
-              <Text style={styles.charGlyphLarge}>{selectedTemplate.gujarati}</Text>
-              <View style={styles.charNames}>
-                <Text style={styles.charTitle}>
-                  {selectedTemplate.gujarati} ({selectedTemplate.name})
-                </Text>
-                <Text style={styles.charSubtitle}>
-                  {selectedTemplate.category === 'vowel'
-                    ? 'Swar Vowel (સ્વર)'
-                    : selectedTemplate.category === 'number'
-                    ? 'Ank Number (અંક)'
-                    : 'Kakko Consonant (વ્યંજન)'}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.charMetaTags}>
-              <View style={styles.tagAccent}>
-                <Text style={styles.tagAccentText}>
-                  {selectedTemplate.category?.toUpperCase() || 'KAKKO'}
-                </Text>
-              </View>
-              <View style={styles.tag}>
-                <Text style={styles.tagText}>
-                  {selectedTemplate.strokeCount || 1} Stroke{(selectedTemplate.strokeCount || 1) > 1 ? 's' : ''}
-                </Text>
-              </View>
-              <TouchableOpacity style={styles.listenBtn} onPress={handlePronounce} activeOpacity={0.7}>
-                <Text style={styles.listenBtnText}>🔊 Listen</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
           {/* Animated Stroke Player Stage Card */}
           <View style={styles.stageCard}>
             <View style={styles.stageCardHeader}>
@@ -326,6 +291,41 @@ export const AnimatedDrawingScreen: React.FC<AnimatedDrawingScreenProps> = ({
 
         {/* Right Column: Settings & Controls Panel */}
         <View style={[styles.settingsPanel, isWide && styles.settingsPanelWide]}>
+          {/* Active Character Summary Banner */}
+          <View style={styles.charHeaderBanner}>
+            <View style={styles.charMainInfo}>
+              <Text style={styles.charGlyphLarge}>{selectedTemplate.gujarati}</Text>
+              <View style={styles.charNames}>
+                <Text style={styles.charTitle}>
+                  {selectedTemplate.gujarati} ({selectedTemplate.name})
+                </Text>
+                <Text style={styles.charSubtitle}>
+                  {selectedTemplate.category === 'vowel'
+                    ? 'Swar Vowel (સ્વર)'
+                    : selectedTemplate.category === 'number'
+                    ? 'Ank Number (અંક)'
+                    : 'Kakko Consonant (વ્યંજન)'}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.charMetaTags}>
+              <View style={styles.tagAccent}>
+                <Text style={styles.tagAccentText}>
+                  {selectedTemplate.category?.toUpperCase() || 'KAKKO'}
+                </Text>
+              </View>
+              <View style={styles.tag}>
+                <Text style={styles.tagText}>
+                  {selectedTemplate.strokeCount || 1} Stroke{(selectedTemplate.strokeCount || 1) > 1 ? 's' : ''}
+                </Text>
+              </View>
+              <TouchableOpacity style={styles.listenBtn} onPress={handlePronounce} activeOpacity={0.7}>
+                <Text style={styles.listenBtnText}>🔊 Listen</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           <View style={styles.panelHeader}>
             <Text style={styles.panelHeaderTitle}>⚙️ Settings & Controls</Text>
           </View>
