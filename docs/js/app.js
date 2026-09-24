@@ -327,13 +327,16 @@ window.switchSuite = function(suite) {
   }
 };
 
-// Auto-resize handwriting iframe to exact content height
+// Auto-resize handwriting iframe to exact content height without feedback loop
+let lastSetFrameHeight = 0;
 window.addEventListener('message', function(event) {
   if (event.data && event.data.type === 'HANDWRITING_RESIZE' && typeof event.data.height === 'number') {
     const frame = document.getElementById('handwriting-frame');
     if (frame) {
-      const targetHeight = Math.ceil(event.data.height) + 20;
-      if (Math.abs(frame.offsetHeight - targetHeight) > 10) {
+      // Clamp between 650px and 1200px to ensure it fits content and NEVER expands infinitely
+      const targetHeight = Math.max(650, Math.min(1200, Math.ceil(event.data.height)));
+      if (Math.abs(targetHeight - lastSetFrameHeight) >= 8) {
+        lastSetFrameHeight = targetHeight;
         frame.style.height = targetHeight + 'px';
       }
     }

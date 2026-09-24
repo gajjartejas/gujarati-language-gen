@@ -254,12 +254,11 @@ body {
 
 .handwriting-iframe {
   width: 100%;
-  min-height: 980px;
-  height: 1100px;
+  height: 820px;
   border: none;
   display: block;
   overflow: hidden;
-  transition: height 0.15s ease-out;
+  transition: height 0.2s ease-out;
 }
 
 /* Theme Toggle Button */
@@ -417,12 +416,11 @@ footer a:hover {
   }
 
   .handwriting-frame-wrapper {
-    min-height: 800px;
     border-radius: var(--radius-md);
   }
 
   .handwriting-iframe {
-    min-height: 900px;
+    height: 820px;
   }
 }
 

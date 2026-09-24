@@ -32,7 +32,7 @@ export default function App() {
         setIsEmbedded(true);
       }
 
-      // Inject full-height reset on web to prevent inner ScrollView clipping and scrollbars
+      // Inject full-height reset on web without 100% viewport forcing
       const styleId = 'handwriting-web-fullheight-fix';
       if (!document.getElementById(styleId)) {
         const styleEl = document.createElement('style');
@@ -40,16 +40,17 @@ export default function App() {
         styleEl.innerHTML = `
           html, body {
             height: auto !important;
-            min-height: 100% !important;
+            min-height: 0 !important;
             overflow-y: visible !important;
             overflow-x: hidden !important;
             background-color: #0a0e14 !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
           #root {
             height: auto !important;
-            min-height: 100% !important;
-            display: flex !important;
-            flex-direction: column !important;
+            min-height: 0 !important;
+            display: block !important;
             overflow-y: visible !important;
           }
           /* Hide scrollbars inside React Native Web ScrollViews */
@@ -64,34 +65,40 @@ export default function App() {
         document.head.appendChild(styleEl);
       }
 
-      // Communicate natural document height to parent window for seamless iframe embedding
+      // Measure exact content bounding box (prevents infinite expansion loop)
+      let lastReportedHeight = 0;
       const sendHeight = () => {
-        const root = document.getElementById('root');
-        const h = Math.max(
-          root ? root.scrollHeight : 0,
-          document.body ? document.body.scrollHeight : 0,
-          document.documentElement ? document.documentElement.scrollHeight : 0
-        );
-        if (h > 200 && window.parent && window.parent !== window) {
-          window.parent.postMessage({ type: 'HANDWRITING_RESIZE', height: h }, '*');
+        const el = document.getElementById('handwriting-app-content');
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const h = Math.ceil(rect.height || el.offsetHeight);
+        // Only report if height is valid and differs from last report by >= 8px
+        if (h > 300 && Math.abs(h - lastReportedHeight) >= 8) {
+          lastReportedHeight = h;
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'HANDWRITING_RESIZE', height: h }, '*');
+          }
         }
       };
 
       sendHeight();
       const t1 = setTimeout(sendHeight, 150);
-      const t2 = setTimeout(sendHeight, 400);
-      const t3 = setTimeout(sendHeight, 1000);
+      const t2 = setTimeout(sendHeight, 500);
 
       let ro: ResizeObserver | null = null;
       if (typeof ResizeObserver !== 'undefined') {
-        ro = new ResizeObserver(() => sendHeight());
-        if (document.body) ro.observe(document.body);
-        const root = document.getElementById('root');
-        if (root) ro.observe(root);
+        ro = new ResizeObserver(() => {
+          sendHeight();
+        });
+        const el = document.getElementById('handwriting-app-content');
+        if (el) {
+          ro.observe(el);
+        }
       }
 
       const onMsg = (e: MessageEvent) => {
         if (e.data && e.data.type === 'REQUEST_HEIGHT') {
+          lastReportedHeight = 0;
           sendHeight();
         }
       };
@@ -101,7 +108,6 @@ export default function App() {
       return () => {
         clearTimeout(t1);
         clearTimeout(t2);
-        clearTimeout(t3);
         if (ro) ro.disconnect();
         window.removeEventListener('message', onMsg);
         window.removeEventListener('resize', sendHeight);
@@ -115,7 +121,17 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View
+      nativeID="handwriting-app-content"
+      style={[
+        styles.safeArea,
+        Platform.OS === 'web' && ({
+          height: 'auto',
+          minHeight: 0,
+          flex: 'none',
+        } as any),
+      ]}
+    >
       <ExpoStatusBar style="light" />
 
       {/* Standalone Header (hidden when embedded in parent suite) */}
@@ -253,14 +269,14 @@ export default function App() {
           <BenchmarkScreen templates={CHARACTER_TEMPLATES} />
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
-    flex: 1,
     backgroundColor: '#0a0e14',
+    width: '100%',
   },
   header: {
     backgroundColor: '#121820',
