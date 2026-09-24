@@ -22,12 +22,21 @@ type ActiveTab = 'guided' | 'animated' | 'quiz' | 'free' | 'benchmark';
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('guided');
   const [guidedInitialTemplate, setGuidedInitialTemplate] = useState<any>(undefined);
-  const [isEmbedded, setIsEmbedded] = useState<boolean>(false);
+  const [isEmbedded, setIsEmbedded] = useState<boolean>(() => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      try {
+        return window.self !== window.top || window.location.search.includes('embedded=true');
+      } catch (e) {
+        return true;
+      }
+    }
+    return false;
+  });
 
   useEffect(() => {
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       try {
-        setIsEmbedded(window.self !== window.top);
+        setIsEmbedded(window.self !== window.top || window.location.search.includes('embedded=true'));
       } catch (e) {
         setIsEmbedded(true);
       }
@@ -89,9 +98,39 @@ export default function App() {
       const t2 = setTimeout(sendHeight, 400);
 
       const onMsg = (e: MessageEvent) => {
-        if (e.data && e.data.type === 'REQUEST_HEIGHT') {
+        if (!e.data) return;
+        if (e.data.type === 'REQUEST_HEIGHT') {
           lastReportedHeight = 0;
           sendHeight();
+        } else if (e.data.type === 'SELECT_CHARACTER') {
+          let found: any = undefined;
+          if (e.data.ref_svg) {
+            const m = e.data.ref_svg.match(/assets\/svgs\/ref\/(.*)\.svg/);
+            if (m) {
+              const derivedId = m[1].replace(/\//g, '_');
+              found = CHARACTER_TEMPLATES.find(t => t.id === derivedId);
+            }
+          }
+          if (!found && e.data.char) {
+            found = CHARACTER_TEMPLATES.find(t => t.gujarati === e.data.char);
+          }
+          if (!found && e.data.id) {
+            found = CHARACTER_TEMPLATES.find(t => t.id === e.data.id);
+          }
+          if (!found && e.data.char) {
+            const firstGlyph = e.data.char.charAt(0);
+            found = CHARACTER_TEMPLATES.find(t => t.gujarati === firstGlyph);
+          }
+          if (found) {
+            const customTemplate = {
+              ...found,
+              gujarati: e.data.char || found.gujarati,
+              name: e.data.name || found.name,
+              category: e.data.category || found.category,
+            };
+            setGuidedInitialTemplate(customTemplate);
+            setTimeout(sendHeight, 150);
+          }
         }
       };
       window.addEventListener('message', onMsg);
@@ -234,11 +273,14 @@ export default function App() {
           <GuidedPracticeScreen
             templates={CHARACTER_TEMPLATES}
             initialTemplate={guidedInitialTemplate}
+            isEmbedded={isEmbedded}
           />
         )}
         {activeTab === 'animated' && (
           <AnimatedDrawingScreen
             templates={CHARACTER_TEMPLATES}
+            initialTemplate={guidedInitialTemplate}
+            isEmbedded={isEmbedded}
             onSelectForGuided={handleSelectCandidateForGuided}
           />
         )}

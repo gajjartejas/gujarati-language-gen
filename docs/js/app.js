@@ -211,6 +211,21 @@ class App {
     if (playSound && item.audio) {
       window.soundManager.playAudio(item.audio);
     }
+
+    // Forward character selection to handwriting practice suite
+    const frame = document.getElementById('handwriting-frame');
+    if (frame && frame.contentWindow) {
+      try {
+        frame.contentWindow.postMessage({
+          type: 'SELECT_CHARACTER',
+          char: item.char,
+          id: item.id,
+          ref_svg: item.ref_svg,
+          name: item.en || item.name_en || '',
+          category: item.category,
+        }, '*');
+      } catch (err) {}
+    }
   }
 
   updateHeaderBanner(item) {
@@ -309,6 +324,16 @@ window.switchSuite = function(suite) {
       if (frame && frame.contentWindow) {
         try {
           frame.contentWindow.postMessage({ type: 'REQUEST_HEIGHT' }, '*');
+          if (window.app && window.app.currentChar) {
+            frame.contentWindow.postMessage({
+              type: 'SELECT_CHARACTER',
+              char: window.app.currentChar.char,
+              id: window.app.currentChar.id,
+              ref_svg: window.app.currentChar.ref_svg,
+              name: window.app.currentChar.en || window.app.currentChar.name_en || '',
+              category: window.app.currentChar.category,
+            }, '*');
+          }
         } catch (err) {}
       }
     }
@@ -334,8 +359,9 @@ window.addEventListener('message', function(event) {
     const frame = document.getElementById('handwriting-frame');
     if (frame) {
       const isMobile = window.innerWidth < 880;
-      const maxHeight = isMobile ? 1280 : 920;
-      const targetHeight = Math.max(680, Math.min(maxHeight, Math.ceil(event.data.height)));
+      const maxHeight = isMobile ? 1200 : 750;
+      const minHeight = isMobile ? 650 : 500;
+      const targetHeight = Math.max(minHeight, Math.min(maxHeight, Math.ceil(event.data.height)));
       if (Math.abs(targetHeight - lastSetFrameHeight) >= 8) {
         lastSetFrameHeight = targetHeight;
         frame.style.height = targetHeight + 'px';
@@ -347,6 +373,24 @@ window.addEventListener('message', function(event) {
 window.app = new App();
 document.addEventListener('DOMContentLoaded', () => {
   window.app.init();
+
+  const frame = document.getElementById('handwriting-frame');
+  if (frame) {
+    frame.addEventListener('load', () => {
+      if (window.app && window.app.currentChar && frame.contentWindow) {
+        try {
+          frame.contentWindow.postMessage({
+            type: 'SELECT_CHARACTER',
+            char: window.app.currentChar.char,
+            id: window.app.currentChar.id,
+            ref_svg: window.app.currentChar.ref_svg,
+            name: window.app.currentChar.en || window.app.currentChar.name_en || '',
+            category: window.app.currentChar.category,
+          }, '*');
+        } catch (e) {}
+      }
+    });
+  }
 
   if (window.location.hash === '#handwriting') {
     window.switchSuite('handwriting');

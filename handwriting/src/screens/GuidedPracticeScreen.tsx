@@ -23,15 +23,26 @@ import { speakGujarati } from '../utils/speech';
 interface GuidedPracticeScreenProps {
   templates: CharacterTemplate[];
   initialTemplate?: CharacterTemplate;
+  isEmbedded?: boolean;
 }
 
 export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
   templates,
   initialTemplate,
+  isEmbedded = false,
 }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<CharacterTemplate>(
     initialTemplate || templates[0] || ({} as CharacterTemplate)
   );
+
+  useEffect(() => {
+    if (initialTemplate) {
+      setSelectedTemplate(initialTemplate);
+      canvasRef.current?.clear();
+      setUserStrokes([]);
+      setResult(null);
+    }
+  }, [initialTemplate]);
 
   const [showOverlay, setShowOverlay] = useState<boolean>(true);
   const [showStrokeOrder, setShowStrokeOrder] = useState<boolean>(true);
@@ -281,14 +292,16 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
         </View>
       </View>
 
-      {/* Bottom Section: Character Catalog Browser */}
-      <View style={styles.catalogSection}>
-        <CharacterSelector
-          templates={templates}
-          selectedTemplate={selectedTemplate}
-          onSelect={handleSelectTemplate}
-        />
-      </View>
+      {/* Bottom Section: Character Catalog Browser (Hidden when embedded in unified suite) */}
+      {!isEmbedded && (
+        <View style={styles.catalogSection}>
+          <CharacterSelector
+            templates={templates}
+            selectedTemplate={selectedTemplate}
+            onSelect={handleSelectTemplate}
+          />
+        </View>
+      )}
 
       {/* Feature Modals */}
       <DrawingReplayModal

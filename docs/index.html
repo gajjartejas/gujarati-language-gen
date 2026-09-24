@@ -177,47 +177,47 @@
       </div>
     </aside>
   </section>
-
-  <!-- Character Catalog Browser (565 Characters) -->
-  <section class="catalog-section">
-    <div class="catalog-toolbar">
-      <!-- Category Tabs -->
-      <div class="category-tabs" id="cat-tabs">
-        <button class="cat-tab active" data-cat="kakko">
-          કક્કો Kakko <span class="count">45</span>
-        </button>
-        <button class="cat-tab" data-cat="barakhadi">
-          બારાખડી Barakhadi <span class="count">420</span>
-        </button>
-        <button class="cat-tab" data-cat="numbers">
-          આંકડા Numbers 0-100 <span class="count">101</span>
-        </button>
-        <button class="cat-tab" data-cat="all">
-          All Characters <span class="count">565</span>
-        </button>
-      </div>
-
-      <!-- Quick Search Filter -->
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" placeholder="Search character, English sound, or number...">
-      </div>
-    </div>
-
-    <!-- Barakhadi Consonant Filter Bar (Appears when Barakhadi is selected) -->
-    <div class="barakhadi-consonant-bar" id="barakhadi-bar" style="display: none;"></div>
-
-    <!-- Character Buttons Grid -->
-    <div class="char-grid" id="char-grid"></div>
-  </section>
 </main>
 
 <!-- Module 2: Handwriting Recognition & Practice Suite -->
 <main id="section-handwriting" class="suite-main-section" style="display: none;">
   <div class="handwriting-frame-wrapper">
-    <iframe id="handwriting-frame" src="handwriting/" class="handwriting-iframe" scrolling="no" title="Gujarati Handwriting & Character Practice"></iframe>
+    <iframe id="handwriting-frame" src="handwriting/?embedded=true" class="handwriting-iframe" scrolling="no" title="Gujarati Handwriting & Character Practice"></iframe>
   </div>
 </main>
+
+<!-- Unified Character Catalog Browser (565 Characters) - Shared across both suites -->
+<section class="catalog-section" id="common-catalog-section">
+  <div class="catalog-toolbar">
+    <!-- Category Tabs -->
+    <div class="category-tabs" id="cat-tabs">
+      <button class="cat-tab active" data-cat="kakko">
+        કક્કો Kakko <span class="count">45</span>
+      </button>
+      <button class="cat-tab" data-cat="barakhadi">
+        બારાખડી Barakhadi <span class="count">420</span>
+      </button>
+      <button class="cat-tab" data-cat="numbers">
+        આંકડા Numbers 0-100 <span class="count">101</span>
+      </button>
+      <button class="cat-tab" data-cat="all">
+        All Characters <span class="count">565</span>
+      </button>
+    </div>
+
+    <!-- Quick Search Filter -->
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Search character, English sound, or number...">
+    </div>
+  </div>
+
+  <!-- Barakhadi Consonant Filter Bar (Appears when Barakhadi is selected) -->
+  <div class="barakhadi-consonant-bar" id="barakhadi-bar" style="display: none;"></div>
+
+  <!-- Character Buttons Grid -->
+  <div class="char-grid" id="char-grid"></div>
+</section>
 
   <!-- Footer -->
   <footer>

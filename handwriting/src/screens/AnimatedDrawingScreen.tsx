@@ -22,15 +22,28 @@ import { speakGujarati } from '../utils/speech';
 interface AnimatedDrawingScreenProps {
   templates: CharacterTemplate[];
   initialTemplate?: CharacterTemplate;
+  isEmbedded?: boolean;
+  onSelectForGuided?: (template: CharacterTemplate) => void;
 }
 
 export const AnimatedDrawingScreen: React.FC<AnimatedDrawingScreenProps> = ({
   templates,
   initialTemplate,
+  isEmbedded = false,
+  onSelectForGuided,
 }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<CharacterTemplate>(
     initialTemplate || templates[0] || ({} as CharacterTemplate)
   );
+
+  React.useEffect(() => {
+    if (initialTemplate) {
+      setSelectedTemplate(initialTemplate);
+      setControlledProgress(null);
+      setCurrentProgress(0);
+      setCurrentStrokeIdx(0);
+    }
+  }, [initialTemplate]);
 
   // Animation Controls State
   const [isPlaying, setIsPlaying] = useState(true);
@@ -478,14 +491,16 @@ export const AnimatedDrawingScreen: React.FC<AnimatedDrawingScreenProps> = ({
         </View>
       </View>
 
-      {/* Bottom Section: Character Catalog Browser */}
-      <View style={styles.catalogSection}>
-        <CharacterSelector
-          templates={templates}
-          selectedTemplate={selectedTemplate}
-          onSelect={handleSelectTemplate}
-        />
-      </View>
+      {/* Bottom Section: Character Catalog Browser (Hidden when embedded in unified suite) */}
+      {!isEmbedded && (
+        <View style={styles.catalogSection}>
+          <CharacterSelector
+            templates={templates}
+            selectedTemplate={selectedTemplate}
+            onSelect={handleSelectTemplate}
+          />
+        </View>
+      )}
     </ScrollView>
   );
 };
