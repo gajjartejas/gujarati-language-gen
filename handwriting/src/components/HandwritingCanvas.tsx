@@ -261,14 +261,15 @@ export const HandwritingCanvas = forwardRef<HandwritingCanvasRef, HandwritingCan
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#1e293b',
-    borderRadius: 16,
+    backgroundColor: '#0d1117',
+    borderRadius: 12,
     overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#334155',
+    borderWidth: 1,
+    borderColor: '#30363d',
     alignSelf: 'center',
     touchAction: 'none',
     userSelect: 'none',
     cursor: 'crosshair',
   } as any,
 });
+

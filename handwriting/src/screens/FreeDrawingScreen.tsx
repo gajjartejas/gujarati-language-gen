@@ -5,9 +5,9 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
-  Dimensions,
   ActivityIndicator,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import { CharacterTemplate, Strokes, RecognitionCandidate } from '../types/handwriting';
 import { HandwritingCanvas, HandwritingCanvasRef } from '../components/HandwritingCanvas';
@@ -28,8 +28,9 @@ export const FreeDrawingScreen: React.FC<FreeDrawingScreenProps> = ({
 
   const canvasRef = useRef<HandwritingCanvasRef>(null);
 
-  const screenWidth = Dimensions.get('window').width;
-  const canvasSize = Math.min(screenWidth - 48, 360);
+  const { width: windowWidth } = useWindowDimensions();
+  const isWide = windowWidth >= 880;
+  const canvasSize = isWide ? 330 : Math.min(windowWidth - 64, 330);
 
   const runRecognition = useCallback(
     (strokes: Strokes) => {
@@ -79,110 +80,162 @@ export const FreeDrawingScreen: React.FC<FreeDrawingScreenProps> = ({
       showsVerticalScrollIndicator={false}
       scrollEnabled={Platform.OS !== 'web'}
     >
-      {/* Category Filter */}
-      <View style={styles.filterRow}>
-        {[
-          { id: 'all', label: 'All' },
-          { id: 'consonant', label: 'Consonants' },
-          { id: 'vowel', label: 'Vowels' },
-          { id: 'number', label: 'Numbers' },
-        ].map(cat => (
-          <TouchableOpacity
-            key={cat.id}
-            style={[
-              styles.filterPill,
-              activeCategory === cat.id && styles.activeFilterPill,
-            ]}
-            onPress={() => setActiveCategory(cat.id)}
-          >
-            <Text
-              style={[
-                styles.filterText,
-                activeCategory === cat.id && styles.activeFilterText,
-              ]}
-            >
-              {cat.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      {/* 2-Column Workspace Layout */}
+      <View style={[styles.workspaceLayout, isWide ? styles.workspaceLayoutRow : styles.workspaceLayoutCol]}>
+        {/* Left Column: Header Banner + Freehand Canvas Stage */}
+        <View style={[styles.stagesColumn, isWide && styles.stagesColumnWide]}>
+          {/* Header Banner */}
+          <View style={styles.headerBanner}>
+            <View style={styles.bannerInfo}>
+              <Text style={styles.bannerTitle}>🔍 Free Drawing & Recognition</Text>
+              <Text style={styles.bannerSubtitle}>
+                Draw any Gujarati letter or number. The DTW + Tiny CNN engine identifies it in real time.
+              </Text>
+            </View>
+            <View style={styles.badgeOffline}>
+              <Text style={styles.badgeOfflineText}>100% OFFLINE</Text>
+            </View>
+          </View>
 
-      {/* Freehand Canvas */}
-      <View style={styles.canvasContainer}>
-        <HandwritingCanvas
-          ref={canvasRef}
-          size={canvasSize}
-          strokeColor="#38bdf8"
-          strokeWidth={5}
-          onStrokeEnd={handleStrokesEnd}
-        />
-      </View>
+          {/* Stage Card */}
+          <View style={styles.stageCard}>
+            <View style={styles.stageCardHeader}>
+              <Text style={styles.stageCardTitle}>✍️ Freehand Canvas</Text>
+              <View style={styles.badgeHeaderDtw}>
+                <Text style={styles.badgeHeaderDtwText}>Live Stroke Capture</Text>
+              </View>
+            </View>
 
-      {/* Controls */}
-      <View style={styles.controlsRow}>
-        <TouchableOpacity style={styles.actionBtn} onPress={handleClear}>
-          <Text style={styles.actionBtnText}>🗑 Clear</Text>
-        </TouchableOpacity>
+            {/* Canvas Stage */}
+            <View style={styles.svgStage}>
+              <HandwritingCanvas
+                ref={canvasRef}
+                size={canvasSize}
+                strokeColor="#38bdf8"
+                strokeWidth={5}
+                onStrokeEnd={handleStrokesEnd}
+              />
+            </View>
 
-        <TouchableOpacity style={styles.actionBtn} onPress={handleUndo}>
-          <Text style={styles.actionBtnText}>↩ Undo</Text>
-        </TouchableOpacity>
+            {/* Canvas Quick Actions Bar */}
+            <View style={styles.controlsRow}>
+              <TouchableOpacity style={styles.actionBtn} onPress={handleClear} activeOpacity={0.7}>
+                <Text style={styles.actionBtnText}>🗑 Clear</Text>
+              </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.actionBtn, styles.recognizeBtn]}
-          onPress={() => {
-            if (canvasRef.current) {
-              runRecognition(canvasRef.current.getStrokes());
-            }
-          }}
-        >
-          {isRecognizing ? (
-            <ActivityIndicator size="small" color="#ffffff" />
-          ) : (
-            <Text style={styles.recognizeBtnText}>⚡ Recognize</Text>
-          )}
-        </TouchableOpacity>
-      </View>
+              <TouchableOpacity style={styles.actionBtn} onPress={handleUndo} activeOpacity={0.7}>
+                <Text style={styles.actionBtnText}>↩ Undo</Text>
+              </TouchableOpacity>
 
-      {/* Recognition Candidates List */}
-      <View style={styles.resultsCard}>
-        <View style={styles.resultsHeader}>
-          <Text style={styles.resultsTitle}>Top Predicted Characters</Text>
-          {isRecognizing && <ActivityIndicator size="small" color="#38bdf8" />}
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.recognizeBtn]}
+                onPress={() => {
+                  if (canvasRef.current) {
+                    runRecognition(canvasRef.current.getStrokes());
+                  }
+                }}
+                activeOpacity={0.7}
+              >
+                {isRecognizing ? (
+                  <ActivityIndicator size="small" color="#ffffff" />
+                ) : (
+                  <Text style={styles.recognizeBtnText}>⚡ Recognize</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
 
-        {candidates.length === 0 ? (
-          <Text style={styles.emptyResultsText}>
-            Draw any Gujarati letter or number on the canvas
-          </Text>
-        ) : (
-          <View style={styles.candidateGrid}>
-            {candidates.map((cand, idx) => (
-              <TouchableOpacity
-                key={`cand-${cand.template.id}-${idx}`}
-                style={[
-                  styles.candidateCard,
-                  idx === 0 && styles.topCandidateCard,
-                ]}
-                onPress={() => onSelectCandidate?.(cand.template)}
-              >
-                <View style={styles.cardHeader}>
-                  <Text style={styles.rankBadge}>#{idx + 1}</Text>
-                  <Text style={styles.confidenceText}>{cand.confidence}%</Text>
-                </View>
-
-                <Text style={styles.candidateGujarati}>
-                  {cand.template.gujarati}
-                </Text>
-
-                <Text style={styles.candidateName}>{cand.template.name}</Text>
-                <Text style={styles.candidateMethod}>
-                  {cand.method === 'dtw' ? 'DTW Match' : 'ML Fallback'}
-                </Text>
-              </TouchableOpacity>
-            ))}
+        {/* Right Column: Settings & Predictions Panel */}
+        <View style={[styles.settingsPanel, isWide && styles.settingsPanelWide]}>
+          <View style={styles.panelHeader}>
+            <Text style={styles.panelHeaderTitle}>⚙️ Filter & Predictions</Text>
           </View>
-        )}
+
+          {/* Category Filter */}
+          <View style={styles.panelGroup}>
+            <Text style={styles.panelLabel}>CATEGORY FILTER</Text>
+            <View style={styles.filterRow}>
+              {[
+                { id: 'all', label: 'All' },
+                { id: 'consonant', label: 'Consonants' },
+                { id: 'vowel', label: 'Vowels' },
+                { id: 'number', label: 'Numbers' },
+              ].map(cat => (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[
+                    styles.filterPill,
+                    activeCategory === cat.id && styles.activeFilterPill,
+                  ]}
+                  onPress={() => setActiveCategory(cat.id)}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={[
+                      styles.filterText,
+                      activeCategory === cat.id && styles.activeFilterText,
+                    ]}
+                  >
+                    {cat.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Recognition Candidates List */}
+          <View style={styles.panelGroup}>
+            <View style={styles.resultsHeader}>
+              <Text style={styles.panelLabel}>TOP PREDICTIONS</Text>
+              {isRecognizing && <ActivityIndicator size="small" color="#38bdf8" />}
+            </View>
+
+            {candidates.length === 0 ? (
+              <View style={styles.emptyResultsBox}>
+                <Text style={styles.emptyResultsEmoji}>✍️</Text>
+                <Text style={styles.emptyResultsText}>
+                  Draw any Gujarati letter or number on the canvas to see predictions
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.candidateGrid}>
+                {candidates.map((cand, idx) => (
+                  <TouchableOpacity
+                    key={`cand-${cand.template.id}-${idx}`}
+                    style={[
+                      styles.candidateCard,
+                      idx === 0 && styles.topCandidateCard,
+                    ]}
+                    onPress={() => onSelectCandidate?.(cand.template)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.cardHeader}>
+                      <Text style={[styles.rankBadge, idx === 0 && styles.rankBadgeTop]}>
+                        #{idx + 1}
+                      </Text>
+                      <Text style={[styles.confidenceText, idx === 0 && styles.confidenceTextTop]}>
+                        {cand.confidence}%
+                      </Text>
+                    </View>
+
+                    <Text style={styles.candidateGujarati}>
+                      {cand.template.gujarati}
+                    </Text>
+
+                    <Text style={styles.candidateName} numberOfLines={1}>
+                      {cand.template.name}
+                    </Text>
+                    <Text style={styles.candidateMethod}>
+                      {cand.method === 'dtw' ? 'DTW Match' : 'ML Fallback'}
+                    </Text>
+                    <Text style={styles.practiceHint}>Practice ➔</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+        </View>
       </View>
     </ScrollView>
   );
@@ -190,60 +243,148 @@ export const FreeDrawingScreen: React.FC<FreeDrawingScreenProps> = ({
 
 const styles = StyleSheet.create({
   screen: {
-    flex: 1,
-    backgroundColor: '#0f172a',
+    backgroundColor: '#0a0e14',
+    width: '100%',
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  filterRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 8,
-    marginVertical: 8,
-  },
-  filterPill: {
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: '#1e293b',
-    borderWidth: 1,
-    borderColor: '#334155',
+    paddingVertical: 12,
+    width: '100%',
+    maxWidth: 1140,
+    alignSelf: 'center',
   },
-  activeFilterPill: {
-    backgroundColor: '#0284c7',
-    borderColor: '#38bdf8',
+
+  /* Workspace Layout */
+  workspaceLayout: {
+    width: '100%',
+    marginBottom: 20,
   },
-  filterText: {
-    color: '#94a3b8',
-    fontSize: 12,
-    fontWeight: '600',
+  workspaceLayoutRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 16,
   },
-  activeFilterText: {
-    color: '#ffffff',
+  workspaceLayoutCol: {
+    flexDirection: 'column',
+    gap: 16,
   },
-  canvasContainer: {
+
+  /* Left Column */
+  stagesColumn: {
+    width: '100%',
+    gap: 12,
+  },
+  stagesColumnWide: {
+    flex: 1,
+    minWidth: 0,
+  },
+
+  headerBanner: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 10,
+    justifyContent: 'space-between',
+    backgroundColor: '#161b22',
+    borderWidth: 1,
+    borderColor: '#30363d',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  bannerInfo: {
+    flex: 1,
+    minWidth: 200,
+  },
+  bannerTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#f0f6fc',
+  },
+  bannerSubtitle: {
+    fontSize: 11,
+    color: '#8b949e',
+    marginTop: 2,
+  },
+  badgeOffline: {
+    backgroundColor: 'rgba(34, 197, 94, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 9999,
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.3)',
+  },
+  badgeOfflineText: {
+    color: '#4ade80',
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+
+  stageCard: {
+    backgroundColor: '#161b22',
+    borderWidth: 1,
+    borderColor: '#30363d',
+    borderRadius: 12,
+    padding: 14,
+    alignItems: 'center',
+  },
+  stageCardHeader: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  stageCardTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#8b949e',
+  },
+  badgeHeaderDtw: {
+    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 9999,
+  },
+  badgeHeaderDtwText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#38bdf8',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  svgStage: {
+    backgroundColor: '#0d1117',
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#30363d',
+    borderRadius: 12,
+    padding: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
   controlsRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 12,
-    marginBottom: 16,
+    gap: 10,
+    marginTop: 12,
+    width: '100%',
   },
   actionBtn: {
-    backgroundColor: '#1e293b',
-    paddingHorizontal: 16,
+    flex: 1,
+    backgroundColor: '#21262d',
     paddingVertical: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#30363d',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actionBtnText: {
-    color: '#f8fafc',
-    fontSize: 13,
+    color: '#c9d1d9',
+    fontSize: 12,
     fontWeight: '600',
   },
   recognizeBtn: {
@@ -252,48 +393,109 @@ const styles = StyleSheet.create({
   },
   recognizeBtnText: {
     color: '#ffffff',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
   },
-  resultsCard: {
-    backgroundColor: '#1e293b',
-    borderRadius: 16,
-    padding: 16,
+
+  /* Right Settings & Predictions Panel */
+  settingsPanel: {
+    backgroundColor: '#161b22',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#30363d',
+    borderRadius: 12,
+    padding: 16,
+    gap: 14,
+    width: '100%',
   },
+  settingsPanelWide: {
+    width: 340,
+    flexShrink: 0,
+  },
+  panelHeader: {
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#30363d',
+  },
+  panelHeaderTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#f0f6fc',
+  },
+  panelGroup: {
+    gap: 8,
+  },
+  panelLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#8b949e',
+    letterSpacing: 0.5,
+  },
+
+  filterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  filterPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 9999,
+    backgroundColor: '#21262d',
+    borderWidth: 1,
+    borderColor: '#30363d',
+  },
+  activeFilterPill: {
+    backgroundColor: '#0284c7',
+    borderColor: '#38bdf8',
+  },
+  filterText: {
+    color: '#8b949e',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  activeFilterText: {
+    color: '#ffffff',
+    fontWeight: '700',
+  },
+
   resultsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
   },
-  resultsTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#94a3b8',
-    textTransform: 'uppercase',
+  emptyResultsBox: {
+    backgroundColor: '#0d1117',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#30363d',
+  },
+  emptyResultsEmoji: {
+    fontSize: 28,
+    marginBottom: 6,
   },
   emptyResultsText: {
-    color: '#64748b',
+    color: '#6e7681',
     textAlign: 'center',
-    paddingVertical: 20,
-    fontSize: 14,
+    fontSize: 12,
+    lineHeight: 16,
   },
+
   candidateGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 8,
     justifyContent: 'space-between',
   },
   candidateCard: {
-    width: '31%',
-    backgroundColor: '#0f172a',
-    borderRadius: 12,
+    width: '48%',
+    backgroundColor: '#0d1117',
+    borderRadius: 10,
     padding: 10,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#30363d',
   },
   topCandidateCard: {
     borderColor: '#22c55e',
@@ -306,17 +508,23 @@ const styles = StyleSheet.create({
   },
   rankBadge: {
     fontSize: 10,
-    color: '#64748b',
+    color: '#8b949e',
     fontWeight: '700',
+  },
+  rankBadgeTop: {
+    color: '#4ade80',
   },
   confidenceText: {
     fontSize: 11,
     fontWeight: '700',
     color: '#38bdf8',
   },
+  confidenceTextTop: {
+    color: '#4ade80',
+  },
   candidateGujarati: {
-    fontSize: 32,
-    color: '#f8fafc',
+    fontSize: 30,
+    color: '#f0f6fc',
     marginVertical: 4,
     fontWeight: '700',
   },
@@ -327,7 +535,14 @@ const styles = StyleSheet.create({
   },
   candidateMethod: {
     fontSize: 9,
-    color: '#64748b',
+    color: '#6e7681',
     marginTop: 2,
   },
+  practiceHint: {
+    fontSize: 10,
+    color: '#38bdf8',
+    marginTop: 6,
+    fontWeight: '600',
+  },
 });
+

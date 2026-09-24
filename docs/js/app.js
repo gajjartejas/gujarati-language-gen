@@ -333,8 +333,9 @@ window.addEventListener('message', function(event) {
   if (event.data && event.data.type === 'HANDWRITING_RESIZE' && typeof event.data.height === 'number') {
     const frame = document.getElementById('handwriting-frame');
     if (frame) {
-      // Clamp between 650px and 1200px to ensure it fits content and NEVER expands infinitely
-      const targetHeight = Math.max(650, Math.min(1200, Math.ceil(event.data.height)));
+      const isMobile = window.innerWidth < 880;
+      const maxHeight = isMobile ? 1280 : 920;
+      const targetHeight = Math.max(680, Math.min(maxHeight, Math.ceil(event.data.height)));
       if (Math.abs(targetHeight - lastSetFrameHeight) >= 8) {
         lastSetFrameHeight = targetHeight;
         frame.style.height = targetHeight + 'px';

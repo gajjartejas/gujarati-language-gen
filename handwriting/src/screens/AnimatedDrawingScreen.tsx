@@ -6,8 +6,8 @@ import {
   ScrollView,
   StyleSheet,
   Switch,
-  Dimensions,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import { CharacterTemplate, Strokes, RecognitionResult } from '../types/handwriting';
 import { AnimatedStrokePlayer } from '../components/AnimatedStrokePlayer';
@@ -17,6 +17,7 @@ import { RecognitionScoreCard } from '../components/RecognitionScoreCard';
 import { GuidedOverlay } from '../components/GuidedOverlay';
 import { evaluateUserDrawing } from '../engine/recognizer';
 import { speakGujarati } from '../utils/speech';
+
 
 interface AnimatedDrawingScreenProps {
   templates: CharacterTemplate[];
@@ -50,9 +51,11 @@ export const AnimatedDrawingScreen: React.FC<AnimatedDrawingScreenProps> = ({
 
   const canvasRef = useRef<HandwritingCanvasRef>(null);
 
-  const screenWidth = Dimensions.get('window').width;
-  const playerSize = Math.min(screenWidth - 48, 340);
-  const practiceCanvasSize = Math.min(screenWidth - 48, 320);
+  const { width: windowWidth } = useWindowDimensions();
+  const isWide = windowWidth >= 880;
+  const playerSize = isWide ? 330 : Math.min(windowWidth - 64, 330);
+  const practiceCanvasSize = isWide ? 280 : Math.min(windowWidth - 64, 280);
+
 
   // Calculate cumulative stroke intervals to support jump-to-stroke
   const strokeIntervals = useMemo(() => {
@@ -120,7 +123,7 @@ export const AnimatedDrawingScreen: React.FC<AnimatedDrawingScreenProps> = ({
 
   const handleScrubberPress = (e: any) => {
     const { locationX } = e.nativeEvent;
-    const scrubberWidth = Math.min(screenWidth - 64, 340);
+    const scrubberWidth = Math.min(windowWidth - 64, 340);
     const fraction = Math.max(0, Math.min(1, locationX / scrubberWidth));
     setIsPlaying(false);
     setControlledProgress(fraction);
@@ -156,292 +159,338 @@ export const AnimatedDrawingScreen: React.FC<AnimatedDrawingScreenProps> = ({
       showsVerticalScrollIndicator={false}
       scrollEnabled={Platform.OS !== 'web'}
     >
-      {/* Category & Character Selector */}
-      <CharacterSelector
-        templates={templates}
-        selectedTemplate={selectedTemplate}
-        onSelect={handleSelectTemplate}
-      />
+      {/* Top Workspace: Stages Left + Settings Right */}
+      <View style={[styles.workspaceLayout, isWide ? styles.workspaceLayoutRow : styles.workspaceLayoutCol]}>
+        {/* Left Column: Header Banner + Animated Player Stage */}
+        <View style={[styles.stagesColumn, isWide && styles.stagesColumnWide]}>
+          {/* Active Character Header Banner */}
+          <View style={styles.charHeaderBanner}>
+            <View style={styles.charMainInfo}>
+              <Text style={styles.charGlyphLarge}>{selectedTemplate.gujarati}</Text>
+              <View style={styles.charNames}>
+                <Text style={styles.charTitle}>
+                  {selectedTemplate.gujarati} ({selectedTemplate.name})
+                </Text>
+                <Text style={styles.charSubtitle}>
+                  {selectedTemplate.category === 'vowel'
+                    ? 'Swar Vowel (સ્વર)'
+                    : selectedTemplate.category === 'number'
+                    ? 'Ank Number (અંક)'
+                    : 'Kakko Consonant (વ્યંજન)'}
+                </Text>
+              </View>
+            </View>
 
-      {/* Tutorial Header */}
-      <View style={styles.tutorialHeader}>
-        <View style={styles.badgeRow}>
-          <Text style={styles.titleBadge}>🎬 STROKE-BY-STROKE ANIMATION</Text>
-          <Text style={styles.charSummary}>
-            {selectedTemplate.gujarati} ({selectedTemplate.name}) • {selectedTemplate.strokeCount} Stroke{selectedTemplate.strokeCount > 1 ? 's' : ''}
-          </Text>
-        </View>
+            <View style={styles.charMetaTags}>
+              <View style={styles.tagAccent}>
+                <Text style={styles.tagAccentText}>
+                  {selectedTemplate.category?.toUpperCase() || 'KAKKO'}
+                </Text>
+              </View>
+              <View style={styles.tag}>
+                <Text style={styles.tagText}>
+                  {selectedTemplate.strokeCount || 1} Stroke{(selectedTemplate.strokeCount || 1) > 1 ? 's' : ''}
+                </Text>
+              </View>
+              <TouchableOpacity style={styles.listenBtn} onPress={handlePronounce} activeOpacity={0.7}>
+                <Text style={styles.listenBtnText}>🔊 Listen</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
 
-        <Text style={styles.instructionText}>
-          Watch the glowing pen trace each stroke in the exact official order and direction.
-        </Text>
+          {/* Animated Stroke Player Stage Card */}
+          <View style={styles.stageCard}>
+            <View style={styles.stageCardHeader}>
+              <View style={styles.stageCardHeaderLeft}>
+                <Text style={styles.stageCardTitle}>🎬 Stroke-by-Stroke Animation</Text>
+              </View>
+              <View style={styles.badgeHeaderDtw}>
+                <Text style={styles.badgeHeaderDtwText}>Official Order</Text>
+              </View>
+            </View>
 
-        {/* Audio Pronunciation Button */}
-        <TouchableOpacity style={styles.listenBtn} onPress={handlePronounce}>
-          <Text style={styles.listenBtnText}>
-            🔊 Listen Pronunciation: "{selectedTemplate.gujarati}" ({selectedTemplate.transliteration})
-          </Text>
-        </TouchableOpacity>
-      </View>
+            <View style={styles.stageContainer}>
+              <AnimatedStrokePlayer
+                template={selectedTemplate}
+                size={playerSize}
+                isPlaying={isPlaying}
+                playbackSpeed={playbackSpeed}
+                loop={loopAnimation}
+                controlledProgress={controlledProgress}
+                onPlayStateChange={setIsPlaying}
+                onProgressChange={handleProgressChange}
+                showGhostOutline={showGhostOutline}
+              />
+            </View>
 
-      {/* Animated Stroke Player Stage */}
-      <View style={styles.stageContainer}>
-        <AnimatedStrokePlayer
-          template={selectedTemplate}
-          size={playerSize}
-          isPlaying={isPlaying}
-          playbackSpeed={playbackSpeed}
-          loop={loopAnimation}
-          controlledProgress={controlledProgress}
-          onPlayStateChange={setIsPlaying}
-          onProgressChange={handleProgressChange}
-          showGhostOutline={showGhostOutline}
-        />
-      </View>
+            {/* Interactive Scrubber Bar */}
+            <View style={styles.scrubberContainer}>
+              <View style={styles.scrubberLabelRow}>
+                <Text style={styles.scrubberTimeText}>
+                  Progress: {Math.round(currentProgress * 100)}%
+                </Text>
+                <Text style={styles.scrubberStrokeText}>
+                  Stroke {currentStrokeIdx + 1} of {selectedTemplate.strokeCount || 1}
+                </Text>
+              </View>
 
-      {/* Interactive Scrubber Bar */}
-      <View style={styles.scrubberContainer}>
-        <View style={styles.scrubberLabelRow}>
-          <Text style={styles.scrubberTimeText}>
-            Progress: {Math.round(currentProgress * 100)}%
-          </Text>
-          <Text style={styles.scrubberStrokeText}>
-            Stroke {currentStrokeIdx + 1} of {selectedTemplate.strokeCount || 1}
-          </Text>
-        </View>
+              <TouchableOpacity
+                activeOpacity={0.9}
+                style={styles.scrubberTrack}
+                onPress={handleScrubberPress}
+              >
+                <View
+                  style={[
+                    styles.scrubberFill,
+                    { width: `${Math.round(currentProgress * 100)}%` },
+                  ]}
+                />
+                <View
+                  style={[
+                    styles.scrubberThumb,
+                    { left: `${Math.max(0, Math.min(97, currentProgress * 100))}%` },
+                  ]}
+                />
+              </TouchableOpacity>
+            </View>
 
-        <TouchableOpacity
-          activeOpacity={0.9}
-          style={styles.scrubberTrack}
-          onPress={handleScrubberPress}
-        >
-          <View
-            style={[
-              styles.scrubberFill,
-              { width: `${Math.round(currentProgress * 100)}%` },
-            ]}
-          />
-          <View
-            style={[
-              styles.scrubberThumb,
-              { left: `${Math.max(0, Math.min(97, currentProgress * 100))}%` },
-            ]}
-          />
-        </TouchableOpacity>
-      </View>
+            {/* Step-by-Step Stroke Controller */}
+            <View style={styles.stepControllerCard}>
+              <View style={styles.stepHeaderRow}>
+                <Text style={styles.stepSectionTitle}>STROKE BREAKDOWN</Text>
+                <Text style={styles.stepHintText}>Tap a stroke to jump</Text>
+              </View>
 
-      {/* Step-by-Step Stroke Controller */}
-      <View style={styles.stepControllerCard}>
-        <View style={styles.stepHeaderRow}>
-          <Text style={styles.stepSectionTitle}>STROKE BREAKDOWN</Text>
-          <Text style={styles.stepHintText}>Tap a stroke to inspect</Text>
-        </View>
-
-        <View style={styles.stepButtonsRow}>
-          <TouchableOpacity
-            style={[styles.stepNavBtn, currentStrokeIdx === 0 && styles.stepNavBtnDisabled]}
-            onPress={handlePrevStroke}
-            disabled={currentStrokeIdx === 0}
-          >
-            <Text style={styles.stepNavBtnText}>⏮ Prev</Text>
-          </TouchableOpacity>
-
-          <View style={styles.strokePillsRow}>
-            {selectedTemplate.strokes?.map((_, idx) => {
-              const isSelected = idx === currentStrokeIdx;
-              return (
+              <View style={styles.stepButtonsRow}>
                 <TouchableOpacity
-                  key={`stroke-pill-${idx}`}
-                  style={[styles.strokePill, isSelected && styles.strokePillActive]}
-                  onPress={() => handleJumpToStroke(idx)}
+                  style={[styles.stepNavBtn, currentStrokeIdx === 0 && styles.stepNavBtnDisabled]}
+                  onPress={handlePrevStroke}
+                  disabled={currentStrokeIdx === 0}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.stepNavBtnText}>⏮ Prev</Text>
+                </TouchableOpacity>
+
+                <View style={styles.strokePillsRow}>
+                  {selectedTemplate.strokes?.map((_, idx) => {
+                    const isSelected = idx === currentStrokeIdx;
+                    return (
+                      <TouchableOpacity
+                        key={`stroke-pill-${idx}`}
+                        style={[styles.strokePill, isSelected && styles.strokePillActive]}
+                        onPress={() => handleJumpToStroke(idx)}
+                        activeOpacity={0.7}
+                      >
+                        <Text
+                          style={[
+                            styles.strokePillText,
+                            isSelected && styles.strokePillTextActive,
+                          ]}
+                        >
+                          {idx + 1}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+
+                <TouchableOpacity
+                  style={[
+                    styles.stepNavBtn,
+                    currentStrokeIdx >= (selectedTemplate.strokeCount || 1) - 1 &&
+                      styles.stepNavBtnDisabled,
+                  ]}
+                  onPress={handleNextStroke}
+                  disabled={currentStrokeIdx >= (selectedTemplate.strokeCount || 1) - 1}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.stepNavBtnText}>Next ⏭</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Right Column: Settings & Controls Panel */}
+        <View style={[styles.settingsPanel, isWide && styles.settingsPanelWide]}>
+          <View style={styles.panelHeader}>
+            <Text style={styles.panelHeaderTitle}>⚙️ Settings & Controls</Text>
+          </View>
+
+          {/* Animation Actions */}
+          <View style={styles.panelGroup}>
+            <Text style={styles.panelLabel}>PLAYBACK</Text>
+            <View style={styles.panelBtnGrid}>
+              <TouchableOpacity
+                style={[styles.btnActionPrimary, isPlaying && styles.btnActionPlaying]}
+                onPress={handleTogglePlay}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.btnActionPrimaryText}>
+                  {controlledProgress !== null
+                    ? '▶ Resume'
+                    : isPlaying
+                    ? '⏸ Pause'
+                    : '▶ Play'}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.btnActionSecondary} onPress={handleReplay} activeOpacity={0.7}>
+                <Text style={styles.btnActionSecondaryText}>🔄 Replay</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Speed Selector */}
+          <View style={styles.panelGroup}>
+            <Text style={styles.panelLabel}>SPEED</Text>
+            <View style={styles.speedRow}>
+              {[0.5, 0.75, 1.0, 1.5, 2.0].map(s => (
+                <TouchableOpacity
+                  key={`speed-${s}`}
+                  style={[
+                    styles.speedPill,
+                    playbackSpeed === s && styles.activeSpeedPill,
+                  ]}
+                  onPress={() => setPlaybackSpeed(s)}
+                  activeOpacity={0.7}
                 >
                   <Text
                     style={[
-                      styles.strokePillText,
-                      isSelected && styles.strokePillTextActive,
+                      styles.speedText,
+                      playbackSpeed === s && styles.activeSpeedText,
                     ]}
                   >
-                    Stroke {idx + 1}
+                    {s}x
                   </Text>
                 </TouchableOpacity>
-              );
-            })}
+              ))}
+            </View>
           </View>
 
-          <TouchableOpacity
-            style={[
-              styles.stepNavBtn,
-              currentStrokeIdx >= (selectedTemplate.strokeCount || 1) - 1 &&
-                styles.stepNavBtnDisabled,
-            ]}
-            onPress={handleNextStroke}
-            disabled={currentStrokeIdx >= (selectedTemplate.strokeCount || 1) - 1}
-          >
-            <Text style={styles.stepNavBtnText}>Next ⏭</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Animation Control Deck */}
-      <View style={styles.controlDeck}>
-        {/* Play/Pause & Replay */}
-        <View style={styles.mainButtonsRow}>
-          <TouchableOpacity
-            style={[styles.ctrlBtn, styles.playBtn]}
-            onPress={handleTogglePlay}
-          >
-            <Text style={styles.playBtnText}>
-              {controlledProgress !== null
-                ? '▶ Resume Play'
-                : isPlaying
-                ? '⏸ Pause'
-                : '▶ Play'}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.ctrlBtn} onPress={handleReplay}>
-            <Text style={styles.ctrlBtnText}>🔁 Replay from Start</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Playback Speed Selector */}
-        <View style={styles.speedRow}>
-          <Text style={styles.speedLabel}>Speed:</Text>
-          {[0.5, 1.0, 1.5, 2.0].map(s => (
-            <TouchableOpacity
-              key={`speed-${s}`}
-              style={[
-                styles.speedPill,
-                playbackSpeed === s && styles.activeSpeedPill,
-              ]}
-              onPress={() => setPlaybackSpeed(s)}
-            >
-              <Text
-                style={[
-                  styles.speedText,
-                  playbackSpeed === s && styles.activeSpeedText,
-                ]}
-              >
-                {s}x
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Options Row (Loop & Ghost switches) */}
-        <View style={styles.optionsRow}>
-          <View style={styles.optionItem}>
-            <Text style={styles.optionLabel}>Loop Animation</Text>
-            <Switch
-              value={loopAnimation}
-              onValueChange={setLoopAnimation}
-              trackColor={{ false: '#334155', true: '#0284c7' }}
-              thumbColor={loopAnimation ? '#38bdf8' : '#94a3b8'}
-            />
-          </View>
-
-          <View style={styles.optionItem}>
-            <Text style={styles.optionLabel}>Ghost Guide</Text>
-            <Switch
-              value={showGhostOutline}
-              onValueChange={setShowGhostOutline}
-              trackColor={{ false: '#334155', true: '#0284c7' }}
-              thumbColor={showGhostOutline ? '#38bdf8' : '#94a3b8'}
-            />
-          </View>
-        </View>
-      </View>
-
-      {/* Practice Pad Section ("Now You Try!") */}
-      <View style={styles.practiceSection}>
-        <View style={styles.practiceHeader}>
-          <View>
-            <Text style={styles.practiceTitle}>✍️ NOW YOUR TURN TO WRITE</Text>
-            <Text style={styles.practiceSubtitle}>
-              Practice drawing what you just watched above
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={styles.togglePracticeBtn}
-            onPress={() => setIsPracticeMode(prev => !prev)}
-          >
-            <Text style={styles.togglePracticeText}>
-              {isPracticeMode ? 'Hide Pad' : 'Show Pad'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {isPracticeMode && (
-          <View style={styles.practiceBody}>
-            {/* Practice Pad Controls: Ghost Trace Switch */}
-            <View style={styles.practiceToolbar}>
-              <View style={styles.practiceTraceOption}>
-                <Text style={styles.practiceTraceLabel}>Trace Ghost Guide:</Text>
-                <Switch
-                  value={practiceShowGhost}
-                  onValueChange={setPracticeShowGhost}
-                  trackColor={{ false: '#334155', true: '#0284c7' }}
-                  thumbColor={practiceShowGhost ? '#38bdf8' : '#94a3b8'}
-                />
-              </View>
-
-              <View style={styles.practiceActionsRow}>
-                <TouchableOpacity
-                  style={styles.undoBtn}
-                  onPress={() => canvasRef.current?.undo()}
-                >
-                  <Text style={styles.undoBtnText}>↩ Undo</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.clearBtn}
-                  onPress={handleClearPractice}
-                >
-                  <Text style={styles.clearBtnText}>🗑 Clear</Text>
-                </TouchableOpacity>
-              </View>
+          {/* Options Toggles */}
+          <View style={styles.panelGroup}>
+            <Text style={styles.panelLabel}>DISPLAY OPTIONS</Text>
+            <View style={styles.toggleRow}>
+              <Text style={styles.toggleLabel}>Loop Animation</Text>
+              <Switch
+                value={loopAnimation}
+                onValueChange={setLoopAnimation}
+                trackColor={{ false: '#21262d', true: '#0369a1' }}
+                thumbColor={loopAnimation ? '#38bdf8' : '#6e7681'}
+              />
             </View>
 
-            {/* Canvas with optional Ghost Tracing Overlay */}
-            <View style={styles.canvasWrapper}>
-              <HandwritingCanvas
-                ref={canvasRef}
-                size={practiceCanvasSize}
-                strokeColor="#38bdf8"
-                strokeWidth={5}
-                onStrokeEnd={handlePracticeStrokeEnd}
+            <View style={styles.toggleRow}>
+              <Text style={styles.toggleLabel}>Ghost Guide</Text>
+              <Switch
+                value={showGhostOutline}
+                onValueChange={setShowGhostOutline}
+                trackColor={{ false: '#21262d', true: '#0369a1' }}
+                thumbColor={showGhostOutline ? '#38bdf8' : '#6e7681'}
+              />
+            </View>
+          </View>
+
+          {/* Practice Pad Section ("Now You Try!") */}
+          <View style={styles.panelGroup}>
+            <View style={styles.practiceHeaderRow}>
+              <Text style={styles.panelLabel}>✍️ TRY IT YOURSELF</Text>
+              <TouchableOpacity
+                onPress={() => setIsPracticeMode(prev => !prev)}
+                activeOpacity={0.7}
               >
-                {practiceShowGhost && (
-                  <GuidedOverlay
-                    template={selectedTemplate}
-                    size={practiceCanvasSize}
-                    showStrokes={true}
-                    showStrokeOrder={true}
-                    showDirectionArrows={true}
-                  />
-                )}
-              </HandwritingCanvas>
+                <Text style={styles.togglePracticeText}>
+                  {isPracticeMode ? 'Hide' : 'Show'}
+                </Text>
+              </TouchableOpacity>
             </View>
 
-            {/* High-Score Celebration Banner */}
-            {practiceResult && practiceResult.confidence >= 80 && (
-              <View style={styles.celebrationBanner}>
-                <Text style={styles.celebrationEmoji}>🎉</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.celebrationTitle}>
-                    Outstanding Handwriting! ({practiceResult.confidence}%)
-                  </Text>
-                  <Text style={styles.celebrationSubtitle}>
-                    You mastered the stroke flow and direction of "{selectedTemplate.gujarati}"!
-                  </Text>
+            {isPracticeMode && (
+              <View style={styles.practiceBody}>
+                <View style={styles.practiceToolbar}>
+                  <View style={styles.practiceTraceOption}>
+                    <Text style={styles.practiceTraceLabel}>Ghost:</Text>
+                    <Switch
+                      value={practiceShowGhost}
+                      onValueChange={setPracticeShowGhost}
+                      trackColor={{ false: '#21262d', true: '#0369a1' }}
+                      thumbColor={practiceShowGhost ? '#38bdf8' : '#6e7681'}
+                    />
+                  </View>
+
+                  <View style={styles.practiceActionsRow}>
+                    <TouchableOpacity
+                      style={styles.btnActionSecondarySmall}
+                      onPress={() => canvasRef.current?.undo()}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.btnActionSecondaryTextSmall}>↩ Undo</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.btnClearSmall}
+                      onPress={handleClearPractice}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.btnClearTextSmall}>🗑 Clear</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
+
+                {/* Canvas with optional Ghost Tracing Overlay */}
+                <View style={styles.canvasWrapper}>
+                  <HandwritingCanvas
+                    ref={canvasRef}
+                    size={practiceCanvasSize}
+                    strokeColor="#38bdf8"
+                    strokeWidth={5}
+                    onStrokeEnd={handlePracticeStrokeEnd}
+                  >
+                    {practiceShowGhost && (
+                      <GuidedOverlay
+                        template={selectedTemplate}
+                        size={practiceCanvasSize}
+                        showStrokes={true}
+                        showStrokeOrder={true}
+                        showDirectionArrows={true}
+                      />
+                    )}
+                  </HandwritingCanvas>
+                </View>
+
+                {/* High-Score Celebration Banner */}
+                {practiceResult && practiceResult.confidence >= 80 && (
+                  <View style={styles.celebrationBanner}>
+                    <Text style={styles.celebrationEmoji}>🎉</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.celebrationTitle}>
+                        Outstanding Handwriting! ({practiceResult.confidence}%)
+                      </Text>
+                    </View>
+                  </View>
+                )}
+
+                <RecognitionScoreCard result={practiceResult} />
               </View>
             )}
-
-            {/* Live Scorecard for Practice Pad */}
-            <RecognitionScoreCard result={practiceResult} />
           </View>
-        )}
+        </View>
+      </View>
+
+      {/* Bottom Section: Character Catalog Browser */}
+      <View style={styles.catalogSection}>
+        <View style={styles.catalogHeader}>
+          <Text style={styles.catalogTitle}>📚 Character Catalog Browser</Text>
+          <Text style={styles.catalogSubtitle}>
+            Select a character below to watch stroke animation in the stage above
+          </Text>
+        </View>
+        <CharacterSelector
+          templates={templates}
+          selectedTemplate={selectedTemplate}
+          onSelect={handleSelectTemplate}
+        />
       </View>
     </ScrollView>
   );
@@ -449,132 +498,372 @@ export const AnimatedDrawingScreen: React.FC<AnimatedDrawingScreenProps> = ({
 
 const styles = StyleSheet.create({
   screen: {
-    flex: 1,
-    backgroundColor: '#090d16',
+    backgroundColor: '#0a0e14',
+    width: '100%',
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 40,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    width: '100%',
+    maxWidth: 1140,
+    alignSelf: 'center',
   },
-  tutorialHeader: {
-    backgroundColor: '#0f172a',
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 12,
+
+  /* Workspace Layout */
+  workspaceLayout: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  workspaceLayoutRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 16,
+  },
+  workspaceLayoutCol: {
+    flexDirection: 'column',
+    gap: 16,
+  },
+
+  /* Left Column: Stages */
+  stagesColumn: {
+    width: '100%',
+    gap: 12,
+  },
+  stagesColumnWide: {
+    flex: 1,
+    minWidth: 0,
+  },
+
+  /* Character Summary Banner */
+  charHeaderBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#161b22',
     borderWidth: 1,
-    borderColor: '#1e293b',
+    borderColor: '#30363d',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    flexWrap: 'wrap',
+    gap: 10,
   },
-  badgeRow: {
+  charMainInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  charGlyphLarge: {
+    fontSize: 34,
+    fontWeight: '700',
+    color: '#ff6b35',
+    lineHeight: 38,
+  },
+  charNames: {
+    flexDirection: 'column',
+  },
+  charTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#f0f6fc',
+  },
+  charSubtitle: {
+    fontSize: 12,
+    color: '#8b949e',
+  },
+  charMetaTags: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  tag: {
+    backgroundColor: '#21262d',
+    borderWidth: 1,
+    borderColor: '#30363d',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 9999,
+  },
+  tagText: {
+    fontSize: 11,
+    color: '#8b949e',
+    fontWeight: '600',
+  },
+  tagAccent: {
+    backgroundColor: 'rgba(255, 107, 53, 0.15)',
+    borderWidth: 1,
+    borderColor: '#ff6b35',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 9999,
+  },
+  tagAccentText: {
+    fontSize: 11,
+    color: '#ff6b35',
+    fontWeight: '700',
+  },
+  listenBtn: {
+    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+    borderWidth: 1,
+    borderColor: '#38bdf8',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 9999,
+  },
+  listenBtnText: {
+    fontSize: 11,
+    color: '#38bdf8',
+    fontWeight: '700',
+  },
+
+  /* Stage Card */
+  stageCard: {
+    backgroundColor: '#161b22',
+    borderWidth: 1,
+    borderColor: '#30363d',
+    borderRadius: 12,
+    padding: 14,
+    alignItems: 'center',
+  },
+  stageCardHeader: {
+    width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
-    flexWrap: 'wrap',
-    gap: 6,
+    marginBottom: 10,
   },
-  titleBadge: {
-    color: '#38bdf8',
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 0.8,
+  stageCardHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  charSummary: {
-    color: '#94a3b8',
+  stageCardTitle: {
     fontSize: 13,
     fontWeight: '600',
+    color: '#8b949e',
   },
-  instructionText: {
-    color: '#cbd5e1',
-    fontSize: 13,
-    lineHeight: 18,
-    marginBottom: 10,
+  badgeHeaderDtw: {
+    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 9999,
   },
-  listenBtn: {
-    backgroundColor: 'rgba(56, 189, 248, 0.12)',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: '#0284c7',
-    alignItems: 'center',
-  },
-  listenBtnText: {
-    color: '#38bdf8',
-    fontSize: 13,
+  badgeHeaderDtwText: {
+    fontSize: 10,
     fontWeight: '700',
+    color: '#38bdf8',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   stageContainer: {
+    backgroundColor: '#0d1117',
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#30363d',
+    borderRadius: 12,
+    padding: 8,
     alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    marginBottom: 10,
+  },
+
+  /* Right Settings Panel */
+  settingsPanel: {
+    backgroundColor: '#161b22',
+    borderWidth: 1,
+    borderColor: '#30363d',
+    borderRadius: 12,
+    padding: 16,
+    gap: 14,
+    width: '100%',
+  },
+  settingsPanelWide: {
+    width: 320,
+    flexShrink: 0,
+  },
+  panelHeader: {
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#30363d',
+  },
+  panelHeaderTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#f0f6fc',
+  },
+  panelGroup: {
+    gap: 8,
+  },
+  panelLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#8b949e',
+    letterSpacing: 0.5,
+  },
+  panelBtnGrid: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  btnActionPrimary: {
+    flex: 1,
+    backgroundColor: '#0284c7',
+    borderWidth: 1,
+    borderColor: '#38bdf8',
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnActionPlaying: {
+    backgroundColor: '#1e293b',
+    borderColor: '#64748b',
+  },
+  btnActionPrimaryText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  btnActionSecondary: {
+    flex: 1,
+    backgroundColor: '#21262d',
+    borderWidth: 1,
+    borderColor: '#30363d',
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnActionSecondaryText: {
+    color: '#c9d1d9',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  practiceHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  btnActionSecondarySmall: {
+    backgroundColor: '#21262d',
+    borderWidth: 1,
+    borderColor: '#30363d',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  btnActionSecondaryTextSmall: {
+    color: '#c9d1d9',
+    fontSize: 11,
+  },
+  btnClearSmall: {
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.4)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  btnClearTextSmall: {
+    color: '#f85149',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  catalogSection: {
+    width: '100%',
+    backgroundColor: '#161b22',
+    borderWidth: 1,
+    borderColor: '#30363d',
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 10,
+  },
+  catalogHeader: {
     marginBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#30363d',
+    paddingBottom: 6,
+  },
+  catalogTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#f0f6fc',
+  },
+  catalogSubtitle: {
+    fontSize: 11,
+    color: '#8b949e',
+    marginTop: 2,
   },
   scrubberContainer: {
-    backgroundColor: '#0f172a',
-    borderRadius: 12,
-    padding: 12,
+    backgroundColor: '#0d1117',
+    borderRadius: 10,
+    padding: 10,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#1e293b',
+    borderColor: '#30363d',
+    width: '100%',
   },
   scrubberLabelRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   scrubberTimeText: {
     color: '#38bdf8',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
   },
   scrubberStrokeText: {
-    color: '#94a3b8',
-    fontSize: 12,
+    color: '#8b949e',
+    fontSize: 11,
     fontWeight: '600',
   },
   scrubberTrack: {
-    height: 10,
-    backgroundColor: '#1e293b',
-    borderRadius: 5,
+    height: 8,
+    backgroundColor: '#21262d',
+    borderRadius: 4,
     position: 'relative',
     justifyContent: 'center',
   },
   scrubberFill: {
     height: '100%',
     backgroundColor: '#38bdf8',
-    borderRadius: 5,
+    borderRadius: 4,
   },
   scrubberThumb: {
     position: 'absolute',
     top: -4,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
     backgroundColor: '#ffffff',
     borderWidth: 2,
     borderColor: '#0284c7',
   },
   stepControllerCard: {
-    backgroundColor: '#0f172a',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 10,
+    backgroundColor: '#0d1117',
+    borderRadius: 10,
+    padding: 10,
     borderWidth: 1,
-    borderColor: '#1e293b',
+    borderColor: '#30363d',
+    width: '100%',
   },
   stepHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   stepSectionTitle: {
-    color: '#cbd5e1',
-    fontSize: 11,
+    color: '#8b949e',
+    fontSize: 10,
     fontWeight: '800',
     letterSpacing: 0.6,
   },
   stepHintText: {
-    color: '#64748b',
-    fontSize: 11,
+    color: '#6e7681',
+    fontSize: 10,
   },
   stepButtonsRow: {
     flexDirection: 'row',
@@ -583,17 +872,19 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   stepNavBtn: {
-    backgroundColor: '#1e293b',
+    backgroundColor: '#21262d',
+    borderWidth: 1,
+    borderColor: '#30363d',
     paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
+    paddingVertical: 5,
+    borderRadius: 6,
   },
   stepNavBtnDisabled: {
     opacity: 0.35,
   },
   stepNavBtnText: {
-    color: '#94a3b8',
-    fontSize: 12,
+    color: '#8b949e',
+    fontSize: 11,
     fontWeight: '700',
   },
   strokePillsRow: {
@@ -604,154 +895,79 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   strokePill: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: '#1e293b',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    backgroundColor: '#21262d',
+    borderWidth: 1,
+    borderColor: '#30363d',
   },
   strokePillActive: {
     backgroundColor: '#0284c7',
+    borderColor: '#38bdf8',
   },
   strokePillText: {
-    color: '#94a3b8',
-    fontSize: 12,
+    color: '#8b949e',
+    fontSize: 11,
     fontWeight: '600',
   },
   strokePillTextActive: {
     color: '#ffffff',
     fontWeight: '800',
   },
-  controlDeck: {
-    backgroundColor: '#0f172a',
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#1e293b',
-  },
-  mainButtonsRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 12,
-  },
-  ctrlBtn: {
-    flex: 1,
-    backgroundColor: '#1e293b',
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#334155',
-  },
-  playBtn: {
-    backgroundColor: '#0284c7',
-    borderColor: '#38bdf8',
-  },
-  ctrlBtnText: {
-    color: '#e2e8f0',
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  playBtnText: {
-    color: '#ffffff',
-    fontSize: 13,
-    fontWeight: '800',
-  },
   speedRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
-  },
-  speedLabel: {
-    color: '#94a3b8',
-    fontSize: 12,
-    fontWeight: '600',
+    gap: 6,
   },
   speedPill: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
-    backgroundColor: '#1e293b',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    backgroundColor: '#21262d',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#30363d',
   },
   activeSpeedPill: {
     backgroundColor: '#0284c7',
     borderColor: '#38bdf8',
   },
   speedText: {
-    color: '#94a3b8',
-    fontSize: 12,
+    color: '#8b949e',
+    fontSize: 11,
     fontWeight: '600',
   },
   activeSpeedText: {
     color: '#ffffff',
     fontWeight: '800',
   },
-  optionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#1e293b',
-  },
-  optionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  optionLabel: {
-    color: '#cbd5e1',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  practiceSection: {
-    backgroundColor: '#0f172a',
-    borderRadius: 14,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#1e293b',
-  },
-  practiceHeader: {
+  toggleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    paddingVertical: 2,
   },
-  practiceTitle: {
-    color: '#22c55e',
-    fontSize: 13,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-  },
-  practiceSubtitle: {
-    color: '#94a3b8',
+  toggleLabel: {
+    color: '#c9d1d9',
     fontSize: 12,
-    marginTop: 2,
-  },
-  togglePracticeBtn: {
-    backgroundColor: '#1e293b',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
   },
   togglePracticeText: {
     color: '#38bdf8',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
   },
   practiceBody: {
-    gap: 12,
+    gap: 8,
+    backgroundColor: '#0d1117',
+    borderRadius: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#30363d',
   },
   practiceToolbar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#131d33',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
   },
   practiceTraceOption: {
     flexDirection: 'row',
@@ -759,59 +975,34 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   practiceTraceLabel: {
-    color: '#94a3b8',
-    fontSize: 12,
-    fontWeight: '600',
+    color: '#8b949e',
+    fontSize: 11,
   },
   practiceActionsRow: {
     flexDirection: 'row',
-    gap: 8,
-  },
-  undoBtn: {
-    backgroundColor: '#1e293b',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  undoBtnText: {
-    color: '#e2e8f0',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  clearBtn: {
-    backgroundColor: '#7f1d1d',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  clearBtnText: {
-    color: '#fca5a5',
-    fontSize: 12,
-    fontWeight: '700',
+    gap: 6,
   },
   canvasWrapper: {
     alignItems: 'center',
+    marginVertical: 4,
   },
   celebrationBanner: {
     backgroundColor: 'rgba(34, 197, 94, 0.15)',
-    borderColor: '#22c55e',
+    borderColor: '#3fb950',
     borderWidth: 1,
-    borderRadius: 10,
-    padding: 10,
+    borderRadius: 8,
+    padding: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
   celebrationEmoji: {
-    fontSize: 24,
+    fontSize: 18,
   },
   celebrationTitle: {
-    color: '#4ade80',
-    fontSize: 13,
-    fontWeight: '800',
-  },
-  celebrationSubtitle: {
-    color: '#cbd5e1',
-    fontSize: 12,
+    color: '#3fb950',
+    fontSize: 11,
+    fontWeight: '700',
   },
 });
+

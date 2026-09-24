@@ -87,20 +87,22 @@ export const StrokeDiagnostics: React.FC<StrokeDiagnosticsProps> = ({ result }) 
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#1e293b',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
+    backgroundColor: '#0d1117',
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 6,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#30363d',
   },
   title: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#94a3b8',
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#8b949e',
     textTransform: 'uppercase',
-    marginBottom: 10,
+    marginBottom: 8,
+    letterSpacing: 0.5,
   },
+
   alertsContainer: {
     gap: 8,
     marginBottom: 12,

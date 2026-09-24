@@ -52,8 +52,9 @@ export const QuizGameScreen: React.FC<QuizGameScreenProps> = () => {
 
   const canvasRef = useRef<HandwritingCanvasRef>(null);
 
-  const screenWidth = Dimensions.get('window').width;
-  const canvasSize = Math.min(screenWidth - 48, 330);
+  const { width: windowWidth } = useWindowDimensions();
+  const isWide = windowWidth >= 880;
+  const canvasSize = isWide ? 330 : Math.min(windowWidth - 64, 330);
 
   // Active pool of characters for current level
   const characterPool = useMemo(() => {
@@ -66,14 +67,12 @@ export const QuizGameScreen: React.FC<QuizGameScreenProps> = () => {
         return NUMBER_TEMPLATES;
       case 'mixed':
       default:
-        // Pick a balanced subset of Kakko
         return KAKKO_TEMPLATES.slice(0, 20);
     }
   }, [level]);
 
   // Round questions (5 questions per round)
   const roundQuestions = useMemo(() => {
-    // Shuffle deterministic subset of pool
     const shuffled = [...characterPool].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 5);
   }, [characterPool, level]);
@@ -138,7 +137,6 @@ export const QuizGameScreen: React.FC<QuizGameScreenProps> = () => {
         setBestStreak(b => Math.max(b, next));
         return next;
       });
-      // Speak positive praise
       speakGujarati(currentQuestion.gujarati, currentQuestion.transliteration);
     } else if (conf >= 50) {
       setStarsTotal(prev => prev + 1);
@@ -182,241 +180,274 @@ export const QuizGameScreen: React.FC<QuizGameScreenProps> = () => {
       showsVerticalScrollIndicator={false}
       scrollEnabled={Platform.OS !== 'web'}
     >
-      {/* Level Selection Tabs */}
-      <View style={styles.levelSelector}>
-        {(
-          [
-            { id: 'vowels', label: '🌱 Vowels' },
-            { id: 'consonants', label: '🌿 Consonants' },
-            { id: 'numbers', label: '🔢 Numbers' },
-            { id: 'mixed', label: '🏆 Master' },
-          ] as const
-        ).map(tab => (
-          <TouchableOpacity
-            key={tab.id}
-            style={[styles.levelTab, level === tab.id && styles.levelTabActive]}
-            onPress={() => {
-              setLevel(tab.id);
-              handleRestartRound();
-            }}
-          >
-            <Text
-              style={[
-                styles.levelTabText,
-                level === tab.id && styles.levelTabTextActive,
-              ]}
-            >
-              {tab.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Mode Switcher (Picture Clue vs Audio Dictation) */}
-      <View style={styles.modeContainer}>
-        <TouchableOpacity
-          style={[styles.modePill, mode === 'picture' && styles.modePillActive]}
-          onPress={() => setMode('picture')}
-        >
-          <Text
-            style={[styles.modeText, mode === 'picture' && styles.modeTextActive]}
-          >
-            🖼️ Picture Clue
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.modePill, mode === 'audio' && styles.modePillActive]}
-          onPress={() => setMode('audio')}
-        >
-          <Text
-            style={[styles.modeText, mode === 'audio' && styles.modeTextActive]}
-          >
-            🎧 Listen & Write
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Header Stats Bar */}
-      <View style={styles.statsBar}>
-        <View style={styles.statItem}>
-          <Text style={styles.statLabel}>ROUND PROGRESS</Text>
-          <Text style={styles.statValue}>
-            {questionIndex + 1} / {roundQuestions.length}
-          </Text>
-        </View>
-
-        <View style={styles.statItem}>
-          <Text style={styles.statLabel}>STARS EARNED</Text>
-          <Text style={[styles.statValue, { color: '#eab308' }]}>
-            ⭐ {starsTotal}
-          </Text>
-        </View>
-
-        <View style={styles.statItem}>
-          <Text style={styles.statLabel}>STREAK</Text>
-          <Text style={[styles.statValue, { color: '#f97316' }]}>
-            🔥 {currentStreak}
-          </Text>
-        </View>
-      </View>
-
-      {/* Question Prompt Card */}
-      <View style={styles.promptCard}>
-        {mode === 'picture' ? (
-          <View style={styles.promptContent}>
-            <Text style={styles.promptEmoji}>{wordClue?.emoji || '✍️'}</Text>
-            <View style={styles.promptTextWrapper}>
-              <Text style={styles.promptTitle}>
-                Write starting letter for:
-              </Text>
-              <Text style={styles.promptWord}>
-                {wordClue?.word} ({wordClue?.meaning})
-              </Text>
-              <Text style={styles.promptSub}>
-                Letter sound: "{currentQuestion.transliteration}"
-              </Text>
-            </View>
-            <TouchableOpacity style={styles.soundMiniBtn} onPress={handlePlayAudio}>
-              <Text style={styles.soundMiniText}>🔊</Text>
-            </TouchableOpacity>
+      {/* 2-Column Workspace Layout */}
+      <View style={[styles.workspaceLayout, isWide ? styles.workspaceLayoutRow : styles.workspaceLayoutCol]}>
+        {/* Left Column: Question Clue Banner + Canvas Stage */}
+        <View style={[styles.stagesColumn, isWide && styles.stagesColumnWide]}>
+          {/* Question Clue Banner */}
+          <View style={styles.promptCard}>
+            {mode === 'picture' ? (
+              <View style={styles.promptContent}>
+                <Text style={styles.promptEmoji}>{wordClue?.emoji || '✍️'}</Text>
+                <View style={styles.promptTextWrapper}>
+                  <Text style={styles.promptTitle}>Write starting letter for:</Text>
+                  <Text style={styles.promptWord}>
+                    {wordClue?.word} ({wordClue?.meaning})
+                  </Text>
+                  <Text style={styles.promptSub}>
+                    Letter sound: "{currentQuestion?.transliteration}"
+                  </Text>
+                </View>
+                <TouchableOpacity style={styles.soundMiniBtn} onPress={handlePlayAudio} activeOpacity={0.7}>
+                  <Text style={styles.soundMiniText}>🔊</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.promptContent}>
+                <Text style={styles.promptEmoji}>🎧</Text>
+                <View style={styles.promptTextWrapper}>
+                  <Text style={styles.promptTitle}>Listen and write the letter:</Text>
+                  <Text style={styles.promptWord}>
+                    "{currentQuestion?.transliteration}"
+                  </Text>
+                  <Text style={styles.promptSub}>
+                    Tap speaker to hear pronunciation
+                  </Text>
+                </View>
+                <TouchableOpacity style={styles.soundListenBtn} onPress={handlePlayAudio} activeOpacity={0.7}>
+                  <Text style={styles.soundListenText}>🔊 Listen</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
-        ) : (
-          <View style={styles.promptContent}>
-            <Text style={styles.promptEmoji}>🎧</Text>
-            <View style={styles.promptTextWrapper}>
-              <Text style={styles.promptTitle}>Listen and write the letter:</Text>
-              <Text style={styles.promptWord}>
-                "{currentQuestion.transliteration}"
-              </Text>
-              <Text style={styles.promptSub}>
-                Tap speaker to hear pronunciation
-              </Text>
+
+          {/* Canvas Stage Card */}
+          <View style={styles.stageCard}>
+            <View style={styles.stageCardHeader}>
+              <Text style={styles.stageCardTitle}>✍️ Handwriting Pad</Text>
+              <View style={styles.badgeHeaderDtw}>
+                <Text style={styles.badgeHeaderDtwText}>Question {questionIndex + 1} of {roundQuestions.length}</Text>
+              </View>
             </View>
-            <TouchableOpacity style={styles.soundListenBtn} onPress={handlePlayAudio}>
-              <Text style={styles.soundListenText}>🔊 Listen Again</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
 
-      {/* Writing Canvas with Temporary Ghost Peek Option */}
-      <View style={styles.canvasStage}>
-        <HandwritingCanvas
-          ref={canvasRef}
-          size={canvasSize}
-          strokeColor="#38bdf8"
-          strokeWidth={5}
-          onStrokeEnd={handleStrokesEnd}
-        >
-          {showGhostPeek && (
-            <GuidedOverlay
-              template={currentQuestion}
-              size={canvasSize}
-              showStrokes={true}
-              showStrokeOrder={true}
-              showDirectionArrows={true}
-            />
-          )}
-        </HandwritingCanvas>
-      </View>
-
-      {/* Canvas Tool Actions */}
-      <View style={styles.canvasActionsRow}>
-        <TouchableOpacity style={styles.actionBtn} onPress={resetCanvas}>
-          <Text style={styles.actionBtnText}>🗑 Clear</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.actionBtn}
-          onPress={() => canvasRef.current?.undo()}
-        >
-          <Text style={styles.actionBtnText}>↩ Undo</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.actionBtn, styles.peekBtn]}
-          onPress={handlePeekGhost}
-        >
-          <Text style={styles.peekBtnText}>💡 Peek Guide (2s)</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.actionBtn, styles.solutionBtn]}
-          onPress={() => setShowAnimatedModal(true)}
-        >
-          <Text style={styles.solutionBtnText}>🎬 Animated Help</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Submit / Check Answer Button */}
-      {!hasChecked ? (
-        <TouchableOpacity
-          style={[
-            styles.submitBtn,
-            userStrokes.length === 0 && styles.submitBtnDisabled,
-          ]}
-          onPress={handleCheckAnswer}
-          disabled={userStrokes.length === 0}
-        >
-          <Text style={styles.submitBtnText}>✅ Check My Handwriting</Text>
-        </TouchableOpacity>
-      ) : (
-        /* Evaluation Feedback Card */
-        <View style={styles.feedbackCard}>
-          <View style={styles.starsRow}>
-            {[1, 2, 3].map(i => (
-              <Text
-                key={`star-${i}`}
-                style={[
-                  styles.starIcon,
-                  i <= earnedStars ? styles.starEarned : styles.starDim,
-                ]}
+            {/* Canvas Stage */}
+            <View style={styles.svgStage}>
+              <HandwritingCanvas
+                ref={canvasRef}
+                size={canvasSize}
+                strokeColor="#38bdf8"
+                strokeWidth={5}
+                onStrokeEnd={handleStrokesEnd}
               >
-                ⭐
-              </Text>
-            ))}
-          </View>
+                {showGhostPeek && (
+                  <GuidedOverlay
+                    template={currentQuestion}
+                    size={canvasSize}
+                    showStrokes={true}
+                    showStrokeOrder={true}
+                    showDirectionArrows={true}
+                  />
+                )}
+              </HandwritingCanvas>
+            </View>
 
-          <Text style={styles.feedbackScoreText}>
-            Accuracy: {evaluationResult?.confidence || 0}%
-          </Text>
+            {/* Canvas Tool Actions */}
+            <View style={styles.canvasActionsRow}>
+              <TouchableOpacity style={styles.actionBtn} onPress={resetCanvas} activeOpacity={0.7}>
+                <Text style={styles.actionBtnText}>🗑 Clear</Text>
+              </TouchableOpacity>
 
-          <Text style={styles.feedbackMsg}>
-            {earnedStars === 3
-              ? `🎉 Masterpiece! You wrote "${currentQuestion.gujarati}" flawlessly!`
-              : earnedStars === 2
-              ? `👍 Great job! Very recognizable "${currentQuestion.gujarati}".`
-              : earnedStars === 1
-              ? `🌱 Good try! Refine stroke curves for "${currentQuestion.gujarati}".`
-              : `❌ Let's practice "${currentQuestion.gujarati}" again! Check the animated help.`}
-          </Text>
+              <TouchableOpacity
+                style={styles.actionBtn}
+                onPress={() => canvasRef.current?.undo()}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.actionBtnText}>↩ Undo</Text>
+              </TouchableOpacity>
 
-          {/* Diagnostic error note if any */}
-          {evaluationResult?.errors && evaluationResult.errors.wrongDirection && (
-            <Text style={styles.errorNote}>
-              ⚠️ Tip: Check the stroke direction arrows.
-            </Text>
-          )}
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.peekBtn]}
+                onPress={handlePeekGhost}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.peekBtnText}>💡 Peek (2s)</Text>
+              </TouchableOpacity>
 
-          <View style={styles.feedbackActionsRow}>
-            <TouchableOpacity style={styles.retryBtn} onPress={resetCanvas}>
-              <Text style={styles.retryBtnText}>🔄 Try Again</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.solutionBtn]}
+                onPress={() => setShowAnimatedModal(true)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.solutionBtnText}>🎬 Animation</Text>
+              </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity
-              style={styles.nextBtn}
-              onPress={handleNextQuestion}
-            >
-              <Text style={styles.nextBtnText}>
-                {questionIndex + 1 < roundQuestions.length
-                  ? 'Next Letter ➡️'
-                  : 'See Results 🏆'}
-              </Text>
-            </TouchableOpacity>
+            {/* Submit / Check Answer Button */}
+            {!hasChecked ? (
+              <TouchableOpacity
+                style={[
+                  styles.submitBtn,
+                  userStrokes.length === 0 && styles.submitBtnDisabled,
+                ]}
+                onPress={handleCheckAnswer}
+                disabled={userStrokes.length === 0}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.submitBtnText}>✅ Check My Handwriting</Text>
+              </TouchableOpacity>
+            ) : (
+              /* Evaluation Feedback Card */
+              <View style={styles.feedbackCard}>
+                <View style={styles.starsRow}>
+                  {[1, 2, 3].map(i => (
+                    <Text
+                      key={`star-${i}`}
+                      style={[
+                        styles.starIcon,
+                        i <= earnedStars ? styles.starEarned : styles.starDim,
+                      ]}
+                    >
+                      ⭐
+                    </Text>
+                  ))}
+                </View>
+
+                <Text style={styles.feedbackScoreText}>
+                  Accuracy: {evaluationResult?.confidence || 0}%
+                </Text>
+
+                <Text style={styles.feedbackMsg}>
+                  {earnedStars === 3
+                    ? `🎉 Masterpiece! You wrote "${currentQuestion?.gujarati}" flawlessly!`
+                    : earnedStars === 2
+                    ? `👍 Great job! Very recognizable "${currentQuestion?.gujarati}".`
+                    : earnedStars === 1
+                    ? `🌱 Good try! Refine stroke curves for "${currentQuestion?.gujarati}".`
+                    : `❌ Let's practice "${currentQuestion?.gujarati}" again! Check the animated help.`}
+                </Text>
+
+                {evaluationResult?.errors && evaluationResult.errors.wrongDirection && (
+                  <Text style={styles.errorNote}>
+                    ⚠️ Tip: Check the stroke direction arrows.
+                  </Text>
+                )}
+
+                <View style={styles.feedbackActionsRow}>
+                  <TouchableOpacity style={styles.retryBtn} onPress={resetCanvas} activeOpacity={0.7}>
+                    <Text style={styles.retryBtnText}>🔄 Try Again</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.nextBtn}
+                    onPress={handleNextQuestion}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.nextBtnText}>
+                      {questionIndex + 1 < roundQuestions.length
+                        ? 'Next Letter ➔'
+                        : 'See Results 🏆'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
           </View>
         </View>
-      )}
+
+        {/* Right Column: Settings & Scoreboard Panel */}
+        <View style={[styles.settingsPanel, isWide && styles.settingsPanelWide]}>
+          <View style={styles.panelHeader}>
+            <Text style={styles.panelHeaderTitle}>⚙️ Level & Scoreboard</Text>
+          </View>
+
+          {/* Level Selection Tabs */}
+          <View style={styles.panelGroup}>
+            <Text style={styles.panelLabel}>LEVEL</Text>
+            <View style={styles.levelSelector}>
+              {(
+                [
+                  { id: 'vowels', label: 'Vowels' },
+                  { id: 'consonants', label: 'Consonants' },
+                  { id: 'numbers', label: 'Numbers' },
+                  { id: 'mixed', label: 'Master' },
+                ] as const
+              ).map(tab => (
+                <TouchableOpacity
+                  key={tab.id}
+                  style={[styles.levelTab, level === tab.id && styles.levelTabActive]}
+                  onPress={() => {
+                    setLevel(tab.id);
+                    handleRestartRound();
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={[
+                      styles.levelTabText,
+                      level === tab.id && styles.levelTabTextActive,
+                    ]}
+                  >
+                    {tab.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Mode Switcher */}
+          <View style={styles.panelGroup}>
+            <Text style={styles.panelLabel}>CLUE MODE</Text>
+            <View style={styles.modeContainer}>
+              <TouchableOpacity
+                style={[styles.modePill, mode === 'picture' && styles.modePillActive]}
+                onPress={() => setMode('picture')}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.modeText, mode === 'picture' && styles.modeTextActive]}>
+                  🖼️ Picture Clue
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modePill, mode === 'audio' && styles.modePillActive]}
+                onPress={() => setMode('audio')}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.modeText, mode === 'audio' && styles.modeTextActive]}>
+                  🎧 Listen & Write
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Score & Streak Stats Card */}
+          <View style={styles.panelGroup}>
+            <Text style={styles.panelLabel}>SCOREBOARD</Text>
+            <View style={styles.statsBar}>
+              <View style={styles.statItem}>
+                <Text style={styles.statLabel}>PROGRESS</Text>
+                <Text style={styles.statValue}>
+                  {questionIndex + 1} / {roundQuestions.length}
+                </Text>
+              </View>
+
+              <View style={styles.statItem}>
+                <Text style={styles.statLabel}>STARS</Text>
+                <Text style={[styles.statValue, { color: '#fbbf24' }]}>
+                  ⭐ {starsTotal}
+                </Text>
+              </View>
+
+              <View style={styles.statItem}>
+                <Text style={styles.statLabel}>STREAK</Text>
+                <Text style={[styles.statValue, { color: '#ff6b35' }]}>
+                  🔥 {currentStreak}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
 
       {/* Round Finished Summary Modal */}
       <Modal visible={isRoundFinished} transparent animationType="fade">
@@ -443,6 +474,7 @@ export const QuizGameScreen: React.FC<QuizGameScreenProps> = () => {
             <TouchableOpacity
               style={styles.playAgainBtn}
               onPress={handleRestartRound}
+              activeOpacity={0.7}
             >
               <Text style={styles.playAgainText}>🔁 Play Next Round</Text>
             </TouchableOpacity>
@@ -456,7 +488,7 @@ export const QuizGameScreen: React.FC<QuizGameScreenProps> = () => {
           <View style={styles.animatedModalBox}>
             <View style={styles.animatedModalHeader}>
               <Text style={styles.animatedModalTitle}>
-                Solution: {currentQuestion.gujarati} ({currentQuestion.name})
+                Solution: {currentQuestion?.gujarati} ({currentQuestion?.name})
               </Text>
               <TouchableOpacity onPress={() => setShowAnimatedModal(false)}>
                 <Text style={styles.closeModalText}>✕ Close</Text>
@@ -466,7 +498,7 @@ export const QuizGameScreen: React.FC<QuizGameScreenProps> = () => {
             <View style={styles.modalPlayerWrapper}>
               <AnimatedStrokePlayer
                 template={currentQuestion}
-                size={Math.min(screenWidth - 64, 280)}
+                size={Math.min(windowWidth - 64, 280)}
                 isPlaying={true}
                 playbackSpeed={1.0}
                 loop={true}
@@ -476,6 +508,7 @@ export const QuizGameScreen: React.FC<QuizGameScreenProps> = () => {
             <TouchableOpacity
               style={styles.gotItBtn}
               onPress={() => setShowAnimatedModal(false)}
+              activeOpacity={0.7}
             >
               <Text style={styles.gotItText}>Got it! Let me draw</Text>
             </TouchableOpacity>
@@ -488,99 +521,48 @@ export const QuizGameScreen: React.FC<QuizGameScreenProps> = () => {
 
 const styles = StyleSheet.create({
   screen: {
-    flex: 1,
-    backgroundColor: '#090d16',
+    backgroundColor: '#0a0e14',
+    width: '100%',
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 40,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    width: '100%',
+    maxWidth: 1140,
+    alignSelf: 'center',
   },
-  levelSelector: {
+
+  /* Workspace Layout */
+  workspaceLayout: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  workspaceLayoutRow: {
     flexDirection: 'row',
-    gap: 8,
-    marginBottom: 12,
+    alignItems: 'flex-start',
+    gap: 16,
   },
-  levelTab: {
+  workspaceLayoutCol: {
+    flexDirection: 'column',
+    gap: 16,
+  },
+
+  /* Left Column */
+  stagesColumn: {
+    width: '100%',
+    gap: 12,
+  },
+  stagesColumnWide: {
     flex: 1,
-    backgroundColor: '#0f172a',
-    paddingVertical: 8,
-    borderRadius: 10,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#1e293b',
+    minWidth: 0,
   },
-  levelTabActive: {
-    backgroundColor: '#0284c7',
-    borderColor: '#38bdf8',
-  },
-  levelTabText: {
-    color: '#94a3b8',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  levelTabTextActive: {
-    color: '#ffffff',
-    fontWeight: '800',
-  },
-  modeContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#0f172a',
-    borderRadius: 10,
-    padding: 4,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#1e293b',
-  },
-  modePill: {
-    flex: 1,
-    paddingVertical: 7,
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  modePillActive: {
-    backgroundColor: '#1e293b',
-  },
-  modeText: {
-    color: '#94a3b8',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  modeTextActive: {
-    color: '#38bdf8',
-    fontWeight: '700',
-  },
-  statsBar: {
-    flexDirection: 'row',
-    backgroundColor: '#0f172a',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#1e293b',
-    justifyContent: 'space-around',
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statLabel: {
-    color: '#64748b',
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 0.6,
-  },
-  statValue: {
-    color: '#38bdf8',
-    fontSize: 16,
-    fontWeight: '800',
-    marginTop: 2,
-  },
+
   promptCard: {
-    backgroundColor: '#0f172a',
-    borderRadius: 14,
+    backgroundColor: '#161b22',
+    borderRadius: 12,
     padding: 14,
-    marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#1e293b',
+    borderColor: '#30363d',
   },
   promptContent: {
     flexDirection: 'row',
@@ -594,13 +576,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   promptTitle: {
-    color: '#94a3b8',
+    color: '#8b949e',
     fontSize: 11,
     fontWeight: '700',
   },
   promptWord: {
-    color: '#ffffff',
-    fontSize: 17,
+    color: '#f0f6fc',
+    fontSize: 16,
     fontWeight: '800',
   },
   promptSub: {
@@ -609,14 +591,14 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   soundMiniBtn: {
-    backgroundColor: '#1e293b',
+    backgroundColor: '#21262d',
     width: 38,
     height: 38,
     borderRadius: 19,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#30363d',
   },
   soundMiniText: {
     fontSize: 18,
@@ -624,9 +606,9 @@ const styles = StyleSheet.create({
   soundListenBtn: {
     backgroundColor: 'rgba(56, 189, 248, 0.15)',
     borderWidth: 1,
-    borderColor: '#0284c7',
+    borderColor: '#38bdf8',
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 7,
     borderRadius: 8,
   },
   soundListenText: {
@@ -634,27 +616,71 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
   },
-  canvasStage: {
+
+  stageCard: {
+    backgroundColor: '#161b22',
+    borderWidth: 1,
+    borderColor: '#30363d',
+    borderRadius: 12,
+    padding: 14,
+    alignItems: 'center',
+  },
+  stageCardHeader: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
   },
+  stageCardTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#8b949e',
+  },
+  badgeHeaderDtw: {
+    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 9999,
+  },
+  badgeHeaderDtwText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#38bdf8',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  svgStage: {
+    backgroundColor: '#0d1117',
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#30363d',
+    borderRadius: 12,
+    padding: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+
   canvasActionsRow: {
     flexDirection: 'row',
     gap: 8,
-    marginBottom: 12,
+    marginTop: 10,
+    marginBottom: 10,
+    width: '100%',
   },
   actionBtn: {
     flex: 1,
-    backgroundColor: '#1e293b',
-    paddingVertical: 8,
+    backgroundColor: '#21262d',
+    paddingVertical: 7,
     borderRadius: 8,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#30363d',
   },
   actionBtnText: {
-    color: '#cbd5e1',
-    fontSize: 12,
+    color: '#c9d1d9',
+    fontSize: 11,
     fontWeight: '600',
   },
   peekBtn: {
@@ -663,7 +689,7 @@ const styles = StyleSheet.create({
   },
   peekBtnText: {
     color: '#facc15',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
   },
   solutionBtn: {
@@ -672,40 +698,44 @@ const styles = StyleSheet.create({
   },
   solutionBtnText: {
     color: '#38bdf8',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
   },
+
   submitBtn: {
     backgroundColor: '#0284c7',
-    paddingVertical: 14,
-    borderRadius: 12,
+    paddingVertical: 12,
+    borderRadius: 10,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#38bdf8',
+    width: '100%',
   },
   submitBtnDisabled: {
     opacity: 0.4,
   },
   submitBtnText: {
     color: '#ffffff',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '800',
   },
+
   feedbackCard: {
-    backgroundColor: '#0f172a',
-    borderRadius: 14,
-    padding: 16,
+    backgroundColor: '#0d1117',
+    borderRadius: 12,
+    padding: 14,
     borderWidth: 1,
-    borderColor: '#1e293b',
+    borderColor: '#30363d',
     alignItems: 'center',
+    width: '100%',
   },
   starsRow: {
     flexDirection: 'row',
     gap: 8,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   starIcon: {
-    fontSize: 26,
+    fontSize: 24,
   },
   starEarned: {
     opacity: 1,
@@ -715,160 +745,286 @@ const styles = StyleSheet.create({
   },
   feedbackScoreText: {
     color: '#38bdf8',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '800',
   },
   feedbackMsg: {
-    color: '#cbd5e1',
-    fontSize: 13,
+    color: '#c9d1d9',
+    fontSize: 12,
     textAlign: 'center',
-    marginVertical: 8,
-    lineHeight: 18,
+    marginVertical: 6,
+    lineHeight: 17,
   },
   errorNote: {
     color: '#f59e0b',
-    fontSize: 12,
-    marginBottom: 8,
+    fontSize: 11,
+    marginBottom: 6,
   },
   feedbackActionsRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
+    gap: 10,
+    marginTop: 6,
     width: '100%',
   },
   retryBtn: {
     flex: 1,
-    backgroundColor: '#1e293b',
-    paddingVertical: 10,
-    borderRadius: 10,
+    backgroundColor: '#21262d',
+    paddingVertical: 9,
+    borderRadius: 8,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#30363d',
   },
   retryBtnText: {
-    color: '#cbd5e1',
-    fontSize: 13,
+    color: '#c9d1d9',
+    fontSize: 12,
     fontWeight: '700',
   },
   nextBtn: {
     flex: 1,
     backgroundColor: '#16a34a',
-    paddingVertical: 10,
-    borderRadius: 10,
+    paddingVertical: 9,
+    borderRadius: 8,
     alignItems: 'center',
   },
   nextBtnText: {
     color: '#ffffff',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '800',
   },
+
+  /* Right Settings Panel */
+  settingsPanel: {
+    backgroundColor: '#161b22',
+    borderWidth: 1,
+    borderColor: '#30363d',
+    borderRadius: 12,
+    padding: 16,
+    gap: 14,
+    width: '100%',
+  },
+  settingsPanelWide: {
+    width: 320,
+    flexShrink: 0,
+  },
+  panelHeader: {
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#30363d',
+  },
+  panelHeaderTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#f0f6fc',
+  },
+  panelGroup: {
+    gap: 8,
+  },
+  panelLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#8b949e',
+    letterSpacing: 0.5,
+  },
+
+  levelSelector: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  levelTab: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: '#21262d',
+    paddingVertical: 7,
+    borderRadius: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#30363d',
+  },
+  levelTabActive: {
+    backgroundColor: '#0284c7',
+    borderColor: '#38bdf8',
+  },
+  levelTabText: {
+    color: '#8b949e',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  levelTabTextActive: {
+    color: '#ffffff',
+    fontWeight: '800',
+  },
+
+  modeContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#0d1117',
+    borderRadius: 8,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: '#30363d',
+    gap: 4,
+  },
+  modePill: {
+    flex: 1,
+    paddingVertical: 6,
+    alignItems: 'center',
+    borderRadius: 6,
+  },
+  modePillActive: {
+    backgroundColor: '#21262d',
+  },
+  modeText: {
+    color: '#8b949e',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  modeTextActive: {
+    color: '#38bdf8',
+    fontWeight: '700',
+  },
+
+  statsBar: {
+    flexDirection: 'row',
+    backgroundColor: '#0d1117',
+    borderRadius: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#30363d',
+    justifyContent: 'space-around',
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statLabel: {
+    color: '#8b949e',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.6,
+  },
+  statValue: {
+    color: '#38bdf8',
+    fontSize: 15,
+    fontWeight: '800',
+    marginTop: 2,
+  },
+
+  /* Modals */
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
   summaryBox: {
-    backgroundColor: '#0f172a',
-    borderRadius: 20,
-    padding: 24,
+    backgroundColor: '#161b22',
+    borderRadius: 16,
+    padding: 20,
     alignItems: 'center',
     width: '100%',
     maxWidth: 360,
-    borderWidth: 2,
-    borderColor: '#1e293b',
+    borderWidth: 1,
+    borderColor: '#30363d',
   },
   summaryTrophy: {
-    fontSize: 50,
-    marginBottom: 10,
+    fontSize: 44,
+    marginBottom: 8,
   },
   summaryTitle: {
-    color: '#ffffff',
-    fontSize: 20,
-    fontWeight: '800',
-  },
-  summarySub: {
-    color: '#94a3b8',
-    fontSize: 13,
-    textAlign: 'center',
-    marginVertical: 10,
-  },
-  summaryStatsGrid: {
-    flexDirection: 'row',
-    gap: 16,
-    marginVertical: 16,
-    width: '100%',
-    justifyContent: 'center',
-  },
-  summaryStatItem: {
-    backgroundColor: '#1e293b',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  summaryStatNum: {
     color: '#ffffff',
     fontSize: 18,
     fontWeight: '800',
   },
+  summarySub: {
+    color: '#8b949e',
+    fontSize: 12,
+    textAlign: 'center',
+    marginVertical: 8,
+  },
+  summaryStatsGrid: {
+    flexDirection: 'row',
+    gap: 12,
+    marginVertical: 12,
+    width: '100%',
+    justifyContent: 'center',
+  },
+  summaryStatItem: {
+    backgroundColor: '#0d1117',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#30363d',
+    flex: 1,
+  },
+  summaryStatNum: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '800',
+  },
   summaryStatLabel: {
-    color: '#94a3b8',
+    color: '#8b949e',
     fontSize: 11,
-    marginTop: 4,
+    marginTop: 2,
   },
   playAgainBtn: {
     backgroundColor: '#0284c7',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    marginTop: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginTop: 6,
+    width: '100%',
+    alignItems: 'center',
   },
   playAgainText: {
     color: '#ffffff',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '800',
   },
+
   animatedModalBox: {
-    backgroundColor: '#0f172a',
-    borderRadius: 20,
-    padding: 18,
+    backgroundColor: '#161b22',
+    borderRadius: 16,
+    padding: 16,
     alignItems: 'center',
     width: '100%',
     maxWidth: 360,
-    borderWidth: 2,
-    borderColor: '#1e293b',
+    borderWidth: 1,
+    borderColor: '#30363d',
   },
   animatedModalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 12,
   },
   animatedModalTitle: {
     color: '#ffffff',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '800',
   },
   closeModalText: {
-    color: '#ef4444',
-    fontSize: 13,
+    color: '#f85149',
+    fontSize: 12,
     fontWeight: '700',
   },
   modalPlayerWrapper: {
-    marginBottom: 16,
+    marginBottom: 14,
   },
   gotItBtn: {
     backgroundColor: '#16a34a',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
     width: '100%',
     alignItems: 'center',
   },
   gotItText: {
     color: '#ffffff',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '800',
   },
 });

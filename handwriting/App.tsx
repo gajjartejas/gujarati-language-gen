@@ -53,6 +53,10 @@ export default function App() {
             display: block !important;
             overflow-y: visible !important;
           }
+          /* Prevent React Native Web ScrollView inner container from forcing 100% height */
+          div[style*="min-height: 100%"] {
+            min-height: 0 !important;
+          }
           /* Hide scrollbars inside React Native Web ScrollViews */
           div[style*="overflow-y: auto"], div[style*="overflow-y: scroll"] {
             scrollbar-width: none !important;
@@ -65,14 +69,13 @@ export default function App() {
         document.head.appendChild(styleEl);
       }
 
-      // Measure exact content bounding box (prevents infinite expansion loop)
+      // Measure exact content scroll height (prevents infinite expansion loop)
       let lastReportedHeight = 0;
       const sendHeight = () => {
         const el = document.getElementById('handwriting-app-content');
         if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const h = Math.ceil(rect.height || el.offsetHeight);
-        // Only report if height is valid and differs from last report by >= 8px
+        // Use scrollHeight which reflects true content height rather than window stretch
+        const h = Math.ceil(Math.max(el.scrollHeight, el.offsetHeight));
         if (h > 300 && Math.abs(h - lastReportedHeight) >= 8) {
           lastReportedHeight = h;
           if (window.parent && window.parent !== window) {
@@ -82,19 +85,8 @@ export default function App() {
       };
 
       sendHeight();
-      const t1 = setTimeout(sendHeight, 150);
-      const t2 = setTimeout(sendHeight, 500);
-
-      let ro: ResizeObserver | null = null;
-      if (typeof ResizeObserver !== 'undefined') {
-        ro = new ResizeObserver(() => {
-          sendHeight();
-        });
-        const el = document.getElementById('handwriting-app-content');
-        if (el) {
-          ro.observe(el);
-        }
-      }
+      const t1 = setTimeout(sendHeight, 100);
+      const t2 = setTimeout(sendHeight, 400);
 
       const onMsg = (e: MessageEvent) => {
         if (e.data && e.data.type === 'REQUEST_HEIGHT') {
@@ -103,14 +95,11 @@ export default function App() {
         }
       };
       window.addEventListener('message', onMsg);
-      window.addEventListener('resize', sendHeight);
 
       return () => {
         clearTimeout(t1);
         clearTimeout(t2);
-        if (ro) ro.disconnect();
         window.removeEventListener('message', onMsg);
-        window.removeEventListener('resize', sendHeight);
       };
     }
   }, [activeTab]);
@@ -438,7 +427,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   contentContainer: {
-    flex: 1,
     width: '100%',
+    ...(Platform.OS === 'web' ? { flex: 0 } : { flex: 1 }),
   },
 });
