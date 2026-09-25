@@ -1,19 +1,35 @@
  
  [<img align="right" src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/instagram.svg" width="50" height="50" />](http://www.instagram.com/gajjartejas)
- [<img align="right" src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/twitter.svg" width="50" height="50" />](http://www.twitter.com/gajjartejas)
+[<img align="right" src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/twitter.svg" width="50" height="50" />](http://www.twitter.com/gajjartejas)
 
-# Gujarati Language Generation Suite
+# KanoAI (ગુજરાતી KanoAI Suite)
 
-A multi-language repository providing tools, datasets, and algorithms for the Gujarati writing system.
+**The Comprehensive All-in-One Gujarati Language & AI Intelligence Suite.**
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Stroke%20Animator-brightgreen?style=for-the-badge&logo=github)](https://gajjartejas.github.io/gujarati-language-gen/)
-[![Live Handwriting Demo](https://img.shields.io/badge/Live%20Demo-Handwriting%20Suite-blue?style=for-the-badge&logo=github)](https://gajjartejas.github.io/gujarati-language-gen/handwriting/)
+An open-source ecosystem bridging classical Gujarati typography, dynamic stroke animations, real-time handwriting recognition, native audio generation, Speech-to-Text (STT), Text-to-Speech (TTS), and AI grammar intelligence.
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Stroke%20Animator-brightgreen?style=for-the-badge&logo=github)](https://gajjartejas.github.io/KanoAI/)
+[![Live Handwriting Demo](https://img.shields.io/badge/Live%20Demo-Handwriting%20Suite-blue?style=for-the-badge&logo=github)](https://gajjartejas.github.io/KanoAI/handwriting/)
 
 🌐 **Live Interactive Apps**:
-- **🖋️ Stroke Animator & Kano Audio**: [https://gajjartejas.github.io/gujarati-language-gen/](https://gajjartejas.github.io/gujarati-language-gen/)
-- **✍️ Handwriting Recognition & Practice Suite**: [https://gajjartejas.github.io/gujarati-language-gen/handwriting/](https://gajjartejas.github.io/gujarati-language-gen/handwriting/)
+- **🖋️ Kano Stroke Animator & Audio**: [https://gajjartejas.github.io/KanoAI/](https://gajjartejas.github.io/KanoAI/)
+- **✍️ Kano Handwriting Recognition & Practice Suite**: [https://gajjartejas.github.io/KanoAI/handwriting/](https://gajjartejas.github.io/KanoAI/handwriting/)
 
-[![Gujarati Font Stroke Animator & Kano Audio Preview](docs/assets/preview.png)](https://gajjartejas.github.io/gujarati-language-gen/)
+[![KanoAI Suite Preview](docs/assets/preview.png)](https://gajjartejas.github.io/KanoAI/)
+
+---
+
+## 🚀 The KanoAI Ecosystem Roadmap
+
+| Module | Status | Description |
+| :--- | :---: | :--- |
+| **🖋️ Kano Trace** | ✅ **Live** | Stroke-by-stroke animation, EDT centerline extraction, and 565-character stroke catalog. |
+| **✍️ Kano Handwriting** | ✅ **Live** | Real-time offline recognition combining Sakoe-Chiba DTW + in-memory Tiny CNN. |
+| **🔊 Kano Audio** | ✅ **Live** | Compressed, crystal-clear native speech pronunciations for all 565 characters. |
+| **🗣️ Kano Voice (TTS)** | 🚧 **In Progress** | Neural Text-to-Speech generation optimized for Gujarati phonetics and intonation. |
+| **🎙️ Kano Listen (STT)** | 📋 **Planned** | Offline & low-latency Gujarati Speech-to-Text acoustic modeling. |
+| **🧠 Kano Grammar (AI)** | 📋 **Planned** | LLM-assisted Gujarati spell-checker, grammar analysis, sandhi/samasa parser, and NLP toolkits. |
+| **⚡ Kano API** | 📋 **Planned** | Lightweight REST / JSON microservices for characters, strokes, phonemes, and audio. |nguage-gen/)
 
 ---
 
@@ -58,7 +74,7 @@ gujarati-language-gen/
 
 ## 🌐 Live Interactive Frontend & Kano Audio Suite (`docs/`)
 
-🔗 **Live Production Demo**: [https://gajjartejas.github.io/gujarati-language-gen/](https://gajjartejas.github.io/gujarati-language-gen/)
+🔗 **Live Production Demo**: [https://gajjartejas.github.io/KanoAI/](https://gajjartejas.github.io/KanoAI/)
 
 The live web application provides an interactive stroke animator and audio player:
 - **All 565 Gujarati Characters**: Complete Kakko (45), full Barakhadi (420 across 35 consonants), and Numerals 0–100 (101).
@@ -74,13 +90,13 @@ The live web application provides an interactive stroke animator and audio playe
 
 | Dark Theme (Default) | Light Theme |
 | :---: | :---: |
-| [![Dark Theme Preview](docs/assets/preview.png)](https://gajjartejas.github.io/gujarati-language-gen/) | [![Light Theme Preview](docs/assets/preview-light.png)](https://gajjartejas.github.io/gujarati-language-gen/?theme=light) |
+| [![Dark Theme Preview](docs/assets/preview.png)](https://gajjartejas.github.io/KanoAI/) | [![Light Theme Preview](docs/assets/preview-light.png)](https://gajjartejas.github.io/KanoAI/?theme=light) |
 
 ---
 
 ## ✍️ Real-Time Gujarati Handwriting Recognition & Practice Suite (`handwriting/`)
 
-🔗 **Live Handwriting Web App**: [https://gajjartejas.github.io/gujarati-language-gen/handwriting/](https://gajjartejas.github.io/gujarati-language-gen/handwriting/)
+🔗 **Live Handwriting Web App**: [https://gajjartejas.github.io/KanoAI/handwriting/](https://gajjartejas.github.io/KanoAI/handwriting/)
 
 A complete handwriting recognition and practice suite featuring:
 - **Guided Practice**: Step-by-step Gujarati character tracing with directional hints, sequential stroke bubbles, and instant feedback.
@@ -370,11 +386,16 @@ python python/char_stroke_generation/scripts/build_viewer.py --serve 8765
 | 100 | 100     | ૧૦૦      | sō           | સો            |
 
 
-## TODO
-1. Create JSON rest api for kakko and barakhadi.
-2. Add sounds for each chars in api.
-3. Add svg char in api.
+## 🗺️ Roadmap & Upcoming Milestones
+
+- [x] **Kano Trace**: 565-character stroke animation & analytical EDT centerline extraction.
+- [x] **Kano Handwriting**: Dual DTW + Tiny CNN offline recognition engine (<20ms latency).
+- [x] **Kano Audio**: High-efficiency compressed MP3 audio pronunciations for all characters.
+- [ ] **Kano Voice (TTS)**: Neural Gujarati speech synthesis model for natural reading & pronunciation.
+- [ ] **Kano Listen (STT)**: Offline Speech-to-Text engine optimized for regional accents.
+- [ ] **Kano Grammar AI**: Contextual spell-checker, Sandhi/Samasa decomposition, and morphological analysis.
+- [ ] **Kano Cloud API**: Developer REST/GraphQL endpoints for character stroke vectors, phonetics, and datasets.
 
 ## License
 
-Kano is licensed under the [GNU GENERAL PUBLIC LICENSE](https://github.com/gajjartejas/Kano/blob/main/LICENSE).
+KanoAI is licensed under the [GNU GENERAL PUBLIC LICENSE](https://github.com/gajjartejas/KanoAI/blob/main/LICENSE).

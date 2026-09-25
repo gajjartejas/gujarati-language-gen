@@ -17,13 +17,15 @@ import { RecognitionScoreCard } from '../components/RecognitionScoreCard';
 import { GuidedOverlay } from '../components/GuidedOverlay';
 import { evaluateUserDrawing } from '../engine/recognizer';
 import { speakGujarati } from '../utils/speech';
-
+import { ModeSelector, ActiveTab } from '../components/ModeSelector';
 
 interface AnimatedDrawingScreenProps {
   templates: CharacterTemplate[];
   initialTemplate?: CharacterTemplate;
   isEmbedded?: boolean;
   onSelectForGuided?: (template: CharacterTemplate) => void;
+  activeTab?: ActiveTab;
+  onSelectTab?: (tab: ActiveTab) => void;
 }
 
 export const AnimatedDrawingScreen: React.FC<AnimatedDrawingScreenProps> = ({
@@ -31,9 +33,11 @@ export const AnimatedDrawingScreen: React.FC<AnimatedDrawingScreenProps> = ({
   initialTemplate,
   isEmbedded = false,
   onSelectForGuided,
+  activeTab = 'animated',
+  onSelectTab,
 }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<CharacterTemplate>(
-    initialTemplate || templates[0] || ({} as CharacterTemplate)
+    initialTemplate || templates.find(t => t.id === '1_k' || t.gujarati === 'ક') || templates[0] || ({} as CharacterTemplate)
   );
 
   React.useEffect(() => {
@@ -174,8 +178,43 @@ export const AnimatedDrawingScreen: React.FC<AnimatedDrawingScreenProps> = ({
     >
       {/* Top Workspace: Stages Left + Settings Right */}
       <View style={[styles.workspaceLayout, isWide ? styles.workspaceLayoutRow : styles.workspaceLayoutCol]}>
-        {/* Left Column: Animated Player Stage */}
+        {/* Left Column: Character Banner + Animated Player Stage */}
         <View style={[styles.stagesColumn, isWide && styles.stagesColumnWide]}>
+          {/* Active Character Summary Banner */}
+          <View style={styles.charHeaderBanner}>
+            <View style={styles.charMainInfo}>
+              <Text style={styles.charGlyphLarge}>{selectedTemplate.gujarati}</Text>
+              <View style={styles.charNames}>
+                <Text style={styles.charTitle}>
+                  {selectedTemplate.gujarati} ({selectedTemplate.name})
+                </Text>
+                <Text style={styles.charSubtitle}>
+                  {selectedTemplate.category === 'vowel'
+                    ? 'Swar Vowel (સ્વર)'
+                    : selectedTemplate.category === 'number'
+                    ? 'Ank Number (અંક)'
+                    : 'Kakko Consonant (વ્યંજન)'}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.charMetaTags}>
+              <View style={styles.tagAccent}>
+                <Text style={styles.tagAccentText}>
+                  {selectedTemplate.category?.toUpperCase() || 'KAKKO'}
+                </Text>
+              </View>
+              <View style={styles.tag}>
+                <Text style={styles.tagText}>
+                  {selectedTemplate.strokeCount || 1} Stroke{(selectedTemplate.strokeCount || 1) > 1 ? 's' : ''}
+                </Text>
+              </View>
+              <TouchableOpacity style={styles.listenBtn} onPress={handlePronounce} activeOpacity={0.7}>
+                <Text style={styles.listenBtnText}>🔊 Listen</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           {/* Animated Stroke Player Stage Card */}
           <View style={styles.stageCard}>
             <View style={styles.stageCardHeader}>
@@ -291,44 +330,12 @@ export const AnimatedDrawingScreen: React.FC<AnimatedDrawingScreenProps> = ({
 
         {/* Right Column: Settings & Controls Panel */}
         <View style={[styles.settingsPanel, isWide && styles.settingsPanelWide]}>
-          {/* Active Character Summary Banner */}
-          <View style={styles.charHeaderBanner}>
-            <View style={styles.charMainInfo}>
-              <Text style={styles.charGlyphLarge}>{selectedTemplate.gujarati}</Text>
-              <View style={styles.charNames}>
-                <Text style={styles.charTitle}>
-                  {selectedTemplate.gujarati} ({selectedTemplate.name})
-                </Text>
-                <Text style={styles.charSubtitle}>
-                  {selectedTemplate.category === 'vowel'
-                    ? 'Swar Vowel (સ્વર)'
-                    : selectedTemplate.category === 'number'
-                    ? 'Ank Number (અંક)'
-                    : 'Kakko Consonant (વ્યંજન)'}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.charMetaTags}>
-              <View style={styles.tagAccent}>
-                <Text style={styles.tagAccentText}>
-                  {selectedTemplate.category?.toUpperCase() || 'KAKKO'}
-                </Text>
-              </View>
-              <View style={styles.tag}>
-                <Text style={styles.tagText}>
-                  {selectedTemplate.strokeCount || 1} Stroke{(selectedTemplate.strokeCount || 1) > 1 ? 's' : ''}
-                </Text>
-              </View>
-              <TouchableOpacity style={styles.listenBtn} onPress={handlePronounce} activeOpacity={0.7}>
-                <Text style={styles.listenBtnText}>🔊 Listen</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
           <View style={styles.panelHeader}>
             <Text style={styles.panelHeaderTitle}>⚙️ Settings & Controls</Text>
           </View>
+
+          {/* Practice Mode Switcher */}
+          <ModeSelector activeTab={activeTab} onSelectTab={onSelectTab} />
 
           {/* Animation Actions */}
           <View style={styles.panelGroup}>
@@ -511,8 +518,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   scrollContent: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
     width: '100%',
     maxWidth: 1140,
     alignSelf: 'center',
@@ -521,22 +528,22 @@ const styles = StyleSheet.create({
   /* Workspace Layout */
   workspaceLayout: {
     width: '100%',
-    marginBottom: 20,
+    marginBottom: 24,
   },
   workspaceLayoutRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 16,
+    gap: 20,
   },
   workspaceLayoutCol: {
     flexDirection: 'column',
-    gap: 16,
+    gap: 20,
   },
 
   /* Left Column: Stages */
   stagesColumn: {
     width: '100%',
-    gap: 12,
+    gap: 16,
   },
   stagesColumnWide: {
     flex: 1,
@@ -548,31 +555,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#161b22',
+    backgroundColor: 'rgba(22, 29, 39, 0.85)',
     borderWidth: 1,
-    borderColor: '#30363d',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 12,
   },
   charMainInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
   },
   charGlyphLarge: {
-    fontSize: 34,
+    fontSize: 38,
     fontWeight: '700',
     color: '#ff6b35',
-    lineHeight: 38,
+    lineHeight: 40,
   },
   charNames: {
     flexDirection: 'column',
   },
   charTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '700',
     color: '#f0f6fc',
   },
@@ -588,9 +595,9 @@ const styles = StyleSheet.create({
   tag: {
     backgroundColor: '#21262d',
     borderWidth: 1,
-    borderColor: '#30363d',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 9999,
   },
   tagText: {
@@ -602,8 +609,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 107, 53, 0.15)',
     borderWidth: 1,
     borderColor: '#ff6b35',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 9999,
   },
   tagAccentText: {
@@ -627,11 +634,11 @@ const styles = StyleSheet.create({
 
   /* Stage Card */
   stageCard: {
-    backgroundColor: '#161b22',
+    backgroundColor: 'rgba(22, 29, 39, 0.85)',
     borderWidth: 1,
-    borderColor: '#30363d',
-    borderRadius: 12,
-    padding: 14,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    padding: 16,
     alignItems: 'center',
   },
   stageCardHeader: {
@@ -639,7 +646,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   stageCardHeaderLeft: {
     flexDirection: 'row',
@@ -653,7 +660,7 @@ const styles = StyleSheet.create({
   badgeHeaderDtw: {
     backgroundColor: 'rgba(56, 189, 248, 0.15)',
     paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: 9999,
   },
   badgeHeaderDtwText: {
@@ -664,26 +671,26 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   stageContainer: {
-    backgroundColor: '#0d1117',
+    backgroundColor: '#0a0e14',
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: '#30363d',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     borderRadius: 12,
-    padding: 8,
+    padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    marginBottom: 10,
+    marginBottom: 12,
   },
 
   /* Right Settings Panel */
   settingsPanel: {
-    backgroundColor: '#161b22',
+    backgroundColor: 'rgba(22, 29, 39, 0.85)',
     borderWidth: 1,
-    borderColor: '#30363d',
-    borderRadius: 12,
-    padding: 16,
-    gap: 14,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    padding: 20,
+    gap: 16,
     width: '100%',
   },
   settingsPanelWide: {
@@ -691,12 +698,12 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   panelHeader: {
-    paddingBottom: 8,
+    paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#30363d',
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
   },
   panelHeaderTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
     color: '#f0f6fc',
   },
@@ -718,8 +725,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#0284c7',
     borderWidth: 1,
     borderColor: '#38bdf8',
-    paddingVertical: 7,
-    paddingHorizontal: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
@@ -737,9 +744,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#21262d',
     borderWidth: 1,
-    borderColor: '#30363d',
-    paddingVertical: 7,
-    paddingHorizontal: 10,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',

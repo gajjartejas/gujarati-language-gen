@@ -1,7 +1,7 @@
 {
-  "name": "gujarati-language-gen",
+  "name": "kanoai-resource-gen",
   "version": "1.0.0",
-  "description": "",
+  "description": "SVG resource generation, phonetic matrices, and audio pipelines for KanoAI",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

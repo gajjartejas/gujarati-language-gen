@@ -23,6 +23,7 @@ import {
   KAKKO_TEMPLATES,
 } from '../data/characters';
 import { getWordAssociation } from '../data/wordAssociations';
+import { ModeSelector, ActiveTab } from '../components/ModeSelector';
 
 type QuizLevel = 'vowels' | 'consonants' | 'numbers' | 'mixed';
 type QuizMode = 'picture' | 'audio';
@@ -30,9 +31,14 @@ type QuizMode = 'picture' | 'audio';
 interface QuizGameScreenProps {
   templates?: CharacterTemplate[];
   onSelectTemplate?: (template: CharacterTemplate) => void;
+  activeTab?: ActiveTab;
+  onSelectTab?: (tab: ActiveTab) => void;
 }
 
-export const QuizGameScreen: React.FC<QuizGameScreenProps> = () => {
+export const QuizGameScreen: React.FC<QuizGameScreenProps> = ({
+  activeTab,
+  onSelectTab,
+}) => {
   const [level, setLevel] = useState<QuizLevel>('vowels');
   const [mode, setMode] = useState<QuizMode>('picture');
 
@@ -362,6 +368,9 @@ export const QuizGameScreen: React.FC<QuizGameScreenProps> = () => {
             <Text style={styles.panelHeaderTitle}>⚙️ Level & Scoreboard</Text>
           </View>
 
+          {/* Practice Mode Switcher */}
+          <ModeSelector activeTab={activeTab} onSelectTab={onSelectTab} />
+
           {/* Level Selection Tabs */}
           <View style={styles.panelGroup}>
             <Text style={styles.panelLabel}>LEVEL</Text>
@@ -527,8 +536,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   scrollContent: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
     width: '100%',
     maxWidth: 1140,
     alignSelf: 'center',
@@ -537,22 +546,22 @@ const styles = StyleSheet.create({
   /* Workspace Layout */
   workspaceLayout: {
     width: '100%',
-    marginBottom: 20,
+    marginBottom: 24,
   },
   workspaceLayoutRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 16,
+    gap: 20,
   },
   workspaceLayoutCol: {
     flexDirection: 'column',
-    gap: 16,
+    gap: 20,
   },
 
   /* Left Column */
   stagesColumn: {
     width: '100%',
-    gap: 12,
+    gap: 16,
   },
   stagesColumnWide: {
     flex: 1,
@@ -560,19 +569,19 @@ const styles = StyleSheet.create({
   },
 
   promptCard: {
-    backgroundColor: '#161b22',
-    borderRadius: 12,
-    padding: 14,
+    backgroundColor: 'rgba(22, 29, 39, 0.85)',
+    borderRadius: 16,
+    padding: 16,
     borderWidth: 1,
-    borderColor: '#30363d',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   promptContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
   },
   promptEmoji: {
-    fontSize: 34,
+    fontSize: 38,
   },
   promptTextWrapper: {
     flex: 1,
@@ -584,7 +593,7 @@ const styles = StyleSheet.create({
   },
   promptWord: {
     color: '#f0f6fc',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '800',
   },
   promptSub: {
@@ -620,11 +629,11 @@ const styles = StyleSheet.create({
   },
 
   stageCard: {
-    backgroundColor: '#161b22',
+    backgroundColor: 'rgba(22, 29, 39, 0.85)',
     borderWidth: 1,
-    borderColor: '#30363d',
-    borderRadius: 12,
-    padding: 14,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    padding: 16,
     alignItems: 'center',
   },
   stageCardHeader: {
@@ -653,12 +662,12 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   svgStage: {
-    backgroundColor: '#0d1117',
+    backgroundColor: '#0a0e14',
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: '#30363d',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     borderRadius: 12,
-    padding: 8,
+    padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
@@ -797,12 +806,12 @@ const styles = StyleSheet.create({
 
   /* Right Settings Panel */
   settingsPanel: {
-    backgroundColor: '#161b22',
+    backgroundColor: 'rgba(22, 29, 39, 0.85)',
     borderWidth: 1,
-    borderColor: '#30363d',
-    borderRadius: 12,
-    padding: 16,
-    gap: 14,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    padding: 20,
+    gap: 16,
     width: '100%',
   },
   settingsPanelWide: {
@@ -810,12 +819,12 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   panelHeader: {
-    paddingBottom: 8,
+    paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#30363d',
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
   },
   panelHeaderTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
     color: '#f0f6fc',
   },

@@ -94,6 +94,9 @@ export default function App() {
       };
 
       sendHeight();
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'HANDWRITING_READY' }, '*');
+      }
       const t1 = setTimeout(sendHeight, 100);
       const t2 = setTimeout(sendHeight, 400);
 
@@ -207,66 +210,6 @@ export default function App() {
         </View>
       )}
 
-      {/* Feature Mode Tabs (Wrapped clean chip bar) */}
-      <View style={styles.tabBarWrapper}>
-        <View style={styles.tabBarContainer}>
-          <TouchableOpacity
-            style={[styles.chipTab, activeTab === 'guided' && styles.chipTabActive]}
-            onPress={() => setActiveTab('guided')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.chipTabIcon}>✍️</Text>
-            <Text style={[styles.chipTabText, activeTab === 'guided' && styles.chipTabTextActive]}>
-              Guided Practice
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.chipTab, activeTab === 'animated' && styles.chipTabActive]}
-            onPress={() => setActiveTab('animated')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.chipTabIcon}>🎬</Text>
-            <Text style={[styles.chipTabText, activeTab === 'animated' && styles.chipTabTextActive]}>
-              Animated Player
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.chipTab, activeTab === 'quiz' && styles.chipTabActive]}
-            onPress={() => setActiveTab('quiz')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.chipTabIcon}>🎮</Text>
-            <Text style={[styles.chipTabText, activeTab === 'quiz' && styles.chipTabTextActive]}>
-              Quiz Game
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.chipTab, activeTab === 'free' && styles.chipTabActive]}
-            onPress={() => setActiveTab('free')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.chipTabIcon}>🔍</Text>
-            <Text style={[styles.chipTabText, activeTab === 'free' && styles.chipTabTextActive]}>
-              Free Draw & ML
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.chipTab, activeTab === 'benchmark' && styles.chipTabActive]}
-            onPress={() => setActiveTab('benchmark')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.chipTabIcon}>⚡</Text>
-            <Text style={[styles.chipTabText, activeTab === 'benchmark' && styles.chipTabTextActive]}>
-              Benchmarks
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
       {/* Active Screen View */}
       <View style={styles.contentContainer}>
         {activeTab === 'guided' && (
@@ -274,6 +217,8 @@ export default function App() {
             templates={CHARACTER_TEMPLATES}
             initialTemplate={guidedInitialTemplate}
             isEmbedded={isEmbedded}
+            activeTab={activeTab}
+            onSelectTab={setActiveTab}
           />
         )}
         {activeTab === 'animated' && (
@@ -282,22 +227,32 @@ export default function App() {
             initialTemplate={guidedInitialTemplate}
             isEmbedded={isEmbedded}
             onSelectForGuided={handleSelectCandidateForGuided}
+            activeTab={activeTab}
+            onSelectTab={setActiveTab}
           />
         )}
         {activeTab === 'quiz' && (
           <QuizGameScreen
             templates={CHARACTER_TEMPLATES}
             onSelectTemplate={handleSelectCandidateForGuided}
+            activeTab={activeTab}
+            onSelectTab={setActiveTab}
           />
         )}
         {activeTab === 'free' && (
           <FreeDrawingScreen
             templates={CHARACTER_TEMPLATES}
             onSelectCandidate={handleSelectCandidateForGuided}
+            activeTab={activeTab}
+            onSelectTab={setActiveTab}
           />
         )}
         {activeTab === 'benchmark' && (
-          <BenchmarkScreen templates={CHARACTER_TEMPLATES} />
+          <BenchmarkScreen
+            templates={CHARACTER_TEMPLATES}
+            activeTab={activeTab}
+            onSelectTab={setActiveTab}
+          />
         )}
       </View>
     </View>
@@ -423,50 +378,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
     letterSpacing: 0.3,
-  },
-  tabBarWrapper: {
-    backgroundColor: '#0a0e14',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-  },
-  tabBarContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
-  },
-  chipTab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 9999,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-  },
-  chipTabActive: {
-    backgroundColor: '#0284c7',
-    borderColor: '#38bdf8',
-    shadowColor: '#0284c7',
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-  },
-  chipTabIcon: {
-    fontSize: 14,
-  },
-  chipTabText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#8b949e',
-  },
-  chipTabTextActive: {
-    color: '#ffffff',
-    fontWeight: '700',
   },
   contentContainer: {
     width: '100%',

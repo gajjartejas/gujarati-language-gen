@@ -12,15 +12,20 @@ import {
 import { CharacterTemplate, Strokes, RecognitionCandidate } from '../types/handwriting';
 import { HandwritingCanvas, HandwritingCanvasRef } from '../components/HandwritingCanvas';
 import { recognizeHandwriting } from '../engine/recognizer';
+import { ModeSelector, ActiveTab } from '../components/ModeSelector';
 
 interface FreeDrawingScreenProps {
   templates: CharacterTemplate[];
   onSelectCandidate?: (template: CharacterTemplate) => void;
+  activeTab?: ActiveTab;
+  onSelectTab?: (tab: ActiveTab) => void;
 }
 
 export const FreeDrawingScreen: React.FC<FreeDrawingScreenProps> = ({
   templates,
   onSelectCandidate,
+  activeTab,
+  onSelectTab,
 }) => {
   const [candidates, setCandidates] = useState<RecognitionCandidate[]>([]);
   const [isRecognizing, setIsRecognizing] = useState<boolean>(false);
@@ -152,6 +157,9 @@ export const FreeDrawingScreen: React.FC<FreeDrawingScreenProps> = ({
             <Text style={styles.panelHeaderTitle}>⚙️ Filter & Predictions</Text>
           </View>
 
+          {/* Practice Mode Switcher */}
+          <ModeSelector activeTab={activeTab} onSelectTab={onSelectTab} />
+
           {/* Category Filter */}
           <View style={styles.panelGroup}>
             <Text style={styles.panelLabel}>CATEGORY FILTER</Text>
@@ -247,8 +255,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   scrollContent: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
     width: '100%',
     maxWidth: 1140,
     alignSelf: 'center',
@@ -257,22 +265,22 @@ const styles = StyleSheet.create({
   /* Workspace Layout */
   workspaceLayout: {
     width: '100%',
-    marginBottom: 20,
+    marginBottom: 24,
   },
   workspaceLayoutRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 16,
+    gap: 20,
   },
   workspaceLayoutCol: {
     flexDirection: 'column',
-    gap: 16,
+    gap: 20,
   },
 
   /* Left Column */
   stagesColumn: {
     width: '100%',
-    gap: 12,
+    gap: 16,
   },
   stagesColumnWide: {
     flex: 1,
@@ -283,26 +291,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#161b22',
+    backgroundColor: 'rgba(22, 29, 39, 0.85)',
     borderWidth: 1,
-    borderColor: '#30363d',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 12,
   },
   bannerInfo: {
     flex: 1,
     minWidth: 200,
   },
   bannerTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
     color: '#f0f6fc',
   },
   bannerSubtitle: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#8b949e',
     marginTop: 2,
   },
@@ -322,11 +330,11 @@ const styles = StyleSheet.create({
   },
 
   stageCard: {
-    backgroundColor: '#161b22',
+    backgroundColor: 'rgba(22, 29, 39, 0.85)',
     borderWidth: 1,
-    borderColor: '#30363d',
-    borderRadius: 12,
-    padding: 14,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    padding: 16,
     alignItems: 'center',
   },
   stageCardHeader: {
@@ -334,7 +342,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   stageCardTitle: {
     fontSize: 13,
@@ -344,7 +352,7 @@ const styles = StyleSheet.create({
   badgeHeaderDtw: {
     backgroundColor: 'rgba(56, 189, 248, 0.15)',
     paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: 9999,
   },
   badgeHeaderDtwText: {
@@ -355,12 +363,12 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   svgStage: {
-    backgroundColor: '#0d1117',
+    backgroundColor: '#0a0e14',
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: '#30363d',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     borderRadius: 12,
-    padding: 8,
+    padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
@@ -378,7 +386,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#30363d',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -399,25 +407,25 @@ const styles = StyleSheet.create({
 
   /* Right Settings & Predictions Panel */
   settingsPanel: {
-    backgroundColor: '#161b22',
+    backgroundColor: 'rgba(22, 29, 39, 0.85)',
     borderWidth: 1,
-    borderColor: '#30363d',
-    borderRadius: 12,
-    padding: 16,
-    gap: 14,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    padding: 20,
+    gap: 16,
     width: '100%',
   },
   settingsPanelWide: {
-    width: 340,
+    width: 320,
     flexShrink: 0,
   },
   panelHeader: {
-    paddingBottom: 8,
+    paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#30363d',
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
   },
   panelHeaderTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
     color: '#f0f6fc',
   },

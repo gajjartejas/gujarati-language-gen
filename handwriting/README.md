@@ -1,6 +1,6 @@
-# ✍️ Gujarati Handwriting Recognition & Practice Suite
+# ✍️ KanoAI: Real-Time Gujarati Handwriting Recognition Suite
 
-A production-grade, 100% offline handwriting recognition and stroke evaluation engine for the Gujarati script, built with a **Hybrid Architecture** combining deterministic **Sakoe-Chiba Dynamic Time Warping (DTW)** and a lightweight **Cross-Platform Tiny CNN (Conv2D/MaxPool/Dense)**.
+A production-grade, 100% offline handwriting recognition and stroke evaluation engine for the Gujarati script, powering the handwriting intelligence module of **KanoAI**. Built with a **Hybrid Architecture** combining deterministic **Sakoe-Chiba Dynamic Time Warping (DTW)** and a lightweight **Cross-Platform Tiny CNN (Conv2D/MaxPool/Dense)**.
 
 ---
 

@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Gujarati Handwriting & Character Practice",
-    "slug": "gujarati-handwriting",
-    "version": "1.3.0",
+    "name": "KanoAI: Gujarati Handwriting & Practice",
+    "slug": "kano-handwriting",
+    "version": "1.4.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -23,7 +23,7 @@
       "output": "single"
     },
     "experiments": {
-      "baseUrl": "/gujarati-language-gen/handwriting"
+      "baseUrl": "/KanoAI/handwriting"
     }
   }
 }

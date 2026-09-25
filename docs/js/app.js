@@ -367,6 +367,20 @@ window.addEventListener('message', function(event) {
         frame.style.height = targetHeight + 'px';
       }
     }
+  } else if (event.data && event.data.type === 'HANDWRITING_READY') {
+    const frame = document.getElementById('handwriting-frame');
+    if (frame && frame.contentWindow && window.app && window.app.currentChar) {
+      try {
+        frame.contentWindow.postMessage({
+          type: 'SELECT_CHARACTER',
+          char: window.app.currentChar.char,
+          id: window.app.currentChar.id,
+          ref_svg: window.app.currentChar.ref_svg,
+          name: window.app.currentChar.en || window.app.currentChar.name_en || '',
+          category: window.app.currentChar.category,
+        }, '*');
+      } catch (e) {}
+    }
   }
 });
 

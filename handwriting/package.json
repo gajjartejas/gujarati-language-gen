@@ -1,13 +1,14 @@
 {
-  "name": "gujarati-handwriting",
-  "version": "1.3.4",
+  "name": "kanoai-handwriting",
+  "version": "1.4.0",
+  "description": "Real-time Gujarati handwriting recognition and stroke evaluation engine for KanoAI",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build:web": "expo export -p web --output-dir ../docs/handwriting && touch ../docs/handwriting/.nojekyll",
+    "build:web": "expo export -p web --output-dir ../docs/handwriting && touch ../docs/handwriting/.nojekyll && sed -i '' -e 's|/KanoAI/handwriting/_expo/|_expo/|g' -e 's|/gujarati-language-gen/handwriting/_expo/|_expo/|g' ../docs/handwriting/index.html",
     "test": "jest",
     "extract-templates": "npx ts-node --transpile-only scripts/extract-templates.ts",
     "generate-model": "npx ts-node --transpile-only scripts/generate_model.ts"
