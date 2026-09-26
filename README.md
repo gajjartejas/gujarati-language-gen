@@ -29,14 +29,14 @@ An open-source ecosystem bridging classical Gujarati typography, dynamic stroke 
 | **🗣️ Kano Voice (TTS)** | 🚧 **In Progress** | Neural Text-to-Speech generation optimized for Gujarati phonetics and intonation. |
 | **🎙️ Kano Listen (STT)** | 📋 **Planned** | Offline & low-latency Gujarati Speech-to-Text acoustic modeling. |
 | **🧠 Kano Grammar (AI)** | 📋 **Planned** | LLM-assisted Gujarati spell-checker, grammar analysis, sandhi/samasa parser, and NLP toolkits. |
-| **⚡ Kano API** | 📋 **Planned** | Lightweight REST / JSON microservices for characters, strokes, phonemes, and audio. |nguage-gen/)
+| **⚡ Kano API** | 📋 **Planned** | Lightweight REST / JSON microservices for characters, strokes, phonemes, and audio. |
 
 ---
 
-## 📁 Repository Structure by Language
+## 📁 Repository Structure
 
 ```
-gujarati-language-gen/
+KanoAI/
 ├── handwriting/                  # Real-Time Gujarati Handwriting Recognition & Practice Workspace
 │   ├── src/                      # Canvas, Guided Tracing, Quiz, Free Draw, Hybrid DTW + Tiny CNN
 │   ├── __tests__/                # Automated test suites (30 tests)
@@ -86,7 +86,7 @@ The live web application provides an interactive stroke animator and audio playe
 - **Mobile Responsive Design**: Clean side-by-side stages, compact slider grids, and touch-optimized character targets on mobile viewports.
 - **Zero-Click GitHub Pages Deployment**: Fully automated via [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml).
 
-### 🖥️ Application Previews
+### 🖥️ Stroke Animator & Audio Previews
 
 | Dark Theme (Default) | Light Theme |
 | :---: | :---: |
@@ -104,6 +104,10 @@ A complete handwriting recognition and practice suite featuring:
 - **Quiz Game**: Gamified learning pairing Gujarati vocabulary, native audio pronunciation, and interactive drawing challenges.
 - **Free Drawing & Recognition**: Multi-stroke canvas powered by a **Hybrid Recognition Engine** combining **Sakoe-Chiba Dynamic Time Warping (DTW)** and an in-memory **Tiny CNN (Conv2D/MaxPool/Dense)** classifier.
 - **Accuracy Benchmarks**: Automated performance testing verifying sub-20ms latency and high recognition accuracy across characters.
+
+### 🖥️ Handwriting Suite Preview
+
+[![Handwriting Recognition & Practice Suite Preview](docs/assets/preview-handwriting.png)](https://gajjartejas.github.io/KanoAI/handwriting/)
 
 ```bash
 cd handwriting
