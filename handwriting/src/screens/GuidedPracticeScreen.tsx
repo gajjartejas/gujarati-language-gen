@@ -62,8 +62,9 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
   const [isWorksheetOpen, setIsWorksheetOpen] = useState(false);
 
   const { width: windowWidth } = useWindowDimensions();
-  const isWide = windowWidth >= 880;
-  const canvasSize = isWide ? 330 : Math.min(windowWidth - 64, 330);
+  const isDesktop = windowWidth >= 960;
+  const isTabletOrDesktop = windowWidth >= 680;
+  const canvasSize = isTabletOrDesktop ? 330 : Math.max(260, Math.min(windowWidth - 64, 320));
 
   const handleStrokesEnd = useCallback(
     (strokes: Strokes) => {
@@ -126,9 +127,9 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
       scrollEnabled={Platform.OS !== 'web'}
     >
       {/* Top Workspace: Stages (Left) + Settings Panel (Right) */}
-      <View style={[styles.workspaceLayout, isWide ? styles.workspaceLayoutRow : styles.workspaceLayoutCol]}>
+      <View style={[styles.workspaceLayout, isDesktop ? styles.workspaceLayoutRow : styles.workspaceLayoutCol]}>
         {/* Left Column: Character Banner + Handwriting Canvas Stage */}
-        <View style={[styles.stagesColumn, isWide && styles.stagesColumnWide]}>
+        <View style={[styles.stagesColumn, isDesktop && styles.stagesColumnWide]}>
           {/* Active Character Summary Banner */}
           <View style={styles.charHeaderBanner}>
             <View style={styles.charMainInfo}>
@@ -215,11 +216,11 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
               </View>
             </View>
 
-            {/* Stage Body: Canvas (Left) + Accuracy Evaluation (Right) on Desktop */}
-            <View style={[styles.stageBodyRow, !isWide && styles.stageBodyCol]}>
+            {/* Stage Body: Canvas (Left) + Accuracy Evaluation (Right) on Tablet & Desktop */}
+            <View style={[styles.stageBodyRow, !isTabletOrDesktop && styles.stageBodyCol]}>
               {/* Canvas Container */}
-              <View style={styles.canvasContainer}>
-                <View style={styles.svgStage}>
+              <View style={[styles.canvasContainer, { width: isTabletOrDesktop ? 330 : canvasSize }]}>
+                <View style={[styles.svgStage, { width: canvasSize, height: canvasSize }]}>
                   <HandwritingCanvas
                     ref={canvasRef}
                     size={canvasSize}
@@ -299,7 +300,7 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
         </View>
 
         {/* Right Column: Settings & Controls Panel */}
-        <View style={[styles.settingsPanel, isWide && styles.settingsPanelWide]}>
+        <View style={[styles.settingsPanel, isDesktop && styles.settingsPanelWide]}>
           <View style={styles.panelHeader}>
             <Text style={styles.panelHeaderTitle}>⚙️ Settings & Controls</Text>
           </View>
@@ -622,16 +623,16 @@ const styles = StyleSheet.create({
   stageBodyCol: {
     flexDirection: 'column',
     alignItems: 'center',
+    gap: 14,
   },
   canvasContainer: {
     alignItems: 'center',
-    width: 330,
     maxWidth: '100%',
     flexShrink: 0,
   },
   accuracyEvaluationPane: {
     flex: 1,
-    minWidth: 260,
+    minWidth: 0,
     width: '100%',
     gap: 8,
   },
