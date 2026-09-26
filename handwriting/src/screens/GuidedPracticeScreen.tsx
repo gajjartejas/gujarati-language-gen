@@ -587,10 +587,9 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderColor: 'rgba(255, 255, 255, 0.12)',
     borderRadius: 12,
-    padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',
+    overflow: 'hidden',
   },
   hintBanner: {
     backgroundColor: 'rgba(56, 189, 248, 0.12)',
@@ -599,7 +598,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 8,
     paddingHorizontal: 14,
-    marginTop: 12,
+    marginTop: 10,
     width: '100%',
     alignItems: 'center',
   },
@@ -611,6 +610,7 @@ const styles = StyleSheet.create({
     color: '#f0f6fc',
     fontSize: 12,
     fontWeight: '600',
+    textAlign: 'center',
   },
 
   /* Stage Body Layout & Accuracy Evaluation Pane */

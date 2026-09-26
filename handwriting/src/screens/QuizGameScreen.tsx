@@ -667,10 +667,9 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderColor: 'rgba(255, 255, 255, 0.12)',
     borderRadius: 12,
-    padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',
+    overflow: 'hidden',
   },
 
   canvasActionsRow: {
