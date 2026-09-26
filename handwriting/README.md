@@ -2,6 +2,8 @@
 
 A production-grade, 100% offline handwriting recognition and stroke evaluation engine for the Gujarati script, powering the handwriting intelligence module of **KanoAI**. Built with a **Hybrid Architecture** combining deterministic **Sakoe-Chiba Dynamic Time Warping (DTW)** and a lightweight **Cross-Platform Tiny CNN (Conv2D/MaxPool/Dense)**.
 
+[![Handwriting Recognition & Practice Suite Preview](../docs/assets/preview-handwriting.png)](https://gajjartejas.github.io/KanoAI/handwriting/)
+
 ---
 
 ## 🌟 Interactive Features

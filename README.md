@@ -15,7 +15,9 @@ An open-source ecosystem bridging classical Gujarati typography, dynamic stroke 
 - **🖋️ Kano Stroke Animator & Audio**: [https://gajjartejas.github.io/KanoAI/](https://gajjartejas.github.io/KanoAI/)
 - **✍️ Kano Handwriting Recognition & Practice Suite**: [https://gajjartejas.github.io/KanoAI/handwriting/](https://gajjartejas.github.io/KanoAI/handwriting/)
 
-[![KanoAI Suite Preview](docs/assets/preview.png)](https://gajjartejas.github.io/KanoAI/)
+| 🖋️ Stroke Animator & Kano Audio Suite | ✍️ Handwriting Recognition & Practice Suite |
+| :---: | :---: |
+| [![Kano Stroke Animator & Audio Suite](docs/assets/preview.png)](https://gajjartejas.github.io/KanoAI/) | [![Kano Handwriting Recognition Suite](docs/assets/preview-handwriting.png)](https://gajjartejas.github.io/KanoAI/handwriting/) |
 
 ---
 
