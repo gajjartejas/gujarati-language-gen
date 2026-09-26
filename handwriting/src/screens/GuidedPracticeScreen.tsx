@@ -111,8 +111,8 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
     nextStrokeHint = `💡 Next: Start at bubble ${drawnCount + 1} of ${strokeCount} (blue glowing stroke)`;
   } else {
     nextStrokeHint = result
-      ? `✓ All ${strokeCount} strokes drawn! Accuracy: ${result.confidence}% (${result.isCorrect ? 'Excellent' : 'Needs Practice'}). Check breakdown on the right.`
-      : `✓ All ${strokeCount} strokes drawn! Check accuracy score on the right.`;
+      ? `✓ All ${strokeCount} strokes drawn! Accuracy: ${result.confidence}% (${result.isCorrect ? 'Excellent' : 'Needs Practice'}). Check breakdown below.`
+      : `✓ All ${strokeCount} strokes drawn! Check accuracy score below.`;
   }
 
   return (
@@ -248,21 +248,13 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
               <Text style={styles.hintText}>{nextStrokeHint}</Text>
             </View>
           </View>
-        </View>
 
-        {/* Right Column: Settings & Controls Panel */}
-        <View style={[styles.settingsPanel, isWide && styles.settingsPanelWide]}>
-          <View style={styles.panelHeader}>
-            <Text style={styles.panelHeaderTitle}>⚙️ Settings & Controls</Text>
-          </View>
-
-          {/* Practice Mode Switcher */}
-          <ModeSelector activeTab={activeTab} onSelectTab={onSelectTab} />
-
-          {/* Real-time Accuracy Score Section */}
-          <View style={styles.panelGroup}>
-            <View style={styles.panelLabelRow}>
-              <Text style={styles.panelLabel}>ACCURACY SCORE</Text>
+          {/* Real-time Accuracy Evaluation Card (Below Character Tracing Canvas) */}
+          <View style={styles.accuracyCard}>
+            <View style={styles.accuracyCardHeader}>
+              <View style={styles.accuracyHeaderLeft}>
+                <Text style={styles.accuracyCardTitle}>📊 Accuracy Evaluation</Text>
+              </View>
               {result && (
                 <View
                   style={[
@@ -301,6 +293,16 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
             <RecognitionScoreCard result={result} />
             {result && <StrokeDiagnostics result={result} />}
           </View>
+        </View>
+
+        {/* Right Column: Settings & Controls Panel */}
+        <View style={[styles.settingsPanel, isWide && styles.settingsPanelWide]}>
+          <View style={styles.panelHeader}>
+            <Text style={styles.panelHeaderTitle}>⚙️ Settings & Controls</Text>
+          </View>
+
+          {/* Practice Mode Switcher */}
+          <ModeSelector activeTab={activeTab} onSelectTab={onSelectTab} />
 
           {/* Quick Playback & Drawing Actions */}
           <View style={styles.panelGroup}>
@@ -605,6 +607,33 @@ const styles = StyleSheet.create({
     color: '#f0f6fc',
     fontSize: 12,
     fontWeight: '600',
+  },
+
+  /* Accuracy Evaluation Card (Below Character Tracing Stage) */
+  accuracyCard: {
+    backgroundColor: 'rgba(22, 29, 39, 0.85)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    padding: 16,
+    width: '100%',
+  },
+  accuracyCardHeader: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  accuracyHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  accuracyCardTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#f0f6fc',
+    letterSpacing: 0.3,
   },
 
   /* Right Settings Panel */
