@@ -111,8 +111,8 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
     nextStrokeHint = `💡 Next: Start at bubble ${drawnCount + 1} of ${strokeCount} (blue glowing stroke)`;
   } else {
     nextStrokeHint = result
-      ? `✓ All ${strokeCount} strokes drawn! Accuracy: ${result.confidence}% (${result.isCorrect ? 'Excellent' : 'Needs Practice'}). Check breakdown below.`
-      : `✓ All ${strokeCount} strokes drawn! Check accuracy score below.`;
+      ? `✓ All ${strokeCount} strokes drawn! Accuracy: ${result.confidence}% (${result.isCorrect ? 'Excellent' : 'Needs Practice'}).`
+      : `✓ All ${strokeCount} strokes drawn!`;
   }
 
   return (
@@ -168,11 +168,11 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
             </View>
           </View>
 
-          {/* Drawing Canvas Stage Card (Handwriting Square) */}
+          {/* Drawing Canvas Stage Card (Handwriting Square + Accuracy Evaluation Next to It) */}
           <View style={styles.stageCard}>
             <View style={styles.stageCardHeader}>
               <View style={styles.stageCardHeaderLeft}>
-                <Text style={styles.stageCardTitle}>✍️ Tracing Stage</Text>
+                <Text style={styles.stageCardTitle}>✍️ Tracing Stage & Evaluation</Text>
               </View>
               <View style={styles.stageHeaderRight}>
                 {result && (
@@ -215,83 +215,86 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
               </View>
             </View>
 
-            {/* Canvas Stage */}
-            <View style={styles.svgStage}>
-              <HandwritingCanvas
-                ref={canvasRef}
-                size={canvasSize}
-                strokeColor={strokeColor}
-                strokeWidth={5}
-                onStrokeEnd={handleStrokesEnd}
-                onStrokesChange={handleStrokesChange}
-              >
-                {showOverlay && (
-                  <GuidedOverlay
-                    template={selectedTemplate}
+            {/* Stage Body: Canvas (Left) + Accuracy Evaluation (Right) on Desktop */}
+            <View style={[styles.stageBodyRow, !isWide && styles.stageBodyCol]}>
+              {/* Canvas Container */}
+              <View style={styles.canvasContainer}>
+                <View style={styles.svgStage}>
+                  <HandwritingCanvas
+                    ref={canvasRef}
                     size={canvasSize}
-                    activeStrokeIndex={activeStrokeIndex}
-                    showStrokes={true}
-                    showStrokeOrder={showStrokeOrder}
-                    showDirectionArrows={true}
-                  />
-                )}
-              </HandwritingCanvas>
-            </View>
+                    strokeColor={strokeColor}
+                    strokeWidth={5}
+                    onStrokeEnd={handleStrokesEnd}
+                    onStrokesChange={handleStrokesChange}
+                  >
+                    {showOverlay && (
+                      <GuidedOverlay
+                        template={selectedTemplate}
+                        size={canvasSize}
+                        activeStrokeIndex={activeStrokeIndex}
+                        showStrokes={true}
+                        showStrokeOrder={showStrokeOrder}
+                        showDirectionArrows={true}
+                      />
+                    )}
+                  </HandwritingCanvas>
+                </View>
 
-            {/* Hint Banner below canvas */}
-            <View
-              style={[
-                styles.hintBanner,
-                drawnCount >= strokeCount && styles.hintBannerComplete,
-              ]}
-            >
-              <Text style={styles.hintText}>{nextStrokeHint}</Text>
-            </View>
-          </View>
-
-          {/* Real-time Accuracy Evaluation Card (Below Character Tracing Canvas) */}
-          <View style={styles.accuracyCard}>
-            <View style={styles.accuracyCardHeader}>
-              <View style={styles.accuracyHeaderLeft}>
-                <Text style={styles.accuracyCardTitle}>📊 Accuracy Evaluation</Text>
-              </View>
-              {result && (
+                {/* Hint Banner below canvas */}
                 <View
                   style={[
-                    styles.scorePill,
-                    {
-                      backgroundColor: result.isCorrect
-                        ? 'rgba(34, 197, 94, 0.15)'
-                        : result.confidence >= 50
-                        ? 'rgba(234, 179, 8, 0.15)'
-                        : 'rgba(239, 68, 68, 0.15)',
-                      borderColor: result.isCorrect
-                        ? '#22c55e'
-                        : result.confidence >= 50
-                        ? '#eab308'
-                        : '#ef4444',
-                    },
+                    styles.hintBanner,
+                    drawnCount >= strokeCount && styles.hintBannerComplete,
                   ]}
                 >
-                  <Text
-                    style={[
-                      styles.scorePillText,
-                      {
-                        color: result.isCorrect
-                          ? '#4ade80'
-                          : result.confidence >= 50
-                          ? '#facc15'
-                          : '#f87171',
-                      },
-                    ]}
-                  >
-                    {result.confidence}% {result.isCorrect ? 'PASS' : 'RETRY'}
-                  </Text>
+                  <Text style={styles.hintText}>{nextStrokeHint}</Text>
                 </View>
-              )}
+              </View>
+
+              {/* Accuracy Evaluation Next to Canvas */}
+              <View style={styles.accuracyEvaluationPane}>
+                <View style={styles.accuracyPaneHeader}>
+                  <Text style={styles.accuracyCardTitle}>📊 Accuracy Evaluation</Text>
+                  {result && (
+                    <View
+                      style={[
+                        styles.scorePill,
+                        {
+                          backgroundColor: result.isCorrect
+                            ? 'rgba(34, 197, 94, 0.15)'
+                            : result.confidence >= 50
+                            ? 'rgba(234, 179, 8, 0.15)'
+                            : 'rgba(239, 68, 68, 0.15)',
+                          borderColor: result.isCorrect
+                            ? '#22c55e'
+                            : result.confidence >= 50
+                            ? '#eab308'
+                            : '#ef4444',
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.scorePillText,
+                          {
+                            color: result.isCorrect
+                              ? '#4ade80'
+                              : result.confidence >= 50
+                              ? '#facc15'
+                              : '#f87171',
+                          },
+                        ]}
+                      >
+                        {result.confidence}% {result.isCorrect ? 'PASS' : 'RETRY'}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+                <RecognitionScoreCard result={result} />
+                {result && <StrokeDiagnostics result={result} />}
+              </View>
             </View>
-            <RecognitionScoreCard result={result} />
-            {result && <StrokeDiagnostics result={result} />}
           </View>
         </View>
 
@@ -609,25 +612,35 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  /* Accuracy Evaluation Card (Below Character Tracing Stage) */
-  accuracyCard: {
-    backgroundColor: 'rgba(22, 29, 39, 0.85)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 16,
-    padding: 16,
+  /* Stage Body Layout & Accuracy Evaluation Pane */
+  stageBodyRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 16,
     width: '100%',
   },
-  accuracyCardHeader: {
+  stageBodyCol: {
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  canvasContainer: {
+    alignItems: 'center',
+    width: 330,
+    maxWidth: '100%',
+    flexShrink: 0,
+  },
+  accuracyEvaluationPane: {
+    flex: 1,
+    minWidth: 260,
+    width: '100%',
+    gap: 8,
+  },
+  accuracyPaneHeader: {
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
-  },
-  accuracyHeaderLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    marginBottom: 6,
   },
   accuracyCardTitle: {
     fontSize: 13,
