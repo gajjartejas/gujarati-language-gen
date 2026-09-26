@@ -10,7 +10,16 @@ export const RecognitionScoreCard: React.FC<RecognitionScoreCardProps> = ({ resu
   if (!result) {
     return (
       <View style={styles.card}>
-        <Text style={styles.emptyText}>Draw the character inside the canvas to see real-time score</Text>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyIcon}>🎯</Text>
+          <View style={styles.emptyContent}>
+            <Text style={styles.emptyTitle}>Accuracy Evaluation</Text>
+            <Text style={styles.emptyText}>Trace character on canvas to see real-time DTW score</Text>
+          </View>
+        </View>
+        <View style={styles.formulaPill}>
+          <Text style={styles.formulaText}>50% Shape • 30% Direction • 20% Strokes</Text>
+        </View>
       </View>
     );
   }
@@ -23,9 +32,11 @@ export const RecognitionScoreCard: React.FC<RecognitionScoreCardProps> = ({ resu
     strokeCountScore,
     method,
     character,
+    errors,
   } = result;
 
   const scoreColor = isCorrect ? '#22c55e' : confidence >= 50 ? '#eab308' : '#ef4444';
+  const hasErrors = errors && (errors.missingStrokes > 0 || errors.extraStrokes > 0 || errors.wrongDirection);
 
   return (
     <View style={styles.card}>
@@ -33,12 +44,12 @@ export const RecognitionScoreCard: React.FC<RecognitionScoreCardProps> = ({ resu
       <View style={styles.header}>
         <View style={styles.titleGroup}>
           <Text style={styles.charBadge}>{character}</Text>
-          <View>
+          <View style={styles.titleTextContainer}>
             <Text style={[styles.statusText, { color: scoreColor }]}>
               {isCorrect ? '✓ Excellent Drawing' : confidence >= 50 ? 'Needs Improvement' : 'Try Again'}
             </Text>
             <Text style={styles.methodText}>
-              Engine: {method === 'dtw' ? '⚡ DTW Deterministic' : '🧠 Tiny CNN ML Fallback'}
+              Engine: {method === 'dtw' ? '⚡ DTW Deterministic' : '🧠 Tiny CNN Fallback'}
             </Text>
           </View>
         </View>
@@ -64,7 +75,7 @@ export const RecognitionScoreCard: React.FC<RecognitionScoreCardProps> = ({ resu
             <View
               style={[
                 styles.progressBar,
-                { width: `${Math.min(100, Math.round(shapeScore * 100))}%`, backgroundColor: '#38bdf8' },
+                { width: `${Math.min(100, Math.max(0, Math.round(shapeScore * 100)))}%`, backgroundColor: '#38bdf8' },
               ]}
             />
           </View>
@@ -80,7 +91,7 @@ export const RecognitionScoreCard: React.FC<RecognitionScoreCardProps> = ({ resu
             <View
               style={[
                 styles.progressBar,
-                { width: `${Math.min(100, Math.round(directionScore * 100))}%`, backgroundColor: '#a855f7' },
+                { width: `${Math.min(100, Math.max(0, Math.round(directionScore * 100)))}%`, backgroundColor: '#a855f7' },
               ]}
             />
           </View>
@@ -96,12 +107,25 @@ export const RecognitionScoreCard: React.FC<RecognitionScoreCardProps> = ({ resu
             <View
               style={[
                 styles.progressBar,
-                { width: `${Math.min(100, Math.round(strokeCountScore * 100))}%`, backgroundColor: '#ec4899' },
+                { width: `${Math.min(100, Math.max(0, Math.round(strokeCountScore * 100)))}%`, backgroundColor: '#ec4899' },
               ]}
             />
           </View>
         </View>
       </View>
+
+      {/* Inline Diagnostic Alert */}
+      {hasErrors && (
+        <View style={styles.inlineAlert}>
+          <Text style={styles.inlineAlertText}>
+            {errors.wrongDirection
+              ? '🔄 Reversed stroke direction'
+              : errors.missingStrokes > 0
+              ? `⚠️ Missing ${errors.missingStrokes} stroke(s)`
+              : `➕ ${errors.extraStrokes} extra stroke(s)`}
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -111,97 +135,138 @@ const styles = StyleSheet.create({
     backgroundColor: '#0d1117',
     borderRadius: 10,
     padding: 12,
-    marginVertical: 4,
     borderWidth: 1,
     borderColor: '#30363d',
   },
+  emptyContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 4,
+  },
+  emptyIcon: {
+    fontSize: 22,
+  },
+  emptyContent: {
+    flex: 1,
+  },
+  emptyTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#f0f6fc',
+  },
   emptyText: {
     color: '#8b949e',
-    textAlign: 'center',
-    fontSize: 12,
-    paddingVertical: 8,
+    fontSize: 11,
+    marginTop: 2,
+    lineHeight: 15,
+  },
+  formulaPill: {
+    marginTop: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    backgroundColor: '#161b22',
+    borderWidth: 1,
+    borderColor: '#21262d',
+    alignItems: 'center',
+  },
+  formulaText: {
+    fontSize: 10,
+    color: '#8b949e',
+    fontWeight: '600',
+    letterSpacing: 0.3,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#30363d',
+    borderBottomColor: '#21262d',
     paddingBottom: 10,
   },
   titleGroup: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+    minWidth: 0,
+    marginRight: 8,
   },
   charBadge: {
-    fontSize: 26,
+    fontSize: 24,
     color: '#f0f6fc',
-    marginRight: 10,
+    marginRight: 8,
     backgroundColor: '#161b22',
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 8,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: '#30363d',
+    flexShrink: 0,
+  },
+  titleTextContainer: {
+    flex: 1,
+    minWidth: 0,
   },
   statusText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
   },
   methodText: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#8b949e',
     marginTop: 2,
   },
   gaugeContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     borderWidth: 2.5,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#161b22',
+    flexShrink: 0,
   },
   gaugeValue: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '800',
   },
-
   gaugeLabel: {
-    fontSize: 9,
+    fontSize: 8,
     color: '#94a3b8',
     textTransform: 'uppercase',
   },
   breakdownSection: {
-    marginTop: 14,
+    marginTop: 10,
   },
   breakdownTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#94a3b8',
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#8b949e',
     textTransform: 'uppercase',
-    marginBottom: 8,
+    marginBottom: 6,
+    letterSpacing: 0.5,
   },
   metricRow: {
-    marginBottom: 8,
+    marginBottom: 6,
   },
   metricLabelGroup: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    marginBottom: 3,
   },
   metricName: {
-    fontSize: 13,
+    fontSize: 11,
     color: '#cbd5e1',
   },
   metricPercent: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '600',
     color: '#f1f5f9',
   },
   progressTrack: {
-    height: 6,
-    backgroundColor: '#0f172a',
+    height: 5,
+    backgroundColor: '#161b22',
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -209,4 +274,19 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 3,
   },
+  inlineAlert: {
+    marginTop: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+  },
+  inlineAlertText: {
+    color: '#f87171',
+    fontSize: 11,
+    fontWeight: '600',
+  },
 });
+

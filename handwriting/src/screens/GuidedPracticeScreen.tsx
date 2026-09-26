@@ -15,6 +15,8 @@ import { GuidedOverlay } from '../components/GuidedOverlay';
 import { CharacterSelector } from '../components/CharacterSelector';
 import { DrawingReplayModal } from '../components/DrawingReplayModal';
 import { WorksheetModal } from '../components/WorksheetModal';
+import { RecognitionScoreCard } from '../components/RecognitionScoreCard';
+import { StrokeDiagnostics } from '../components/StrokeDiagnostics';
 import { evaluateUserDrawing } from '../engine/recognizer';
 import { speakGujarati } from '../utils/speech';
 import { ModeSelector, ActiveTab } from '../components/ModeSelector';
@@ -108,7 +110,9 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
   } else if (drawnCount < strokeCount) {
     nextStrokeHint = `💡 Next: Start at bubble ${drawnCount + 1} of ${strokeCount} (blue glowing stroke)`;
   } else {
-    nextStrokeHint = `✓ All ${strokeCount} strokes drawn! Check accuracy score on the right.`;
+    nextStrokeHint = result
+      ? `✓ All ${strokeCount} strokes drawn! Accuracy: ${result.confidence}% (${result.isCorrect ? 'Excellent' : 'Needs Practice'}). Check breakdown on the right.`
+      : `✓ All ${strokeCount} strokes drawn! Check accuracy score on the right.`;
   }
 
   return (
@@ -170,8 +174,44 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
               <View style={styles.stageCardHeaderLeft}>
                 <Text style={styles.stageCardTitle}>✍️ Tracing Stage</Text>
               </View>
-              <View style={styles.badgeHeaderDtw}>
-                <Text style={styles.badgeHeaderDtwText}>Real-Time DTW + CNN</Text>
+              <View style={styles.stageHeaderRight}>
+                {result && (
+                  <View
+                    style={[
+                      styles.liveAccuracyBadge,
+                      {
+                        backgroundColor: result.isCorrect
+                          ? 'rgba(34, 197, 94, 0.15)'
+                          : result.confidence >= 50
+                          ? 'rgba(234, 179, 8, 0.15)'
+                          : 'rgba(239, 68, 68, 0.15)',
+                        borderColor: result.isCorrect
+                          ? '#22c55e'
+                          : result.confidence >= 50
+                          ? '#eab308'
+                          : '#ef4444',
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.liveAccuracyText,
+                        {
+                          color: result.isCorrect
+                            ? '#4ade80'
+                            : result.confidence >= 50
+                            ? '#facc15'
+                            : '#f87171',
+                        },
+                      ]}
+                    >
+                      🎯 {result.confidence}% Accuracy
+                    </Text>
+                  </View>
+                )}
+                <View style={styles.badgeHeaderDtw}>
+                  <Text style={styles.badgeHeaderDtwText}>Real-Time DTW + CNN</Text>
+                </View>
               </View>
             </View>
 
@@ -218,6 +258,49 @@ export const GuidedPracticeScreen: React.FC<GuidedPracticeScreenProps> = ({
 
           {/* Practice Mode Switcher */}
           <ModeSelector activeTab={activeTab} onSelectTab={onSelectTab} />
+
+          {/* Real-time Accuracy Score Section */}
+          <View style={styles.panelGroup}>
+            <View style={styles.panelLabelRow}>
+              <Text style={styles.panelLabel}>ACCURACY SCORE</Text>
+              {result && (
+                <View
+                  style={[
+                    styles.scorePill,
+                    {
+                      backgroundColor: result.isCorrect
+                        ? 'rgba(34, 197, 94, 0.15)'
+                        : result.confidence >= 50
+                        ? 'rgba(234, 179, 8, 0.15)'
+                        : 'rgba(239, 68, 68, 0.15)',
+                      borderColor: result.isCorrect
+                        ? '#22c55e'
+                        : result.confidence >= 50
+                        ? '#eab308'
+                        : '#ef4444',
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.scorePillText,
+                      {
+                        color: result.isCorrect
+                          ? '#4ade80'
+                          : result.confidence >= 50
+                          ? '#facc15'
+                          : '#f87171',
+                      },
+                    ]}
+                  >
+                    {result.confidence}% {result.isCorrect ? 'PASS' : 'RETRY'}
+                  </Text>
+                </View>
+              )}
+            </View>
+            <RecognitionScoreCard result={result} />
+            {result && <StrokeDiagnostics result={result} />}
+          </View>
 
           {/* Quick Playback & Drawing Actions */}
           <View style={styles.panelGroup}>
@@ -463,6 +546,22 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#8b949e',
   },
+  stageHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  liveAccuracyBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 9999,
+    borderWidth: 1,
+  },
+  liveAccuracyText: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
   badgeHeaderDtw: {
     backgroundColor: 'rgba(56, 189, 248, 0.15)',
     paddingHorizontal: 8,
@@ -539,6 +638,22 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: '#8b949e',
+    letterSpacing: 0.5,
+  },
+  panelLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  scorePill: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 9999,
+    borderWidth: 1,
+  },
+  scorePillText: {
+    fontSize: 10,
+    fontWeight: '700',
     letterSpacing: 0.5,
   },
   panelBtnGrid: {
